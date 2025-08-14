@@ -1,0 +1,207 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/pages/view/CustomAppBar.dart';
+
+import '../../base/base_page.dart';
+import 'BackUpHelperVerifyPage.dart';
+
+/*
+ * 备份助记词
+ */
+class BackUpHelperOnePage extends StatefulWidget {
+  const BackUpHelperOnePage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _BackUpHelperOnePageState();
+}
+
+class _BackUpHelperOnePageState extends State<BackUpHelperOnePage>
+    with BasePage<BackUpHelperOnePage>, AutomaticKeepAliveClientMixin {
+
+  bool isSelected = true;
+
+  bool _showBlur = true; // 控制模糊层显示
+
+  // 模拟数据
+  late  List<String> mnemonics;
+
+  @override
+  void initState() {
+    super.initState();
+    final newWallet= Get.arguments;
+    String mnemonic = newWallet['mnemonic'];
+    mnemonics = mnemonic.split(' ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Scaffold(
+      appBar: CustomAppBar(
+        title: '',
+      ),
+      body:  Container(
+        color: Colors.white,
+        padding: EdgeInsets.only(bottom: 20.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 顶部说明区域（非模糊部分）
+            Container(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('备份前请谨记!',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildTipItem('建议手写抄录', true),
+                        SizedBox(width: 20),
+                        _buildTipItem('请勿复制保存', false),
+                        SizedBox(width: 20),
+                        _buildTipItem('请勿截屏保存!', false),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                ],
+              ),
+            ),
+
+            // 动态高度的GridView + 模糊层
+            Expanded( // 用Expanded让GridView自适应高度
+              child: Stack(
+                children: [
+                  // 底层GridView
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      // 计算每个item高度（文本高度+padding），如40
+                      double itemHeight = 40.w;
+                      int rowCount = (mnemonics.length / 2).ceil();
+                      double gridHeight = itemHeight * rowCount-10; // 额外padding
+                      bool needScroll = gridHeight > constraints.maxHeight;
+                      return Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12.w),
+                        decoration: const BoxDecoration(
+                          color: AppColors.color_EEEEEE,
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        height: needScroll ? null : gridHeight,
+                        child: GridView.builder(
+                          physics: needScroll ? ScrollPhysics() : NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          padding: EdgeInsets.all(15.w),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 5,
+                          ),
+                          itemCount: mnemonics.length,
+                          itemBuilder: (context, index) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text('${index+1}', style: TextStyle(fontSize: 14.sp,color: AppColors.color_909090)),
+                                SizedBox(width: 15.w),
+                                Text(mnemonics[index], style: TextStyle(fontSize: 14.sp)),
+                              ],
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+
+                  // 高斯模糊层
+                  if (_showBlur) ...[
+                    Positioned.fill(
+                      child: ClipRect( // 确保模糊不溢出GridView
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                          child: Container(
+                            color: Colors.black.withOpacity(0.3),
+                            alignment: Alignment.center,
+                            child: GestureDetector(
+                              onTap: () => setState(() => _showBlur = false),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset('assets/images/ic_wallet_un_eye.png',width: 42.w,height: 34.h,),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    '点击此处查看助记词',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 15.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+
+            Padding(
+              padding: EdgeInsets.all(15.w),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.color_286713,
+                  foregroundColor: Colors.white,
+                  minimumSize: Size(double.infinity, 42.h),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  textStyle: TextStyle(
+                    fontSize: 18.sp,
+                  ),
+                ),
+                onPressed: ()=>{
+                  Get.to(BackUpHelperVerifyPage(),arguments: Get.arguments),
+                },
+                child: Text('备份助记词'),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTipItem(String text, bool isChecked) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Image.asset(
+          isChecked
+              ? 'assets/images/ic_wallet_new_work_selected.png'
+              : 'assets/images/ic_wallet_unselected.png',
+          width: 13,
+          height: 10,
+        ),
+        SizedBox(width: 4),
+        Text(text, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+      ],
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+}
