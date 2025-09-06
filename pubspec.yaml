@@ -31,6 +31,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+  package_info_plus: ^8.0.0
+  ota_update: ^6.0.0
+  pub_semver: ^2.2.0
+  badges: ^3.1.2
   #屏幕适配
   flutter_screenutil: ^5.8.4
   #响应式状态管理
@@ -177,6 +181,14 @@ flutter:
     - assets/images/ic_wallet_gat_gas.png
     - assets/images/ic_wallet_transfer_record.png
     - assets/images/ic_wallet_import_scan.png
+    - assets/images/grouping_3.png
+    - assets/images/scan_white.png
+    - assets/images/read.png
+    - assets/images/bell.png
+    - assets/images/discord.png
+    - assets/images/facebook.png
+    - assets/images/Telgram.png
+    - assets/images/Twitter_1.png
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg
