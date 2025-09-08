@@ -31,12 +31,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       automaticallyImplyLeading: false,
       title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 18.sp,
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        ),
+        "",
+        style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: textColor),
       ),
       leading: _buildLeading(context),
       actions: actions ?? [],
@@ -48,11 +44,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     if (showBackButton) {
       return IconButton(
-        icon: Icon(
-          Icons.arrow_back_ios_new,
-          size: 20.w,
-          color: textColor,
-        ),
+        icon: Icon(Icons.arrow_back_ios_new, size: 20.w, color: textColor),
         onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
       );
     }

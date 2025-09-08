@@ -189,6 +189,9 @@ flutter:
     - assets/images/facebook.png
     - assets/images/Telgram.png
     - assets/images/Twitter_1.png
+    - assets/images/moon.png
+    - assets/images/hint.png
+    - assets/images/bind_count_image.png
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg

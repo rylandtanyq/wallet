@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:marquee/marquee.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/pages/LinkedWalletDApp.dart';
+import 'package:untitled1/pages/MySettings.dart';
 import 'package:untitled1/pages/NotificationPage.dart';
 
 import '../../base/base_page.dart';
@@ -56,7 +57,10 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
           padding: EdgeInsets.all(10),
           child: Row(
             children: [
-              Image.asset('assets/images/ic_home_function.png', width: 16.w, height: 16.w),
+              GestureDetector(
+                onTap: () => Get.to(Mysettings(), transition: Transition.leftToRight, popGesture: true),
+                child: Image.asset('assets/images/ic_home_function.png', width: 16.w, height: 16.w),
+              ),
               SizedBox(width: 22.w),
               Expanded(
                 child: Container(
