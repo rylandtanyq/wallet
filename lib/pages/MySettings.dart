@@ -16,6 +16,28 @@ class _MysettingsState extends State<Mysettings> {
 
   final TextStyle trailingStyle = TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: const Color(0xFF757F7F));
 
+  final _languages = ["English", "中文简体", "中文繁体", "日本语", "越南语", "Indonesia", "Tiéng Viet", "Jeol", "Turkge", "Español (Latinoamérica)", "Italiano"];
+
+  final _currencyUnit = ["USD", "CNY", "NGN", "IDR", "INR", "BDT", "VND", "PKR", "RUB", "EUR", "UAH"];
+
+  // final _themeModel = ["跟随系统", "日间模式", "夜间模式"];
+  final List<Map<String, String>> _themeModel = [
+    {"model": "跟随系统", "subtitle": "开启后，主题将跟随系统设置调整主题模式"},
+    {"model": "日间模式", "subtitle": "日间模式"},
+    {"model": "夜间模式", "subtitle": "夜间模式"},
+  ];
+
+  // final _riseAndFallCycleData = ["0 点涨跌幅", "24小时涨跌幅"];
+  final List<Map<String, String>> _riseAndFallCycleData = [
+    {"model": "0 点涨跌幅", "subtitle": "涨跌幅以自然天计算，与你所在时区一致 (UTC+8)"},
+    {"model": "24小时涨跌幅", "subtitle": "涨跌幅以过去 24 小时滚动计算"},
+  ];
+
+  String _selectedLanguageTralingText = "中文简体";
+  String _selectedCurrencyTralingText = "USD";
+  String _selectedThemeModelText = "跟随系统";
+  String _selectedRiseAndFallCycleText = "0 点涨跌幅";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,11 +63,11 @@ class _MysettingsState extends State<Mysettings> {
                 children: [
                   SizedBox(height: 22.h),
                   _SectionTitle("偏好设置"),
-                  _SettingItem(title: "语言", trailingText: "简体中文", onTap: _onTap),
-                  _SettingItem(title: "货币单位", trailingText: "USD", onTap: _onTap),
-                  _SettingItem(title: "主题模式", trailingText: "跟随系统", onTap: _onTap),
-                  _SettingItem(title: "涨跌幅周期", trailingText: "0点涨跌幅", onTap: _onTap),
-                  _SettingItem(title: "奖励账户", onTap: _onTap),
+                  _SettingItem(title: "语言", trailingText: _selectedLanguageTralingText, onTap: () => _onSelectLanguage()),
+                  _SettingItem(title: "货币单位", trailingText: _selectedCurrencyTralingText, onTap: () => _onSelectedCurrencyUnit()),
+                  _SettingItem(title: "主题模式", trailingText: _selectedThemeModelText, onTap: () => _changeThemeModel()),
+                  _SettingItem(title: "涨跌幅周期", trailingText: _selectedRiseAndFallCycleText, onTap: () => _riseAndFallCycle()),
+                  _SettingItem(title: "奖励账户", onTap: () => {}),
                   _SettingItem(title: "更多设置", onTap: _onTap),
                   const _SectionDivider(),
 
@@ -75,6 +97,245 @@ class _MysettingsState extends State<Mysettings> {
   /// 点击回调：带震动反馈
   void _onTap() {
     HapticFeedback.heavyImpact();
+  }
+
+  /// 语言
+  _onSelectLanguage() async {
+    final selected = await _showModalBottomSheet<String>(
+      context: context,
+      title: "选择语言",
+      items: _languages,
+      currentValue: _selectedLanguageTralingText,
+    );
+    if (selected != null) {
+      setState(() {
+        _selectedLanguageTralingText = selected;
+      });
+    }
+  }
+
+  /// 货币单位
+  _onSelectedCurrencyUnit() async {
+    final selected = await _showModalBottomSheet<String>(
+      context: context,
+      title: "选择货币单位",
+      items: _currencyUnit,
+      currentValue: _selectedCurrencyTralingText,
+    );
+    if (selected != null) {
+      setState(() {
+        _selectedCurrencyTralingText = selected;
+      });
+      print("用户选择了 $_selectedCurrencyTralingText 12货币");
+    }
+  }
+
+  /// 主题模式
+  _changeThemeModel() async {
+    final selected = await _themeModelOrRiseAndFallCycle(
+      context: context,
+      title: "选择主题模式",
+      contentList: _themeModel,
+      currentValue: _selectedThemeModelText,
+    );
+    if (selected != null) {
+      setState(() {
+        _selectedThemeModelText = selected;
+      });
+    }
+  }
+
+  /// 涨幅周期
+  _riseAndFallCycle() async {
+    final selected = await _themeModelOrRiseAndFallCycle(
+      context: context,
+      title: "涨跌幅周期",
+      contentList: _riseAndFallCycleData,
+      currentValue: _selectedRiseAndFallCycleText,
+    );
+    if (selected != null) {
+      setState(() {
+        _selectedRiseAndFallCycleText = selected;
+      });
+    }
+  }
+
+  /// 多语言 / 货币单位通用弹窗
+  Future<T?> _showModalBottomSheet<T>({required BuildContext context, required String title, required List<T> items, T? currentValue}) {
+    T? selectedValue = currentValue;
+
+    return showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Material(
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(12.r), topRight: Radius.circular(12.r)),
+              color: Colors.white,
+              child: Container(
+                width: double.infinity,
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 标题
+                      Padding(
+                        padding: EdgeInsets.only(left: 14, right: 14, top: 17, bottom: 12.h),
+                        child: Text(
+                          title,
+                          style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Divider(color: const Color(0xFFE7E7E7), height: .5.h),
+                      // 语言列表
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: items.map((lang) {
+                              return ListTile(
+                                minVerticalPadding: 0,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 14),
+                                title: Text(
+                                  lang.toString(),
+                                  style: TextStyle(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                trailing: selectedValue == lang ? Icon(Icons.check, color: Colors.black) : null,
+                                onTap: () {
+                                  HapticFeedback.heavyImpact();
+                                  setState(() {
+                                    selectedValue = lang;
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                      // 底部关闭按钮
+                      InkWell(
+                        onTap: () {
+                          HapticFeedback.heavyImpact();
+                          Navigator.of(context).pop(selectedValue);
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 60.h,
+                          alignment: Alignment.center,
+                          child: Text(
+                            "关闭",
+                            style: TextStyle(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((selected) {
+      if (selected != null) {
+        print("选中了: $selected");
+      }
+      return selected;
+    });
+  }
+
+  /// 主题模式 / 涨跌幅周期 popup
+  Future<T?> _themeModelOrRiseAndFallCycle<T>({
+    required BuildContext context,
+    required String title,
+    required List<Map<String, String>> contentList,
+    required T? currentValue,
+  }) {
+    T? selectedValue = currentValue;
+    return showModalBottomSheet(
+      context: context,
+      enableDrag: false,
+      isDismissible: false,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Material(
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(12.r), topRight: Radius.circular(12.r)),
+              color: Colors.white,
+              child: Container(
+                width: double.infinity,
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 14, right: 14, top: 17, bottom: 12.h),
+                        child: Text(
+                          title,
+                          style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Divider(color: const Color(0xFFE7E7E7), height: .5.h),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: List.generate(contentList.length, (index) {
+                              final item = contentList[index];
+                              final model = item["model"];
+                              final subtitle = item["subtitle"];
+                              return ListTile(
+                                title: Text(
+                                  "$model",
+                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                                ),
+                                subtitle: Text(
+                                  "$subtitle",
+                                  style: TextStyle(fontSize: 13.sp, color: Color(0xFF757F7F)),
+                                ),
+                                trailing: selectedValue == model ? Icon(Icons.check, color: Colors.black) : null,
+                                onTap: () {
+                                  HapticFeedback.heavyImpact();
+                                  setState(() {
+                                    selectedValue = model! as T?;
+                                  });
+                                },
+                              );
+                            }),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          HapticFeedback.heavyImpact();
+                          Navigator.of(context).pop(selectedValue);
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 60.h,
+                          alignment: Alignment.center,
+                          child: Text(
+                            "关闭",
+                            style: TextStyle(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   /// 顶部头像昵称 + 去备份
