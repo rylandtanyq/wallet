@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/pages/RewardsAccount.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 
 class Mysettings extends StatefulWidget {
@@ -67,7 +70,7 @@ class _MysettingsState extends State<Mysettings> {
                   _SettingItem(title: "货币单位", trailingText: _selectedCurrencyTralingText, onTap: () => _onSelectedCurrencyUnit()),
                   _SettingItem(title: "主题模式", trailingText: _selectedThemeModelText, onTap: () => _changeThemeModel()),
                   _SettingItem(title: "涨跌幅周期", trailingText: _selectedRiseAndFallCycleText, onTap: () => _riseAndFallCycle()),
-                  _SettingItem(title: "奖励账户", onTap: () => {}),
+                  _SettingItem(title: "奖励账户", onTap: () => _rewardsAccount()),
                   _SettingItem(title: "更多设置", onTap: _onTap),
                   const _SectionDivider(),
 
@@ -100,7 +103,8 @@ class _MysettingsState extends State<Mysettings> {
   }
 
   /// 语言
-  _onSelectLanguage() async {
+  void _onSelectLanguage() async {
+    HapticFeedback.heavyImpact();
     final selected = await _showModalBottomSheet<String>(
       context: context,
       title: "选择语言",
@@ -115,7 +119,8 @@ class _MysettingsState extends State<Mysettings> {
   }
 
   /// 货币单位
-  _onSelectedCurrencyUnit() async {
+  void _onSelectedCurrencyUnit() async {
+    HapticFeedback.heavyImpact();
     final selected = await _showModalBottomSheet<String>(
       context: context,
       title: "选择货币单位",
@@ -131,7 +136,8 @@ class _MysettingsState extends State<Mysettings> {
   }
 
   /// 主题模式
-  _changeThemeModel() async {
+  void _changeThemeModel() async {
+    HapticFeedback.heavyImpact();
     final selected = await _themeModelOrRiseAndFallCycle(
       context: context,
       title: "选择主题模式",
@@ -146,7 +152,8 @@ class _MysettingsState extends State<Mysettings> {
   }
 
   /// 涨幅周期
-  _riseAndFallCycle() async {
+  void _riseAndFallCycle() async {
+    HapticFeedback.heavyImpact();
     final selected = await _themeModelOrRiseAndFallCycle(
       context: context,
       title: "涨跌幅周期",
@@ -158,6 +165,12 @@ class _MysettingsState extends State<Mysettings> {
         _selectedRiseAndFallCycleText = selected;
       });
     }
+  }
+
+  /// 奖励账户
+  void _rewardsAccount() {
+    HapticFeedback.heavyImpact();
+    Get.to(Rewardsaccount());
   }
 
   /// 多语言 / 货币单位通用弹窗
