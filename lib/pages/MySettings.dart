@@ -6,6 +6,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/pages/MoreSetting.dart';
 import 'package:untitled1/pages/RewardsAccount.dart';
+import 'package:untitled1/pages/UsageGuidelines.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 
 class Mysettings extends StatefulWidget {
@@ -77,7 +78,7 @@ class _MysettingsState extends State<Mysettings> {
 
                   SizedBox(height: 22.h),
                   _SectionTitle("学习"),
-                  _SettingItem(title: "使用指南", onTap: _onTap),
+                  _SettingItem(title: "使用指南", onTap: () => _usageGuidelines()),
                   _SettingItem(title: "钱包学院", onTap: _onTap),
                   _SettingItem(title: "帮助中心", onTap: _onTap),
                   _SettingItem(title: "用户反馈", onTap: _onTap),
@@ -171,13 +172,19 @@ class _MysettingsState extends State<Mysettings> {
   /// 奖励账户
   void _rewardsAccount() {
     HapticFeedback.heavyImpact();
-    Get.to(Rewardsaccount());
+    Get.to(Rewardsaccount(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
   }
 
   /// 更多设置
   void _moreSetting() {
     HapticFeedback.heavyImpact();
-    Get.to(Moresetting());
+    Get.to(Moresetting(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+  }
+
+  /// 使用指南
+  void _usageGuidelines() {
+    HapticFeedback.heavyImpact();
+    Get.to(Usageguidelines(), transition: Transition.rightToLeft, duration: Duration(milliseconds: 300));
   }
 
   /// 多语言 / 货币单位通用弹窗

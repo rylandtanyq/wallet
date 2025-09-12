@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                   Get.to(
                     Linkedwalletdapp(), // 要跳转的页面
                     transition: Transition.rightToLeft, // 设置从右到左的动画
-                    // duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
+                    duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
                   );
                 },
                 child: Image.asset('assets/images/ic_home_link.png', width: 16.w, height: 16.w),
@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                   Get.to(
                     NotificationPage(), // 要跳转的页面
                     transition: Transition.rightToLeft, // 设置从右到左的动画
-                    // duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
+                    duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
                   );
                 },
                 child: Image.asset('assets/images/ic_home_message.png', width: 16.w, height: 16.w),

@@ -31,7 +31,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       automaticallyImplyLeading: false,
       title: Text(
-        "",
+        title,
         style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: textColor),
       ),
       leading: _buildLeading(context),
