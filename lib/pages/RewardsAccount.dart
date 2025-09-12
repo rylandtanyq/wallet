@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:solana/dto.dart';
 import 'package:untitled1/constants/AppColors.dart';
 
+/// 奖励账户
 class Rewardsaccount extends StatefulWidget {
   const Rewardsaccount({super.key});
 

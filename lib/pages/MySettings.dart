@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/pages/MoreSetting.dart';
 import 'package:untitled1/pages/RewardsAccount.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 
@@ -71,7 +72,7 @@ class _MysettingsState extends State<Mysettings> {
                   _SettingItem(title: "主题模式", trailingText: _selectedThemeModelText, onTap: () => _changeThemeModel()),
                   _SettingItem(title: "涨跌幅周期", trailingText: _selectedRiseAndFallCycleText, onTap: () => _riseAndFallCycle()),
                   _SettingItem(title: "奖励账户", onTap: () => _rewardsAccount()),
-                  _SettingItem(title: "更多设置", onTap: _onTap),
+                  _SettingItem(title: "更多设置", onTap: () => _moreSetting()),
                   const _SectionDivider(),
 
                   SizedBox(height: 22.h),
@@ -171,6 +172,12 @@ class _MysettingsState extends State<Mysettings> {
   void _rewardsAccount() {
     HapticFeedback.heavyImpact();
     Get.to(Rewardsaccount());
+  }
+
+  /// 更多设置
+  void _moreSetting() {
+    HapticFeedback.heavyImpact();
+    Get.to(Moresetting());
   }
 
   /// 多语言 / 货币单位通用弹窗
