@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+/// 使用指南
 class Usageguidelines extends StatefulWidget {
   const Usageguidelines({super.key});
 
@@ -23,6 +24,7 @@ class _UsageguidelinesState extends State<Usageguidelines> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leadingWidth: 40,
         leading: GestureDetector(
@@ -38,16 +40,18 @@ class _UsageguidelinesState extends State<Usageguidelines> {
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusScope.of(context).unfocus(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 12.w),
-              child: _buildSearchField(),
-            ),
-            SizedBox(height: 20.h),
-            ...sections.map((section) => _buildSection(section)).toList(),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsetsGeometry.symmetric(horizontal: 12.w),
+                child: _buildSearchField(),
+              ),
+              SizedBox(height: 20.h),
+              ...sections.map((section) => _buildSection(section)).toList(),
+            ],
+          ),
         ),
       ),
     );

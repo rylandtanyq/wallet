@@ -197,6 +197,30 @@ flutter:
     - assets/images/ETH.png
     - assets/images/USDT.png
     - assets/images/rewardsAccount_popup_img.png
+    - assets/images/authorization_detection.png
+    - assets/images/bank_card.png
+    - assets/images/batch_transfers.png
+    - assets/images/beginner's_guide.png
+    - assets/images/blockchain_explorer.png
+    - assets/images/buy_coins.png
+    - assets/images/c2c.png
+    - assets/images/contract.png
+    - assets/images/contract_testing.png
+    - assets/images/earn_coins.png
+    - assets/images/EIP-7702_detection.png
+    - assets/images/financial_management.png
+    - assets/images/get_gas.png
+    - assets/images/golden_dog_radar.png
+    - assets/images/invitation_center.png
+    - assets/images/limit_order.png
+    - assets/images/meme_pump.png
+    - assets/images/receiving_payments.png
+    - assets/images/red_envelope.png
+    - assets/images/rewards_account.png
+    - assets/images/shopping.png
+    - assets/images/SOL_rental_recovery.png
+    - assets/images/transaction_history.png
+    - assets/images/transfer.png
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg

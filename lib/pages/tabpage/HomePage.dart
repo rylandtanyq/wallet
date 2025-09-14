@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:marquee/marquee.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/pages/LinkedWalletDApp.dart';
+import 'package:untitled1/pages/MoreServices.dart';
 import 'package:untitled1/pages/MySettings.dart';
 import 'package:untitled1/pages/NotificationPage.dart';
 
@@ -198,6 +199,12 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                           if (index == 2) {
                             Get.to(
                               SelectedPayeePage(), // 要跳转的页面
+                              transition: Transition.rightToLeft, // 设置从右到左的动画
+                              duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
+                            );
+                          } else if (index == 4) {
+                            Get.to(
+                              MoreServices(), // 要跳转的页面
                               transition: Transition.rightToLeft, // 设置从右到左的动画
                               duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
                             );
