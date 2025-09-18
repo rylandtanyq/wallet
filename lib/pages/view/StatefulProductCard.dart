@@ -178,7 +178,7 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
                   onPressed: _isParticipated ? null : _handleParticipate,
                   child: Text(
                     _isParticipated ? '已参与' : '立即参与',
-                    style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

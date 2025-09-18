@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE" />
     <application
         android:label="AI Wallet"
         android:name="${applicationName}"
@@ -31,6 +32,10 @@
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
+              />
+            <meta-data
+              android:name="io.flutter.embedding.android.EnableImpeller"
+              android:value="true"
               />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
