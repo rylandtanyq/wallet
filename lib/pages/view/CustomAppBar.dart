@@ -6,8 +6,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading; // 左侧自定义组件（默认是返回箭头）
   final List<Widget>? actions; // 右侧操作按钮列表
   final bool showBackButton; // 是否显示返回按钮
-  final Color backgroundColor; // 背景色
-  final Color textColor; // 文字颜色
+  final Color? backgroundColor; // 背景色
+  final Color? textColor; // 文字颜色
   final bool centerTitle; // 是否显示返回按钮
   final VoidCallback? onBackPressed; // 自定义返回逻辑
 
@@ -18,18 +18,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.showBackButton = true,
     this.centerTitle = true,
-    this.backgroundColor = Colors.white,
-    this.textColor = Colors.black,
+    this.backgroundColor,
+    this.textColor,
     this.onBackPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final appBarColor = Theme.of(context).colorScheme.background;
+
     return AppBar(
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor ?? appBarColor,
       elevation: 0,
       centerTitle: centerTitle,
       automaticallyImplyLeading: false,
+      surfaceTintColor: Colors.transparent,
       title: Text(
         title,
         style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: textColor),

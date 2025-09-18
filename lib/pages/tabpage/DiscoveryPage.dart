@@ -1,6 +1,7 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
 import '../view/HorizntalSelectList.dart';
@@ -18,15 +19,9 @@ class DiscoveryPage extends StatefulWidget {
   State<StatefulWidget> createState() => _DiscoveryPageState();
 }
 
-class _DiscoveryPageState extends State<DiscoveryPage>
-    with BasePage<DiscoveryPage>, AutomaticKeepAliveClientMixin {
-
+class _DiscoveryPageState extends State<DiscoveryPage> with BasePage<DiscoveryPage>, AutomaticKeepAliveClientMixin {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [
-    DiscoveryDAppPage(),
-    DiscoveryMakingCoinCenterPage(),
-    DiscoveryHotListPage(),
-  ];
+  final List<Widget> _pages = [DiscoveryDAppPage(), DiscoveryMakingCoinCenterPage(), DiscoveryHotListPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +31,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            _buildTabText(0, 'DApp'),
-            _buildTabText(1, '赚币中心'),
-            _buildTabText(2, '热榜'),
-          ],
+          children: [_buildTabText(0, 'DApp'), _buildTabText(1, '赚币中心'), _buildTabText(2, '热榜')],
         ),
       ),
       body: _pages[_selectedIndex],
@@ -51,13 +42,12 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
       child: Container(
-        margin: EdgeInsets.only(right: 30.w,),
+        margin: EdgeInsets.only(right: 30.w),
         padding: EdgeInsets.all(5.w),
         child: Text(
           text,
-          style: TextStyle(
-            color: _selectedIndex == index ? Colors.black : Colors.grey,
-            fontSize: 18.sp,
+          style: AppTextStyles.headline4.copyWith(
+            color: _selectedIndex == index ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -65,9 +55,6 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     );
   }
 
-
-
   @override
   bool get wantKeepAlive => true;
-
 }

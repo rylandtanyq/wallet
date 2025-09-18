@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -37,30 +38,34 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
           icon: Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.black,
-          unselectedLabelColor: Colors.grey,
-          labelColor: Colors.black,
-          dividerColor: Colors.transparent,
-          labelPadding: EdgeInsets.symmetric(horizontal: 12),
-          labelStyle: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-          unselectedLabelStyle: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-          tabs: [
-            Tab(text: "系统通知"),
-            Tab(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text("消息通知"),
-                  badges.Badge(
-                    badgeContent: Text('3', style: TextStyle(color: Colors.white)),
-                    badgeStyle: badges.BadgeStyle(badgeColor: AppColors.color_286713),
-                  ),
-                ],
+        title: Theme(
+          data: Theme.of(context).copyWith(splashFactory: NoSplash.splashFactory, highlightColor: Colors.transparent),
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: Theme.of(context).colorScheme.onBackground,
+            unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
+            labelColor: Theme.of(context).colorScheme.onBackground,
+            dividerColor: Colors.transparent,
+            labelPadding: EdgeInsets.symmetric(horizontal: 12),
+            labelStyle: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+            tabs: [
+              Tab(child: Text("系统通知")),
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text("消息通知"),
+                    badges.Badge(
+                      badgeContent: Text('3', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+                      badgeStyle: badges.BadgeStyle(badgeColor: Theme.of(context).colorScheme.primary),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -70,7 +75,7 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
             height: 20.h,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25.r),
-              border: Border.all(color: Color(0xFFE6E6E6)),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -79,20 +84,20 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
                 Image.asset('assets/images/read.png', width: 11.w, height: 8.h),
                 Text(
                   "已读",
-                  style: TextStyle(fontSize: 12.sp, color: Color(0xFFA3ADAD)),
+                  style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
           ),
         ],
       ),
-      body: TabBarView(controller: _tabController, children: [_transactionNotification(), _systemMessages()]),
+      body: TabBarView(controller: _tabController, children: [_transactionNotification(context), _systemMessages(context)]),
     );
   }
 }
 
 /// 系统消息
-Widget _systemMessages() {
+Widget _systemMessages(BuildContext context) {
   return Padding(
     padding: EdgeInsetsGeometry.symmetric(horizontal: 12.w),
     child: ListView.separated(
@@ -114,7 +119,11 @@ Widget _systemMessages() {
                       Expanded(
                         child: Text(
                           "超值!热门游戏储值享高sssssssssssssssssssssssssssssssssssssssssssssssss达 30% 的折扣!",
-                          style: TextStyle(fontSize: 15.sp, color: Colors.black, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+                          style: AppTextStyles.size15.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                            fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           maxLines: 1,
                         ),
                       ),
@@ -122,14 +131,14 @@ Widget _systemMessages() {
                       Container(
                         width: 6.w,
                         height: 6.w,
-                        decoration: BoxDecoration(color: Color(0xFFF3607B), borderRadius: BorderRadius.circular(25)),
+                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.error, borderRadius: BorderRadius.circular(25)),
                       ),
                     ],
                   ),
                   SizedBox(height: 6.h),
                   Text(
                     "PUBG、Free Fire、ML游戏储值4步搞定，轻松省下大把银子。马上点击，立享超值福利!",
-                    style: TextStyle(fontSize: 13.sp, color: Colors.grey),
+                    style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -138,21 +147,15 @@ Widget _systemMessages() {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        "05-04 20:01",
-                        style: TextStyle(fontSize: 13.sp, color: Color(0xFF757F7F)),
-                      ),
+                      Text("05-04 20:01", style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                       TextButton(
                         onPressed: () {},
                         style: TextButton.styleFrom(
                           fixedSize: Size(85.w, 30.h),
-                          side: BorderSide(width: 1, color: AppColors.color_286713),
+                          side: BorderSide(width: 1, color: Theme.of(context).colorScheme.primary),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
                         ),
-                        child: Text(
-                          "查看详情",
-                          style: TextStyle(fontSize: 13.sp, color: AppColors.color_286713),
-                        ),
+                        child: Text("查看详情", style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary)),
                       ),
                     ],
                   ),
@@ -171,7 +174,7 @@ Widget _systemMessages() {
 }
 
 /// 交易通知
-Widget _transactionNotification() {
+Widget _transactionNotification(BuildContext context) {
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -181,12 +184,13 @@ Widget _transactionNotification() {
         SizedBox(height: 10.h),
         Text(
           "暂无消息",
-          style: TextStyle(fontSize: 19.sp, color: Colors.black, fontWeight: FontWeight.bold),
+          // style: TextStyle(fontSize: 19.sp, color: Colors.black, fontWeight: FontWeight.bold),
+          style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 6.h),
         Text(
           "快加入电报群或关注我们的社交媒体吧",
-          style: TextStyle(fontSize: 15.sp, color: Colors.black),
+          style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 26.h),
         Row(

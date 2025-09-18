@@ -7,12 +7,13 @@ class FiltrateView extends StatefulWidget {
   final ValueChanged<SortType> onSortPriceChanged;
   final ValueChanged<SortType> onSortLimitsChanged;
 
-  const FiltrateView({Key? key,
+  const FiltrateView({
+    Key? key,
     required this.onSortNameChanged,
     required this.onSortVolumeChanged,
     required this.onSortPriceChanged,
-    required this.onSortLimitsChanged}) : super(key: key);
-
+    required this.onSortLimitsChanged,
+  }) : super(key: key);
 
   @override
   _FiltrateViewState createState() => _FiltrateViewState();
@@ -38,47 +39,29 @@ class _FiltrateViewState extends State<FiltrateView> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 8.h),
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.background,
       child: Row(
         children: [
           GestureDetector(
-            onTap: ()=>{
-              _toggleNameSort()
-            },
+            onTap: () => {_toggleNameSort()},
             child: Row(
               children: [
-                Text(
-                  '名额',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    height: 1.5,
-                  ),
-                ),
-                SizedBox(width: 3.w,),
+                Text('名额', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                SizedBox(width: 3.w),
                 _buildSortIcon(_currentNameSort),
               ],
             ),
           ),
-          SizedBox(width: 20.w,),
+          SizedBox(width: 20.w),
           Expanded(
             flex: 2,
             child: GestureDetector(
-              onTap: ()=>{
-                _toggleVolumeSort()
-              },
+              onTap: () => {_toggleVolumeSort()},
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '24小时交易额',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      height: 1.5,
-                    ),
-                  ),
-                  SizedBox(width: 3.w,),
+                  Text('24小时交易额', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  SizedBox(width: 3.w),
                   _buildSortIcon(_currentVolumeSort),
                 ],
               ),
@@ -87,22 +70,13 @@ class _FiltrateViewState extends State<FiltrateView> {
           Expanded(
             flex: 2,
             child: GestureDetector(
-              onTap: ()=>{
-                _togglePriceSort()
-              },
+              onTap: () => {_togglePriceSort()},
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '最新价格',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      height: 1.5,
-                    ),
-                  ),
-                  SizedBox(width: 3.w,),
-                  Image.asset('assets/images/ic_home_sort_default.png',width: 8.5.w,height: 10.h,)
+                  Text('最新价格', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  SizedBox(width: 3.w),
+                  Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
               ),
             ),
@@ -110,22 +84,13 @@ class _FiltrateViewState extends State<FiltrateView> {
           Expanded(
             flex: 2,
             child: GestureDetector(
-              onTap: ()=>{
-                _toggleLimitsSort()
-              },
+              onTap: () => {_toggleLimitsSort()},
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '24小时涨跌',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      height: 1.5,
-                    ),
-                  ),
-                  SizedBox(width: 3.w,),
-                  Image.asset('assets/images/ic_home_sort_default.png',width: 8.5.w,height: 10.h,)
+                  Text('24小时涨跌', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  SizedBox(width: 3.w),
+                  Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
               ),
             ),
@@ -140,19 +105,18 @@ class _FiltrateViewState extends State<FiltrateView> {
       case SortType.ascending:
         return ColorFiltered(
           colorFilter: ColorFilter.mode(Colors.green, BlendMode.srcIn),
-          child: Image.asset('assets/images/ic_home_sort_default.png',width: 8.5.w,height: 10.h,),
+          child: Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
         );
       case SortType.descending:
         return ColorFiltered(
           colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
-          child: Image.asset('assets/images/ic_home_sort_default.png',width: 8.5.w,height: 10.h,),
+          child: Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
         );
       case SortType.defaultSort:
       default:
-        return Image.asset('assets/images/ic_home_sort_default.png',width: 8.5.w,height: 10.h,);
+        return Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h);
     }
   }
-
 
   void _toggleNameSort() {
     setState(() {
@@ -181,12 +145,10 @@ class _FiltrateViewState extends State<FiltrateView> {
       widget.onSortLimitsChanged(_currentLimitsSort);
     });
   }
-
 }
-
 
 enum SortType {
   defaultSort, // 默认排序
-  ascending,   // 升序
-  descending,  // 降序
+  ascending, // 升序
+  descending, // 降序
 }

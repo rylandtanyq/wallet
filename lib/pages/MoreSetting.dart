@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/widget/CustomSwitch.dart';
 
 /// 更多设置
@@ -24,7 +24,7 @@ class _MoresettingState extends State<Moresetting> {
         leadingWidth: 40,
         leading: GestureDetector(
           onTap: () => {Feedback.forTap(context), Navigator.of(context).pop()},
-          child: Icon(Icons.arrow_back_ios_new, size: 20.w, color: Colors.black),
+          child: Icon(Icons.arrow_back_ios_new, size: 20.w, color: Theme.of(context).colorScheme.onBackground),
         ),
       ),
       body: Column(
@@ -34,7 +34,7 @@ class _MoresettingState extends State<Moresetting> {
             padding: EdgeInsetsGeometry.symmetric(horizontal: 12.w),
             child: Text(
               "更多设置",
-              style: TextStyle(fontSize: 24.sp, color: Colors.black, fontWeight: FontWeight.w500),
+              style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
             ),
           ),
           _setItemListTile(
@@ -91,7 +91,8 @@ class _MoresettingState extends State<Moresetting> {
               children: [
                 Text(
                   "首页",
-                  style: TextStyle(fontSize: 15.sp, color: Color(0xFF757F7F)),
+                  // style: TextStyle(fontSize: 15.sp, color: Color(0xFF757F7F)),
+                  style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onSurface),
                 ),
                 SizedBox(width: 8.w),
                 Transform.translate(
@@ -209,21 +210,23 @@ class _setItemListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.transparent,
       child: ListTile(
         onTap: onTap,
         contentPadding: EdgeInsetsGeometry.symmetric(horizontal: 12.w),
         leading: Row(
-          mainAxisSize: MainAxisSize.min, // 只包裹内容
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500, color: Colors.black),
+              // style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500, color: Colors.black),
+              style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
             ),
             if (iconWidget)
               Padding(
                 padding: EdgeInsets.only(left: 4),
                 child: Transform.translate(
-                  offset: Offset(0, 1), // x:0, y:2 向下偏移 2 像素
+                  offset: Offset(0, 1),
                   child: Icon(Icons.help_outline, size: 17.w, color: Color(0xFFA3ADAD)),
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 
 /// 更多服务
 class MoreServices extends StatefulWidget {
@@ -70,12 +71,13 @@ class _MoreServicesState extends State<MoreServices> {
         leadingWidth: 40,
         leading: GestureDetector(
           onTap: () => {Feedback.forTap(context), Navigator.of(context).pop()},
-          child: Icon(Icons.arrow_back_ios_new, size: 20.w, color: Colors.black),
+          child: Icon(Icons.arrow_back_ios_new, size: 20.w, color: Theme.of(context).colorScheme.onBackground),
         ),
         centerTitle: true,
         title: Text(
           "更多服务",
-          style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.w500),
+          // style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.w500),
+          style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w500),
         ),
       ),
       body: SafeArea(
@@ -92,7 +94,7 @@ class _MoreServicesState extends State<MoreServices> {
                     padding: EdgeInsetsGeometry.symmetric(horizontal: 12.w),
                     child: Text(
                       ele["title"],
-                      style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.w500),
+                      style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w500),
                     ),
                   ),
                   SizedBox(height: 15.h),
@@ -111,10 +113,7 @@ class _MoreServicesState extends State<MoreServices> {
                           children: [
                             Image.asset(item["path"], width: 50, height: 50),
                             SizedBox(height: 8.h),
-                            Text(
-                              item["text"],
-                              style: TextStyle(fontSize: 12.sp, color: Colors.black),
-                            ),
+                            Text(item["text"], style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                           ],
                         ),
                       );

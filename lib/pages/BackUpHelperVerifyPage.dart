@@ -10,6 +10,7 @@ import 'package:untitled1/entity/BackUpEntity.dart';
 import 'package:untitled1/entity/Wallet.dart';
 import 'package:untitled1/main.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 import '../../base/base_page.dart';
 import '../dao/HiveStorage.dart';
 
@@ -23,13 +24,9 @@ class BackUpHelperVerifyPage extends StatefulWidget {
   State<StatefulWidget> createState() => _BackUpHelperVerifyPageState();
 }
 
-class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
-    with BasePage<BackUpHelperVerifyPage>, AutomaticKeepAliveClientMixin {
-
+class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with BasePage<BackUpHelperVerifyPage>, AutomaticKeepAliveClientMixin {
   bool isSelected = true;
 
-
-  
   int _selectedIndex = 0;
   List<String> mnemonics = [];
   final List<BackUp> randomMnemonics = [];
@@ -42,16 +39,16 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
   void initState() {
     super.initState();
     final random = Random();
-    final range = List.generate(12, (i) => i+1); // 生成1到12的数字列表
+    final range = List.generate(12, (i) => i + 1); // 生成1到12的数字列表
     range.shuffle(random); // 打乱顺序
     verifyPosition = range.take(3).toList();
     randomMnemonics.add(BackUp(name: "第${range[0]}个", value: ""));
     randomMnemonics.add(BackUp(name: "第${range[1]}个", value: ""));
     randomMnemonics.add(BackUp(name: "第${range[2]}个", value: ""));
-    final newWallet= Get.arguments;
-    address = newWallet['currentAddress']??'';
-    privateKey = newWallet['privateKey']??'';
-    network = newWallet['currentNetwork']??'';
+    final newWallet = Get.arguments;
+    address = newWallet['currentAddress'] ?? '';
+    privateKey = newWallet['privateKey'] ?? '';
+    network = newWallet['currentNetwork'] ?? '';
     print('init --address:${address}');
     print('init --privateKey:${privateKey}');
     print('init --network:${network}');
@@ -65,11 +62,9 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
     super.build(context);
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: '备份助记词',
-      ),
-      body:  Container(
-        color: Colors.white,
+      appBar: CustomAppBar(title: '备份助记词'),
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
         padding: EdgeInsets.only(bottom: 20.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,18 +75,13 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('验证助记词',
-                    style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
-                  ),
+                  Text('验证助记词', style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                   SizedBox(height: 10),
-                  Text('请按顺序验证助记词',
-                    style: TextStyle(fontSize: 12.sp, color: AppColors.color_757F7F),
-                  ),
+                  Text('请按顺序验证助记词', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                   SizedBox(height: 10),
                 ],
               ),
             ),
-
 
             LayoutBuilder(
               builder: (context, constraints) {
@@ -100,8 +90,9 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
 
                 return Container(
                   margin: EdgeInsets.symmetric(horizontal: 12),
-                  height: rowCount * itemHeight + // 所有行高度
-                      (rowCount - 1) * 24 +  // 行间距
+                  height:
+                      rowCount * itemHeight + // 所有行高度
+                      (rowCount - 1) * 24 + // 行间距
                       8, // 底部额外空间
                   child: GridView.builder(
                     physics: NeverScrollableScrollPhysics(),
@@ -121,27 +112,23 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
                             padding: const EdgeInsets.only(bottom: 4.0),
                             child: Text(
                               randomMnemonics[index].name,
-                              style: const TextStyle(fontSize: 14),
+                              style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground),
                               // textAlign: TextAlign.center,
                             ),
                           ),
                           GestureDetector(
                             onTap: () => setState(() => _selectedIndex = index),
                             child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 7.h,horizontal: 10.w),
+                              padding: EdgeInsets.symmetric(vertical: 7.h, horizontal: 10.w),
                               decoration: BoxDecoration(
-                                color: AppColors.color_F7F8F9,
+                                color: Theme.of(context).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.color_286713
-                                      : AppColors.color_F7F8F9,
+                                  color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
                                   width: 1,
                                 ),
                               ),
-                              child: Center(
-                                child: Text(randomMnemonics[index].value),
-                              ),
+                              child: Center(child: Text(randomMnemonics[index].value)),
                             ),
                           ),
                         ],
@@ -154,7 +141,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
 
             Expanded(
               child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 12,vertical: 20.h),
+                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 20.h),
                 child: GridView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -162,12 +149,12 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                     childAspectRatio: 1,
-                    mainAxisExtent: 44.h
+                    mainAxisExtent: 44.h,
                   ),
                   itemCount: mnemonics.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
-                      onTap: ()=>{
+                      onTap: () => {
                         setState(() {
                           randomMnemonics[_selectedIndex].value = mnemonics[index];
                           for (var i = 0; i < randomMnemonics.length; i++) {
@@ -180,15 +167,15 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
                               break;
                             }
                           }
-                        })
+                        }),
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.color_EFF1F1, width: 1),
+                          border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: 1),
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Center(
-                          child: Text(mnemonics[index],style: TextStyle(fontSize: 15.sp),),
+                          child: Text(mnemonics[index], style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                         ),
                       ),
                     );
@@ -197,34 +184,34 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
               ),
             ),
 
-
             Padding(
               padding: EdgeInsets.all(15.w),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.color_286713,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onBackground,
                   minimumSize: Size(double.infinity, 42.h),
                   elevation: 0,
                   shadowColor: Colors.transparent,
-                  textStyle: TextStyle(
-                    fontSize: 18.sp,
-                  ),
+                  textStyle: TextStyle(fontSize: 18.sp),
                 ),
-                onPressed: ()=>{
+                onPressed: () => {
                   // Get.off(),
-                  verifyMnemonic()
+                  verifyMnemonic(),
                 },
-                child: Text('确认'),
+                child: Text(
+                  '确认',
+                  style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.w500),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  void verifyMnemonic() async{
+  void verifyMnemonic() async {
     showLoadingDialog();
     List<String> values = randomMnemonics.map((e) => e.value).toList();
     final advWallet = AdvancedMultiChainWallet();
@@ -238,27 +225,20 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage>
     } else {
       // final balance = await advWallet.getNativeBalanceByAddress(blockchain: network,address: address);
       // print('\nNative balance:${balance}');
-      List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data')??[];
-      final name = _wallets.isEmpty?'我的钱包':'我的钱包(${_wallets.length})';
-      final walletEntity = Wallet(name: name, balance: '0.00',
-          network: network,
-          address: address,
-          privateKey: privateKey,
-          isBackUp: true);
-      await HiveStorage().putObject('currentSelectWallet',walletEntity);
-      await HiveStorage().putValue('selected_address',address);
-      
+      List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
+      final name = _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length})';
+      final walletEntity = Wallet(name: name, balance: '0.00', network: network, address: address, privateKey: privateKey, isBackUp: true);
+      await HiveStorage().putObject('currentSelectWallet', walletEntity);
+      await HiveStorage().putValue('selected_address', address);
+
       _wallets.add(walletEntity);
-      await HiveStorage().putList('wallets_data',_wallets);
+      await HiveStorage().putList('wallets_data', _wallets);
       // print('currentSelectWallet:${HiveStorage().getObject('currentSelectWallet').toString()}');
       dismissLoading();
       Get.offAll(() => MainPage(initialPageIndex: 4));
     }
   }
 
-
-
   @override
   bool get wantKeepAlive => true;
-
 }

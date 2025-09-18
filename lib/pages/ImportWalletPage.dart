@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/pages/view/CustomTextField.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
 import '../core/AdvancedMultiChainWallet.dart';
@@ -24,8 +25,7 @@ class ImportWalletPage extends StatefulWidget {
   State<StatefulWidget> createState() => _ImportWalletPageState();
 }
 
-class _ImportWalletPageState extends State<ImportWalletPage>
-    with BasePage<ImportWalletPage>, AutomaticKeepAliveClientMixin {
+class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<ImportWalletPage>, AutomaticKeepAliveClientMixin {
   String _importKeyValue = '';
   final TextEditingController _textController = TextEditingController();
   bool isSelected = true;
@@ -44,22 +44,13 @@ class _ImportWalletPageState extends State<ImportWalletPage>
         title: '',
         actions: [
           IconButton(
-            icon: Image.asset(
-              'assets/images/ic_wallet_exclamation.png',
-              width: 17.w,
-              height: 17.w,
-            ),
-            onPressed: () => {
-              setState(() {
-
-              })
-            },
+            icon: Image.asset('assets/images/ic_wallet_exclamation.png', width: 17.w, height: 17.w),
+            onPressed: () => {setState(() {})},
           ),
-
         ],
       ),
-      body:  Container(
-        color: Colors.white,
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
         padding: EdgeInsets.only(bottom: 20.h),
         child: SingleChildScrollView(
           child: Column(
@@ -70,10 +61,13 @@ class _ImportWalletPageState extends State<ImportWalletPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('输入助记词或私钥!',style: TextStyle(fontSize: 24.sp,fontWeight: FontWeight.bold),),
-                    SizedBox(height: 10.h,),
-                    Text('助记词之间用空格隔开。支持任意钱包的 12位、24位助记词或私钥导入.',style: TextStyle(fontSize: 15.sp,),),
-                    SizedBox(height: 10.h,),
+                    Text('输入助记词或私钥!', style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                    SizedBox(height: 10.h),
+                    Text(
+                      '助记词之间用空格隔开。支持任意钱包的 12位、24位助记词或私钥导入.',
+                      style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                    ),
+                    SizedBox(height: 10.h),
                     Stack(
                       children: [
                         CustomTextField(
@@ -89,45 +83,44 @@ class _ImportWalletPageState extends State<ImportWalletPage>
                         Positioned(
                           right: 12.w,
                           bottom: 16.h,
-                          child: Image.asset('assets/images/ic_wallet_import_scan.png',width: 30.5.w,height:  30.5.w),
-                        )
+                          child: Image.asset('assets/images/ic_wallet_import_scan.png', width: 30.5.w, height: 30.5.w),
+                        ),
                       ],
                     ),
-                    SizedBox(height: 20.h,),
+                    SizedBox(height: 20.h),
                     Padding(
                       padding: EdgeInsets.all(15.w),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.color_286713,
-                          foregroundColor: Colors.white,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           minimumSize: Size(double.infinity, 44.h),
                           elevation: 0,
                           shadowColor: Colors.transparent,
-                          textStyle: TextStyle(
-                            fontSize: 18.sp,
-                          ),
+                          textStyle: TextStyle(fontSize: 18.sp),
                         ),
-                        onPressed: ()=>{
-                          importWallet(_importKeyValue),
-                          
-                        },
-                        child: Text('确认导入'),
+                        onPressed: () => {importWallet(_importKeyValue)},
+                        child: Text('确认导入', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
                       ),
                     ),
-                    Text('提示',style: TextStyle(fontSize: 15.sp,),),
-                    SizedBox(height: 8.h,),
+                    Text('提示', style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                    SizedBox(height: 8.h),
                     Row(
                       children: [
                         Icon(
                           Icons.circle,
                           size: 6.h,
-                          color: Color(0xFFA3ADAD), // #6F7470 颜色
+                          color: Theme.of(context).colorScheme.surface, // #6F7470 颜色
                         ),
-                        SizedBox(width: 11.w,),
-                        Flexible(child: Text('我们不会存储你的助记词或私钥。若助记词或私钥泄漏,可能导致资产丢失,请妥善保管',style: TextStyle(fontSize: 13.sp,color: AppColors.color_757F7F),),)
+                        SizedBox(width: 11.w),
+                        Flexible(
+                          child: Text(
+                            '我们不会存储你的助记词或私钥。若助记词或私钥泄漏,可能导致资产丢失,请妥善保管',
+                            style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                          ),
+                        ),
                       ],
                     ),
-                    SizedBox(height: 8.h,),
+                    SizedBox(height: 8.h),
                     Row(
                       children: [
                         Icon(
@@ -135,14 +128,18 @@ class _ImportWalletPageState extends State<ImportWalletPage>
                           size: 6.h,
                           color: Color(0xFFA3ADAD), // #6F7470 颜色
                         ),
-                        SizedBox(width: 11.w,),
-                        Flexible(child: Text('建议你手写输入或扫码导入助记词或私钥，请勿使用不熟悉的三方软件复制粘贴,以防诈骗',style: TextStyle(fontSize: 13.sp,color: AppColors.color_757F7F),),)
+                        SizedBox(width: 11.w),
+                        Flexible(
+                          child: Text(
+                            '建议你手写输入或扫码导入助记词或私钥，请勿使用不熟悉的三方软件复制粘贴,以防诈骗',
+                            style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-
             ],
           ),
         ),
@@ -170,26 +167,26 @@ class _ImportWalletPageState extends State<ImportWalletPage>
   Future<void> importWalletByPrivateKey() async {
     final wallet = await _advWallet.importWalletFromPrivateKey(_importKeyValue);
     final currentAddress = wallet['currentAddress'];
-    List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data')??[];
+    List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
     bool exists = _wallets.any((item) => item.address == currentAddress);
     if (!exists) {
       // 创建新钱包对象
       final newWallet = Wallet(
-        name: _wallets.isEmpty?'我的钱包':'我的钱包(${_wallets.length+1})',
+        name: _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length + 1})',
         balance: wallet['balance'] ?? '0.00', // 默认余额或从 wallet 中获取
         network: wallet['currentNetwork'] ?? 'Ethereum',
-        address: currentAddress??'',
+        address: currentAddress ?? '',
         privateKey: _importKeyValue,
         isBackUp: true,
       );
       // 保存回 Hive
-      await HiveStorage().putObject('currentSelectWallet',newWallet);
-      await HiveStorage().putValue('selected_address',currentAddress);
+      await HiveStorage().putObject('currentSelectWallet', newWallet);
+      await HiveStorage().putValue('selected_address', currentAddress);
       _wallets.add(newWallet);
-      await HiveStorage().putList('wallets_data',_wallets);
+      await HiveStorage().putList('wallets_data', _wallets);
       print('新钱包已添加: ${newWallet.address}');
     } else {
-      Fluttertoast.showToast(msg: '钱包已存在，未添加: $currentAddress',);
+      Fluttertoast.showToast(msg: '钱包已存在，未添加: $currentAddress');
       print('钱包已存在，未添加: $currentAddress');
     }
   }
@@ -200,34 +197,32 @@ class _ImportWalletPageState extends State<ImportWalletPage>
    */
   Future<void> importWalletByMnemonic() async {
     final wallet = await _advWallet.restoreFromMnemonic(_importKeyValue);
-    List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data')??[];
+    List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
     final currentAddress = wallet['currentAddress'];
     bool exists = _wallets.any((item) => item.address == currentAddress);
     if (!exists) {
       // 创建新钱包对象
       final newWallet = Wallet(
-        name: _wallets.isEmpty?'我的钱包':'我的钱包(${_wallets.length+1})',
+        name: _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length + 1})',
         balance: wallet['balance'] ?? '0.00',
         network: wallet['network'] ?? 'Ethereum',
-        address: currentAddress??'',
+        address: currentAddress ?? '',
         privateKey: wallet['privateKey'] ?? '',
         isBackUp: true,
       );
       // 保存回 Hive
-      await HiveStorage().putObject('currentSelectWallet',newWallet);
-      await HiveStorage().putValue('selected_address',currentAddress);
+      await HiveStorage().putObject('currentSelectWallet', newWallet);
+      await HiveStorage().putValue('selected_address', currentAddress);
       _wallets.add(newWallet);
-      await HiveStorage().putList('wallets_data',_wallets);
+      await HiveStorage().putList('wallets_data', _wallets);
       print('新钱包已添加: ${newWallet.address}');
     } else {
       // 钱包已存在，不添加
-      Fluttertoast.showToast(msg: '钱包已存在，未添加: $currentAddress',);
+      Fluttertoast.showToast(msg: '钱包已存在，未添加: $currentAddress');
       print('钱包已存在，未添加: $currentAddress');
     }
   }
 
-
   @override
   bool get wantKeepAlive => true;
-
 }

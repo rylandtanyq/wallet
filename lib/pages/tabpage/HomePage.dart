@@ -1,18 +1,16 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:marquee/marquee.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/pages/LinkedWalletDApp.dart';
 import 'package:untitled1/pages/MoreServices.dart';
 import 'package:untitled1/pages/MySettings.dart';
 import 'package:untitled1/pages/NotificationPage.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
 import '../../entity/FinancialItem.dart';
-import '../../widget/VerticalMarquee.dart';
 import '../SelectedPayeePage.dart';
 import '../view/ContractTradingCard.dart';
 import '../view/FinancialDataView.dart';
@@ -52,31 +50,32 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
 
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         titleSpacing: 0,
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         title: Padding(
           padding: EdgeInsets.all(10),
           child: Row(
             children: [
               GestureDetector(
                 onTap: () => Get.to(Mysettings(), transition: Transition.leftToRight, popGesture: true),
-                child: Image.asset('assets/images/ic_home_function.png', width: 16.w, height: 16.w),
+                child: ColorFiltered(
+                  colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                  child: Image.asset('assets/images/ic_home_function.png', width: 16.w, height: 16.w),
+                ),
               ),
               SizedBox(width: 22.w),
               Expanded(
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(19.r)),
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(19.r)),
                   padding: EdgeInsets.all(10),
                   height: 37.h,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Image.asset('assets/images/ic_home_search.png', width: 16.w, height: 16.w),
+                      Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                       SizedBox(width: 8.w),
-                      Text(
-                        'BTC/USDT',
-                        style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-                      ),
+                      Text('BTC/USDT', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                     ],
                   ),
                 ),
@@ -90,10 +89,16 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                     duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
                   );
                 },
-                child: Image.asset('assets/images/ic_home_link.png', width: 16.w, height: 16.w),
+                child: ColorFiltered(
+                  colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                  child: Image.asset('assets/images/ic_home_link.png', width: 16.w, height: 16.w),
+                ),
               ),
               SizedBox(width: 22.w),
-              Image.asset('assets/images/ic_home_scan.png', width: 16.w, height: 16.w),
+              ColorFiltered(
+                colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                child: Image.asset('assets/images/ic_home_scan.png', width: 16.w, height: 16.w),
+              ),
               SizedBox(width: 22.w),
               GestureDetector(
                 onTap: () {
@@ -103,7 +108,11 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                     duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
                   );
                 },
-                child: Image.asset('assets/images/ic_home_message.png', width: 16.w, height: 16.w),
+                // child: Image.asset('assets/images/ic_home_message.png', width: 16.w, height: 16.w),
+                child: ColorFiltered(
+                  colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                  child: Image.asset('assets/images/ic_home_message.png', width: 16.w, height: 16.w),
+                ),
               ),
             ],
           ),
@@ -138,7 +147,8 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                           style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: 8.w),
-                        Image.asset('assets/images/ic_arrows_down.png', width: 10.w, height: 6.w),
+                        // Image.asset('assets/images/ic_arrows_down.png', width: 10.w, height: 6.w),
+                        Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onBackground),
                       ],
                     ),
                   ),
@@ -220,7 +230,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                               SizedBox(height: 5),
                               Text(
                                 _titles[index],
-                                style: TextStyle(fontSize: 12.sp, color: Colors.black),
+                                style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground),
                                 maxLines: 1, // 限制文本行数
                                 overflow: TextOverflow.ellipsis, // 超出显示省略号
                               ),
@@ -284,13 +294,10 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                         Expanded(
                           child: Text(
                             '赚币中心',
-                            style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                            style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
-                        Text(
-                          '共3个活动',
-                          style: TextStyle(fontSize: 13.sp, color: Colors.grey),
-                        ),
+                        Text('共3个活动', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         SizedBox(width: 5.w),
                         Image.asset('assets/images/ic_arrows_right.png', width: 7, height: 12),
                       ],
@@ -298,7 +305,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFE8EEEE), width: 0.5),
+                      border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.1), width: .5),
                       borderRadius: BorderRadius.circular(8.0), // 设置圆角
                     ),
                     child: StatefulProductCard(),
@@ -310,7 +317,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                       children: [
                         Text(
                           '全链榜单',
-                          style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                          style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -329,7 +336,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                       children: [
                         Text(
                           '热搜代币',
-                          style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                          style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -352,7 +359,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                         Expanded(
                           child: Text(
                             '合约交易',
-                            style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                            style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
                         Image.asset('assets/images/ic_arrows_right.png', width: 7, height: 12),
@@ -369,7 +376,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                         Expanded(
                           child: Text(
                             '使用指南',
-                            style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                            style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
                         Image.asset('assets/images/ic_arrows_right.png', width: 7, height: 12),
@@ -411,7 +418,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
       margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE8EEEE), width: 1),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.4), width: 1),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
@@ -426,20 +433,14 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
               SizedBox(width: 11.w),
               Text(
                 'FARTCION',
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           SizedBox(height: 11.h),
-          Text(
-            '¥1.14',
-            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-          ),
+          Text('¥1.14', style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
           SizedBox(height: 2.h),
-          Text(
-            '-10.22%',
-            style: TextStyle(fontSize: 13.sp, color: AppColors.color_F3607B),
-          ),
+          Text('-10.22%', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onError)),
         ],
       ),
     );
@@ -450,7 +451,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
       height: 130.h,
       margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE8EEEE), width: 1),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.4), width: 1),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
@@ -470,15 +471,9 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '创建第一个钱包开始',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
+                Text('创建第一个钱包开始', style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                 SizedBox(height: 2.h),
-                Text(
-                  '从创建钱包开始加密货币之旅',
-                  style: TextStyle(fontSize: 13.sp, color: Colors.grey),
-                ),
+                Text('从创建钱包开始加密货币之旅', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 SizedBox(height: 8.h),
               ],
             ),

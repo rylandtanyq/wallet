@@ -2,21 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/pages/MoreSetting.dart';
 import 'package:untitled1/pages/RewardsAccount.dart';
 import 'package:untitled1/pages/UsageGuidelines.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:untitled1/state/app_riverpod.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 
-class Mysettings extends StatefulWidget {
+class Mysettings extends ConsumerStatefulWidget {
   const Mysettings({super.key});
 
   @override
-  State<Mysettings> createState() => _MysettingsState();
+  ConsumerState<Mysettings> createState() => _MysettingsState();
 }
 
-class _MysettingsState extends State<Mysettings> {
+class _MysettingsState extends ConsumerState<Mysettings> {
   final TextStyle titleStyle = TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: Colors.black);
 
   final TextStyle trailingStyle = TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: const Color(0xFF757F7F));
@@ -45,13 +47,36 @@ class _MysettingsState extends State<Mysettings> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeProvider);
+    _selectedThemeModelText = themeMode == ThemeMode.light
+        ? "日间模式"
+        : themeMode == ThemeMode.dark
+        ? "夜间模式"
+        : "跟随系统";
+
     return Scaffold(
       appBar: CustomAppBar(
         title: "",
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 14.w),
-            child: Icon(Icons.mode_night, size: 18.w, color: Colors.black),
+            child: GestureDetector(
+              onTap: () {
+                ref.read(themeProvider.notifier).toggleTheme();
+                setState(() {
+                  if (themeMode == ThemeMode.dark) {
+                    _selectedThemeModelText = "日间模式";
+                  } else if (themeMode == ThemeMode.light) {
+                    _selectedThemeModelText = "夜间模式";
+                  } else {
+                    _selectedThemeModelText = "跟随系统";
+                  }
+                });
+              },
+              child: themeMode == ThemeMode.light
+                  ? Icon(Icons.mode_night, size: 18.w, color: Theme.of(context).appBarTheme.foregroundColor)
+                  : Icon(Icons.sunny, size: 18.w, color: Theme.of(context).appBarTheme.foregroundColor),
+            ),
           ),
         ],
       ),
@@ -147,6 +172,13 @@ class _MysettingsState extends State<Mysettings> {
       currentValue: _selectedThemeModelText,
     );
     if (selected != null) {
+      if (selected == '夜间模式') {
+        ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
+      } else if (selected == '日间模式') {
+        ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
+      } else {
+        ref.read(themeProvider.notifier).setTheme(ThemeMode.system);
+      }
       setState(() {
         _selectedThemeModelText = selected;
       });
@@ -202,7 +234,7 @@ class _MysettingsState extends State<Mysettings> {
           builder: (context, setState) {
             return Material(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(12.r), topRight: Radius.circular(12.r)),
-              color: Colors.white,
+              // color: Theme.of(context).colorScheme.background,
               child: Container(
                 width: double.infinity,
                 constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
@@ -216,7 +248,7 @@ class _MysettingsState extends State<Mysettings> {
                         padding: EdgeInsets.only(left: 14, right: 14, top: 17, bottom: 12.h),
                         child: Text(
                           title,
-                          style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                          style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
                       ),
                       Divider(color: const Color(0xFFE7E7E7), height: .5.h),
@@ -230,9 +262,12 @@ class _MysettingsState extends State<Mysettings> {
                                 contentPadding: EdgeInsets.symmetric(horizontal: 14),
                                 title: Text(
                                   lang.toString(),
-                                  style: TextStyle(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                                  style: AppTextStyles.headline4.copyWith(
+                                    color: Theme.of(context).colorScheme.onBackground,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                trailing: selectedValue == lang ? Icon(Icons.check, color: Colors.black) : null,
+                                trailing: selectedValue == lang ? Icon(Icons.check, color: Theme.of(context).colorScheme.onBackground) : null,
                                 onTap: () {
                                   HapticFeedback.heavyImpact();
                                   setState(() {
@@ -256,7 +291,7 @@ class _MysettingsState extends State<Mysettings> {
                           alignment: Alignment.center,
                           child: Text(
                             "关闭",
-                            style: TextStyle(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                            style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -294,7 +329,7 @@ class _MysettingsState extends State<Mysettings> {
           builder: (context, setState) {
             return Material(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(12.r), topRight: Radius.circular(12.r)),
-              color: Colors.white,
+              // color: Theme.of(context).colorScheme.background,
               child: Container(
                 width: double.infinity,
                 constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
@@ -307,7 +342,7 @@ class _MysettingsState extends State<Mysettings> {
                         padding: EdgeInsets.only(left: 14, right: 14, top: 17, bottom: 12.h),
                         child: Text(
                           title,
-                          style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                          style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
                       ),
                       Divider(color: const Color(0xFFE7E7E7), height: .5.h),
@@ -321,13 +356,16 @@ class _MysettingsState extends State<Mysettings> {
                               return ListTile(
                                 title: Text(
                                   "$model",
-                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                                  style: AppTextStyles.headline4.copyWith(
+                                    color: Theme.of(context).colorScheme.onBackground,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 subtitle: Text(
                                   "$subtitle",
-                                  style: TextStyle(fontSize: 13.sp, color: Color(0xFF757F7F)),
+                                  style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                                 ),
-                                trailing: selectedValue == model ? Icon(Icons.check, color: Colors.black) : null,
+                                trailing: selectedValue == model ? Icon(Icons.check, color: Theme.of(context).colorScheme.onBackground) : null,
                                 onTap: () {
                                   HapticFeedback.heavyImpact();
                                   setState(() {
@@ -350,7 +388,7 @@ class _MysettingsState extends State<Mysettings> {
                           alignment: Alignment.center,
                           child: Text(
                             "关闭",
-                            style: TextStyle(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                            style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -382,14 +420,12 @@ class _MysettingsState extends State<Mysettings> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "我的钱包",
-                      style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-                    ),
+                    Text("我的钱包", style: AppTextStyles.headline3.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                     SizedBox(height: 2.h),
                     Text(
                       "ID: deed...27dc",
-                      style: TextStyle(fontSize: 12.sp, color: const Color(0xFF757F7F)),
+                      // style: TextStyle(fontSize: 12.sp, color: const Color(0xFF757F7F)),
+                      style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ],
                 ),
@@ -397,16 +433,16 @@ class _MysettingsState extends State<Mysettings> {
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 9, horizontal: 16),
                   decoration: BoxDecoration(
-                    border: Border.all(width: 1.w, color: const Color(0xFFE5E5E5)),
+                    border: Border.all(width: 1.w, color: Theme.of(context).colorScheme.onSurface),
                     borderRadius: BorderRadius.circular(45.r),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_rounded, size: 14.w, color: Colors.black),
+                      Icon(Icons.error_rounded, size: 14.w, color: Theme.of(context).appBarTheme.foregroundColor),
                       SizedBox(width: 3.w),
                       Text(
                         "去备份",
-                        style: TextStyle(fontSize: 13.sp, color: Colors.black),
+                        style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.onBackground),
                       ),
                     ],
                   ),
@@ -414,7 +450,7 @@ class _MysettingsState extends State<Mysettings> {
               ],
             ),
           ),
-          Icon(Icons.keyboard_arrow_right_rounded, size: 17.h, color: Colors.black),
+          Icon(Icons.keyboard_arrow_right_rounded, size: 17.h, color: Theme.of(context).appBarTheme.foregroundColor),
         ],
       ),
     );
@@ -437,19 +473,13 @@ class _MysettingsState extends State<Mysettings> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(
-                  "绑定交易所账号",
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
+                Text("绑定交易所账号", style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 16.w),
                   decoration: BoxDecoration(color: AppColors.color_286713, borderRadius: BorderRadius.circular(25.r)),
                   child: Row(
                     children: [
-                      Text(
-                        "去绑定",
-                        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.white),
-                      ),
+                      Text("去绑定", style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
                       Icon(Icons.keyboard_arrow_right_rounded, color: Colors.white, size: 17.h),
                     ],
                   ),
@@ -487,7 +517,7 @@ class _SectionDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Divider(color: const Color(0xFFE7E7E7), height: .5.h);
+    return Divider(color: Theme.of(context).colorScheme.onSurface.withOpacity(.4), height: .5.h);
   }
 }
 
@@ -506,7 +536,7 @@ class _SettingItem extends StatelessWidget {
       contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
       title: Text(
         title,
-        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: Colors.black),
+        style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/pages/tabpage/SituationChildPage.dart';
 import 'package:untitled1/pages/tabpage/SituationToChancePage.dart';
 import 'package:untitled1/pages/tabpage/SituationToTrendPage.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
 
@@ -16,15 +17,9 @@ class SituationPage extends StatefulWidget {
   State<StatefulWidget> createState() => _SituationPageState();
 }
 
-class _SituationPageState extends State<SituationPage>
-    with BasePage<SituationPage>, AutomaticKeepAliveClientMixin {
-
+class _SituationPageState extends State<SituationPage> with BasePage<SituationPage>, AutomaticKeepAliveClientMixin {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [
-    SituationChildPage(),
-    SituationToChancePage(),
-    SituationToTrendPage(),
-  ];
+  final List<Widget> _pages = [SituationChildPage(), SituationToChancePage(), SituationToTrendPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +27,7 @@ class _SituationPageState extends State<SituationPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            _buildTabText(0, '行情'),
-            _buildTabText(1, '机会'),
-            _buildTabText(2, '趋势'),
-          ],
-        ),
+        title: Row(mainAxisAlignment: MainAxisAlignment.start, children: [_buildTabText(0, '行情'), _buildTabText(1, '机会'), _buildTabText(2, '趋势')]),
       ),
       body: _pages[_selectedIndex],
     );
@@ -49,13 +37,12 @@ class _SituationPageState extends State<SituationPage>
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
       child: Container(
-        margin: EdgeInsets.only(right: 30.w,),
+        margin: EdgeInsets.only(right: 30.w),
         padding: EdgeInsets.all(5.w),
         child: Text(
           text,
-          style: TextStyle(
-            color: _selectedIndex == index ? Colors.black : Colors.grey,
-            fontSize: 18.sp,
+          style: AppTextStyles.headline4.copyWith(
+            color: _selectedIndex == index ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -65,5 +52,4 @@ class _SituationPageState extends State<SituationPage>
 
   @override
   bool get wantKeepAlive => true;
-
 }

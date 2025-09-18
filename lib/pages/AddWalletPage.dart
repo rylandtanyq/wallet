@@ -7,6 +7,7 @@ import 'package:untitled1/entity/AddWalletEntity.dart';
 import 'package:untitled1/pages/LinkHardwareWalletPage.dart';
 import 'package:untitled1/pages/dialog/CreateWalletDialog.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
 import 'ObserveWalletPage.dart';
@@ -22,9 +23,7 @@ class AddWalletPage extends StatefulWidget {
   State<StatefulWidget> createState() => _AddWalletPageState();
 }
 
-class _AddWalletPageState extends State<AddWalletPage>
-    with BasePage<AddWalletPage>, AutomaticKeepAliveClientMixin {
-
+class _AddWalletPageState extends State<AddWalletPage> with BasePage<AddWalletPage>, AutomaticKeepAliveClientMixin {
   final List<Map<String, dynamic>> items = [
     {
       'icon': 'assets/images/ic_wallet_create.png',
@@ -32,29 +31,19 @@ class _AddWalletPageState extends State<AddWalletPage>
       'subTitle': '创建新的助记词或无私钥钱包',
       'action': () => Get.to(LinkHardwareWalletPage()),
     },
-    {
-      'icon': 'assets/images/ic_wallet_import.png',
-      'mainTitle': '导入钱包',
-      'subTitle': '通过助记词、私钥或备份导入已有钱包',
-      'action': () => Get.toNamed('/profile'),
-    },
+    {'icon': 'assets/images/ic_wallet_import.png', 'mainTitle': '导入钱包', 'subTitle': '通过助记词、私钥或备份导入已有钱包', 'action': () => Get.toNamed('/profile')},
     {
       'icon': 'assets/images/ic_wallet_hardware.png',
       'mainTitle': '连接硬件钱包',
       'subTitle': '通过扫描二维码连接硬件钱包',
       'action': () => Get.to(LinkHardwareWalletPage()),
     },
-    {
-      'icon': 'assets/images/ic_wallet_observe.png',
-      'mainTitle': '使用观察钱包',
-      'subTitle': '通过钱包地址追踪钱包资产动态',
-      'action': () => Get.to(ObserveWalletPage()),
-    },
+    {'icon': 'assets/images/ic_wallet_observe.png', 'mainTitle': '使用观察钱包', 'subTitle': '通过钱包地址追踪钱包资产动态', 'action': () => Get.to(ObserveWalletPage())},
   ];
 
   final List<AddWallet> _wallets = [
-    AddWallet(name: "我的钱包", balance: "￥0.00", address: "EVM: 0X01F0...459F39",infoDetails: "超长的文本---------",isExpanded: false),
-    AddWallet(name: "测试钱包", balance: "￥100.00", address: "EVM: 0X89A2...782B1C",infoDetails: "超长的文本---------",isExpanded: false),
+    AddWallet(name: "我的钱包", balance: "￥0.00", address: "EVM: 0X01F0...459F39", infoDetails: "超长的文本---------", isExpanded: false),
+    AddWallet(name: "测试钱包", balance: "￥100.00", address: "EVM: 0X89A2...782B1C", infoDetails: "超长的文本---------", isExpanded: false),
   ];
 
   @override
@@ -64,54 +53,44 @@ class _AddWalletPageState extends State<AddWalletPage>
     return Scaffold(
       appBar: CustomAppBar(
         title: '',
-        backgroundColor: AppColors.color_F7F8F9,
+        backgroundColor: Theme.of(context).colorScheme.background,
         actions: [
           IconButton(
-            icon: Image.asset(
-              'assets/images/ic_wallet_exclamation.png',
-              width: 17.w,
-              height: 17.w,
-            ),
-            onPressed: () => {
-              setState(() {
-
-              })
-            },
+            icon: Image.asset('assets/images/ic_wallet_exclamation.png', width: 17.w, height: 17.w),
+            onPressed: () => {setState(() {})},
           ),
-
         ],
       ),
       body: Container(
-        color: AppColors.color_F7F8F9,
+        color: Theme.of(context).colorScheme.background,
         padding: EdgeInsets.all(10.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('添加钱包',style: TextStyle(fontSize: 24.sp,fontWeight: FontWeight.bold),),
-            SizedBox(height: 10.h,),
+            Text('添加钱包', style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+            SizedBox(height: 10.h),
             Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (_, index) {
-                    final item = items[index];
-                    return _buildListItem(
-                      icon: item['icon'],
-                      mainTitle: item['mainTitle'],
-                      subTitle: item['subTitle'],
-                      onTap: (){
-                        if (index == 0) {
-                          showCreateWalletDialog(context);
-                        }else if (index == 1) {
-                          showImportWalletDialog();
-                        } else {
-                          item['action']();
-                        };
-                      },
-                    );
-                  },
-                ),
-            )
-
+              child: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (_, index) {
+                  final item = items[index];
+                  return _buildListItem(
+                    icon: item['icon'],
+                    mainTitle: item['mainTitle'],
+                    subTitle: item['subTitle'],
+                    onTap: () {
+                      if (index == 0) {
+                        showCreateWalletDialog(context);
+                      } else if (index == 1) {
+                        showImportWalletDialog();
+                      } else {
+                        item['action']();
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -122,41 +101,25 @@ class _AddWalletPageState extends State<AddWalletPage>
   void showCreateWalletDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => CreateWalletDialog(
-        title: '创建钱包',
-        items:_wallets,
-        child: SizedBox(),
-      ),
+      builder: (context) => CreateWalletDialog(title: '创建钱包', items: _wallets, child: SizedBox()),
       isScrollControlled: true,
     );
   }
 
-  void showImportWalletDialog(){
+  void showImportWalletDialog() {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ImportWalletDialog(
-        title: '导入钱包',
-        items:_wallets,
-        child: SizedBox(),
-      ),
+      builder: (context) => ImportWalletDialog(title: '导入钱包', items: _wallets, child: SizedBox()),
       isScrollControlled: true,
     );
   }
 
-  Widget _buildListItem({
-    required String icon,
-    required String mainTitle,
-    required String subTitle,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildListItem({required String icon, required String mainTitle, required String subTitle, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       splashColor: Colors.blue.withOpacity(0.1), // 点击效果
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.w),
-        ),
+        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10.w)),
         margin: EdgeInsets.symmetric(vertical: 5.h),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         child: Row(
@@ -171,7 +134,7 @@ class _AddWalletPageState extends State<AddWalletPage>
             //   ),
             //   child: Icon(icon, size: 20.w, color: Colors.blue),
             // ),
-            Image.asset(icon,width: 51.5.w,height: 51.5.w,),
+            Image.asset(icon, width: 51.5.w, height: 51.5.w),
             SizedBox(width: 13.w),
 
             // 主副标题
@@ -179,31 +142,15 @@ class _AddWalletPageState extends State<AddWalletPage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    mainTitle,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text(mainTitle, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                   SizedBox(height: 5.h),
-                  Text(
-                    subTitle,
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      color:AppColors.color_757F7F,
-                    ),
-                  ),
+                  Text(subTitle, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),
 
             // 右侧箭头
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 12.w,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.arrow_forward_ios, size: 12.w, color: Colors.grey[400]),
           ],
         ),
       ),
@@ -212,5 +159,4 @@ class _AddWalletPageState extends State<AddWalletPage>
 
   @override
   bool get wantKeepAlive => true;
-
 }
