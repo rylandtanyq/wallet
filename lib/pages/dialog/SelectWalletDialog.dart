@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:untitled1/constants/AppColors.dart';
-import 'package:untitled1/dao/HiveStorage.dart';
+import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';

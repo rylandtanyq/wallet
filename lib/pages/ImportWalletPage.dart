@@ -9,7 +9,7 @@ import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
 import '../core/AdvancedMultiChainWallet.dart';
-import '../dao/HiveStorage.dart';
+import '../util/HiveStorage.dart';
 import '../entity/Wallet.dart';
 import '../main.dart';
 import '../util/CryptoInputValidator.dart';

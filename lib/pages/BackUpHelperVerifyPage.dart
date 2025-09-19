@@ -12,7 +12,7 @@ import 'package:untitled1/main.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import '../../base/base_page.dart';
-import '../dao/HiveStorage.dart';
+import '../util/HiveStorage.dart';
 
 /*
  * 验证备份助记词。

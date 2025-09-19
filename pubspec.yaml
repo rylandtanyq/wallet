@@ -223,6 +223,8 @@ flutter:
     - assets/images/SOL_rental_recovery.png
     - assets/images/transaction_history.png
     - assets/images/transfer.png
+    - assets/images/all_network.png
+    - assets/images/solana_logo.png
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg

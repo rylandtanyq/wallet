@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:untitled1/hive/create_solana_wallet.dart';
+import 'package:untitled1/pages/CreateWalletPage.dart';
+import 'package:untitled1/pages/SplashPage.dart';
 import 'package:untitled1/pages/tabpage/DiscoveryPage.dart';
 import 'package:untitled1/pages/tabpage/HomePage.dart';
 import 'package:untitled1/pages/tabpage/SituationPage.dart';
@@ -12,7 +15,7 @@ import 'package:untitled1/state/app_riverpod.dart';
 import 'package:untitled1/theme/app_theme.dart';
 import 'package:untitled1/util/CheckUpgrade.dart';
 
-import 'dao/HiveStorage.dart';
+import 'util/HiveStorage.dart';
 import 'entity/Wallet.dart';
 
 void main() async {
@@ -30,6 +33,20 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
+    final solana_wallet = CreateSolanaWallet.empty();
+
+    // @override
+    // void initState() {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     if (solana_wallet.address.isEmpty) {
+    //       debugPrint("没有创建钱包");
+    //       Get.off(Createwalletpage());
+    //     } else {
+    //       Get.off(HomePage());
+    //     }
+    //   });
+    // }
+
     return ScreenUtilInit(
       designSize: Size(375, 667),
       minTextAdapt: true,
@@ -59,7 +76,7 @@ class MyApp extends ConsumerWidget {
           //     ),
           //   ),
           // ),
-          home: child,
+          home: solana_wallet.address.isEmpty ? Createwalletpage() : HomePage(),
           initialRoute: '/',
         );
       },

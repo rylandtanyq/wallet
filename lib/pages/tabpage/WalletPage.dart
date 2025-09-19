@@ -12,7 +12,7 @@ import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import '../../base/base_page.dart';
 import '../../constants/AppColors.dart';
-import '../../dao/HiveStorage.dart';
+import '../../util/HiveStorage.dart';
 import '../../entity/Token.dart';
 import '../../entity/Wallet.dart';
 import '../dialog/SelectWalletDialog.dart';
@@ -60,7 +60,18 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
   ];
 
   int _selectedNetWorkIndex = 0; // 存储选中的索引
-  final List<String> _items = ['选项1', '选项2', '选项3', '选项4', '选项5'];
+  // final List<String> _items = ['全部网络', 'Solana', 'BNB Chain', 'BitCoin', 'Base', 'Ethereum', 'Polygon', 'Arbitrum', 'Sui'];
+  final List<Map<String, String>> _items = [
+    {"netName": "全部网络", "path": "assets/images/all_network.png"},
+    {"netName": "Solana", "path": "assets/images/solana_logo.png"},
+    {"netName": "BNB Chain", "path": "assets/images/BTC.png"},
+    {"netName": "BitCoin", "path": "assets/images/BTC.png"},
+    {"netName": "Base", "path": "assets/images/BTC.png"},
+    {"netName": "Ethereum", "path": "assets/images/BTC.png"},
+    {"netName": "Polygon", "path": "assets/images/BTC.png"},
+    {"netName": "Arbitrum", "path": "assets/images/BTC.png"},
+    {"netName": "Sui", "path": "assets/images/BTC.png"},
+  ];
 
   int _selectedWalletIndex = 0;
 
@@ -203,11 +214,11 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                   child: Row(
                     children: [
                       ClipOval(
-                        child: Image.asset('assets/images/ic_wallet_grid.png', width: 25.w, height: 25.w, fit: BoxFit.cover),
+                        child: Image.asset(_items[_selectedNetWorkIndex]["path"] ?? "", width: 25.w, height: 25.w, fit: BoxFit.cover),
                       ),
                       SizedBox(width: 5.w),
                       Text(
-                        _items[_selectedNetWorkIndex],
+                        _items[_selectedNetWorkIndex]["netName"] ?? "",
                         style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(width: 8.w),
@@ -239,8 +250,8 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: '搜索...',
-                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.onBackground), // 提示文字颜色
+                      hintText: '搜索网络',
+                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                       filled: true,
                       fillColor: Theme.of(context).colorScheme.surface, // 背景颜色
@@ -257,13 +268,14 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                   child: ListView.builder(
                     itemCount: _items.length,
                     itemBuilder: (context, index) {
+                      final item = _items[index];
                       return ListTile(
-                        leading: Image.asset('assets/images/ic_home_bit_coin.png', width: 37.5.w, height: 37.5.w),
+                        leading: Image.asset(item["path"] ?? "", width: 37.5.w, height: 37.5.w),
                         title: Row(
                           children: [
                             Expanded(
                               child: Text(
-                                _items[index],
+                                item["netName"] ?? "",
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: index == _selectedNetWorkIndex
