@@ -9,13 +9,7 @@ class CustomTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final int minLines;
 
-  const CustomTextField({
-    super.key,
-    required this.hintText,
-    this.controller,
-    this.onChanged,
-    this.minLines = 1,
-  });
+  const CustomTextField({super.key, required this.hintText, this.controller, this.onChanged, this.minLines = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -24,34 +18,19 @@ class CustomTextField extends StatelessWidget {
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
-          color: const Color(0xFF909090),
-          fontSize: 14.sp,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 16,
-        ),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14.sp),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
-          borderSide: BorderSide(
-            color: const Color(0xFFE7E7E7),
-            width: 0.75,
-          ),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface, width: 0.75),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
-          borderSide: BorderSide(
-            color: const Color(0xFFE7E7E7),
-            width: 0.5,
-          ),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface, width: 0.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
-          borderSide: BorderSide(
-            color: const Color(0xFFE7E7E7),
-            width: 0.5,
-          ),
+          borderSide: BorderSide(color: const Color(0xFFE7E7E7), width: 0.5),
         ),
       ),
       minLines: minLines,

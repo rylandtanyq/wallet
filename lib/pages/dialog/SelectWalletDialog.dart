@@ -175,10 +175,10 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
     return ReorderableListView.builder(
       itemCount: _wallets.length,
       itemBuilder: (ctx, index) {
-        return ReorderableDelayedDragStartListener(
-          index: index,
-          key: Key(_wallets[index].address), // 使用唯一ID作为key
-          child: _buildDraggableView(_wallets[index]),
+        final wallet = _wallets[index];
+        return Container(
+          key: ValueKey(wallet.address), // 放在 item 的最外层
+          child: ReorderableDelayedDragStartListener(index: index, child: _buildDraggableView(wallet)),
         );
       },
       onReorder: (oldIndex, newIndex) async {
@@ -187,7 +187,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
           final item = _wallets.removeAt(oldIndex);
           _wallets.insert(newIndex, item);
         });
-        await _saveWalletOrder(); // 保存新顺序
+        await _saveWalletOrder();
       },
     );
   }
@@ -200,7 +200,10 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
       child: Container(
         height: 80, // 自定义高度
         padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(color: isSelected ? AppColors.color_F7F8F9 : Colors.white, borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).colorScheme.background : Theme.of(context).colorScheme.background,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -213,9 +216,12 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    item.name,
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                  ),
                   SizedBox(height: 4),
-                  Text(item.balance, style: TextStyle(color: Colors.grey)),
+                  Text(item.balance, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),
@@ -241,14 +247,14 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
       onTap: () {
         setState(() {
           _selectWallet(wallet);
-          Navigator.pop(context);
+          Navigator.pop(context, wallet);
         });
       },
       child: Container(
         // padding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 1.w),
         margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.background,
           borderRadius: BorderRadius.circular(8.r),
           border: Border.all(color: isSelected ? AppColors.color_286713 : Colors.transparent, width: 1.5.h),
         ),
@@ -268,28 +274,25 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(wallet.name, style: TextStyle(fontSize: 16.sp)),
-                          Text(
-                            '¥${wallet.balance}',
-                            style: TextStyle(fontSize: 13.sp, color: AppColors.color_909090),
-                          ),
+                          Text(wallet.name, style: AppTextStyles.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                          Text('¥${wallet.balance}', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         ],
                       ),
                       Spacer(),
-                      if (!wallet.isBackUp)
+                      if (wallet.isBackUp)
                         SizedBox(
                           child: Material(
                             borderRadius: BorderRadius.circular(20.r),
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(
-                              onTap: () => () {
+                              onTap: () {
                                 Navigator.pop(context);
-                                Get.to(BackUpHelperPage());
+                                Get.to(() => BackUpHelperPage());
                               },
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: AppColors.color_E4E4E4, width: 0.5),
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
+                                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.3), width: 0.5),
                                   borderRadius: BorderRadius.circular(20.r),
                                 ),
                                 padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
@@ -297,12 +300,15 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     ClipOval(
-                                      child: Image.asset('assets/images/ic_wallet_reminder.png', width: 14.w, height: 14.w),
+                                      child: ColorFiltered(
+                                        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                                        child: Image.asset('assets/images/ic_wallet_reminder.png', width: 12.w, height: 12.w),
+                                      ),
                                     ),
                                     SizedBox(width: 1.w),
                                     Text(
                                       '去备份',
-                                      style: TextStyle(fontSize: 12.sp, color: Colors.black),
+                                      style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onBackground),
                                     ),
                                   ],
                                 ),
@@ -315,9 +321,9 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                   SizedBox(height: 20.h),
                   Text(
                     wallet.address.length > 12
-                        ? 'EVM:${wallet.address.substring(0, 6)}...${wallet.address.substring(wallet.address.length - 6)}'
-                        : 'EVM:${wallet.address}',
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey),
+                        ? '${wallet.network}:${wallet.address.substring(0, 6)}...${wallet.address.substring(wallet.address.length - 6)}'
+                        : '${wallet.network}:${wallet.address}',
+                    style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
                   ),
                 ],
               ),

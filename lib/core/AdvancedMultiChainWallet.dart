@@ -27,6 +27,7 @@ class AdvancedMultiChainWallet {
   BlockchainNetwork? _currentNetwork;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   late Box _localStorage;
+  final Map<String, solana.SolanaClient> _clients2 = {};
 
   // 初始化钱包
   Future<void> initialize({String? networkId}) async {
@@ -45,17 +46,11 @@ class AdvancedMultiChainWallet {
           break;
         case ChainType.Solana:
           _clients[network.id] = network.wssUrl != null
-              ? solana.SolanaClient(
-                  rpcUrl: Uri.parse(network.rpcUrl),
-                  websocketUrl: Uri.parse(network.wssUrl!),
-                )
-              : solana.SolanaClient(
-                  rpcUrl: Uri.parse(network.rpcUrl),
-                  websocketUrl: Uri.parse(network.wssUrl ?? 'ws://localhost:8900'),
-                );
+              ? solana.SolanaClient(rpcUrl: Uri.parse(network.rpcUrl), websocketUrl: Uri.parse(network.wssUrl!))
+              : solana.SolanaClient(rpcUrl: Uri.parse(network.rpcUrl), websocketUrl: Uri.parse(network.wssUrl ?? 'ws://localhost:8900'));
           break;
         case ChainType.UTXO:
-        // 比特币等UTXO模型链的客户端初始化
+          // 比特币等UTXO模型链的客户端初始化
           break;
       }
     }
@@ -85,10 +80,7 @@ class AdvancedMultiChainWallet {
   }
 
   //私钥导入钱包
-  Future<Map<String, String?>> importWalletFromPrivateKey(
-      String privateKey, {
-        String rpcUrl = "https://cloudflare-eth.com",
-      }) async {
+  Future<Map<String, String?>> importWalletFromPrivateKey(String privateKey, {String rpcUrl = "https://cloudflare-eth.com"}) async {
     // 验证私钥格式
     // if (!RegExp(r'^0x[a-fA-F0-9]{64}$').hasMatch(privateKey)) {
     //   throw ArgumentError('Invalid private key format');
@@ -138,13 +130,11 @@ class AdvancedMultiChainWallet {
     }
   }
 
-// 带重试机制的余额获取
+  // 带重试机制的余额获取
   Future<EtherAmount> _getBalanceWithRetry(Web3Client client, String address, {int retries = 2}) async {
     for (int i = 0; i < retries; i++) {
       try {
-        return await client.getBalance(
-          EthereumAddress.fromHex(address),
-        ).timeout(const Duration(seconds: 10));
+        return await client.getBalance(EthereumAddress.fromHex(address)).timeout(const Duration(seconds: 10));
       } on TimeoutException {
         if (i == retries - 1) rethrow;
         await Future.delayed(const Duration(seconds: 1));
@@ -153,7 +143,7 @@ class AdvancedMultiChainWallet {
     throw Exception('Failed after $retries retries');
   }
 
-// 以太坊地址验证
+  // 以太坊地址验证
   bool isValidEthereumAddress(String address) {
     try {
       EthereumAddress.fromHex(address);
@@ -163,20 +153,13 @@ class AdvancedMultiChainWallet {
     }
   }
 
-
   // 获取钱包信息
   Future<Map<String, String>> _getWalletInfo() async {
     // final balance = await getNativeBalance();
     final blockchain = _currentNetwork?.name ?? '';
-    final address = _addresses[_currentNetwork?.name] ?? '';
+    final address = _addresses[_currentNetwork?.id] ?? _addresses[_currentNetwork?.name] ?? '';
     // final balance =  await getNativeBalanceByAddress(blockchain,address);
-    return {
-      'mnemonic': _mnemonic ?? '',
-      'balance': '0.00',
-      'privateKey': _privateKey ?? '',
-      'currentNetwork': blockchain,
-      'currentAddress': address,
-    };
+    return {'mnemonic': _mnemonic ?? '', 'balance': '0.00', 'privateKey': _privateKey ?? '', 'currentNetwork': blockchain, 'currentAddress': address};
   }
 
   // 切换网络
@@ -191,7 +174,7 @@ class AdvancedMultiChainWallet {
   /*
    * 根据地址获取余额
    */
-  Future<String> getNativeBalanceByAddress(String blockchain,  String address,) async {
+  Future<String> getNativeBalanceByAddress(String blockchain, String address) async {
     switch (blockchain.toLowerCase()) {
       case 'ethereum':
       case 'polygon':
@@ -219,9 +202,8 @@ class AdvancedMultiChainWallet {
 
   /// 获取Solana余额(SOL)
   Future<String> _getSolanaBalance(String address, String rpcUrl) async {
-
     final pubKey = solana.Ed25519HDPublicKey.fromBase58(address);
-    final balance = await  _clients[address].rpc.getBalance(pubKey);
+    final balance = await _clients[address].rpc.getBalance(pubKey);
     return '${balance / solana.lamportsPerSol}';
   }
 
@@ -236,21 +218,22 @@ class AdvancedMultiChainWallet {
 
   // 获取原生代币余额
   Future<String> getNativeBalance() async {
-    print('getNativeBalance _currentNetwork:${_currentNetwork == null }');
-    print('getNativeBalance _addresses:${_addresses[_currentNetwork!.id] == null }');
-    if (_currentNetwork == null || _addresses[_currentNetwork!.id] == null) {
+    print('getNativeBalance _currentNetwork:${_currentNetwork == null}');
+    print('getNativeBalance _addresses:${_addresses[_currentNetwork!.id] == null}');
+    if (_currentNetwork == null) {
       throw Exception('Wallet not initialized or network not selected');
+    }
+    final address = _addresses[_currentNetwork!.id] ?? _addresses[_currentNetwork!.name];
+    if (address == null) {
+      throw Exception('Address not found for ${_currentNetwork!.name}');
     }
 
     switch (_currentNetwork!.chainType) {
       case ChainType.EVM:
-        final balance = await _clients[_currentNetwork!.id]!
-            .getBalance(EthereumAddress.fromHex(_addresses[_currentNetwork!.id]!));
+        final balance = await _clients[_currentNetwork!.id]!.getBalance(EthereumAddress.fromHex(_addresses[_currentNetwork!.id]!));
         return '${balance.getValueInUnit(EtherUnit.ether)} ${_currentNetwork!.symbol}';
       case ChainType.Solana:
-        final balance = await _clients[_currentNetwork!.id]!.rpc.getBalance(
-          solana.Ed25519HDPublicKey.fromBase58(_addresses[_currentNetwork!.id]!),
-        );
+        final balance = await _clients[_currentNetwork!.id]!.rpc.getBalance(solana.Ed25519HDPublicKey.fromBase58(_addresses[_currentNetwork!.id]!));
         return '${balance / solana.lamportsPerSol} ${_currentNetwork!.symbol}';
       default:
         throw Exception('Unsupported chain type for balance query');
@@ -267,13 +250,10 @@ class AdvancedMultiChainWallet {
 
     switch (_currentNetwork!.chainType) {
       case ChainType.EVM:
-      // 实现ERC20代币余额查询
+        // 实现ERC20代币余额查询
         final tokenContracts = await _loadSavedTokens();
         for (final token in tokenContracts) {
-          final contract = DeployedContract(
-            ContractAbi.fromJson(jsonEncode(token['abi']), 'ERC20'),
-            EthereumAddress.fromHex(token['address']),
-          );
+          final contract = DeployedContract(ContractAbi.fromJson(jsonEncode(token['abi']), 'ERC20'), EthereumAddress.fromHex(token['address']));
           final balanceFunction = contract.function('balanceOf');
           final balance = await _clients[_currentNetwork!.id]!.callContract(
             contract: contract,
@@ -286,12 +266,10 @@ class AdvancedMultiChainWallet {
         }
         break;
       case ChainType.Solana:
-      // 实现SPL代币余额查询
+        // 实现SPL代币余额查询
         final tokens = await _loadSavedTokens();
         for (final token in tokens) {
-          final balance = await _clients[_currentNetwork!.id]!.rpc.getTokenAccountBalance(
-            solana.Ed25519HDPublicKey.fromBase58(token['address']),
-          );
+          final balance = await _clients[_currentNetwork!.id]!.rpc.getTokenAccountBalance(solana.Ed25519HDPublicKey.fromBase58(token['address']));
           balances[token['symbol']] = balance.amount;
         }
         break;
@@ -310,10 +288,7 @@ class AdvancedMultiChainWallet {
   }
 
   // 发送原生代币交易
-  Future<String> sendNativeTransaction({
-    required String to,
-    required double amount,
-  }) async {
+  Future<String> sendNativeTransaction({required String to, required double amount}) async {
     if (_currentNetwork == null || _credentials[_currentNetwork!.id] == null) {
       throw Exception('Wallet not initialized or network not selected');
     }
@@ -331,11 +306,7 @@ class AdvancedMultiChainWallet {
           maxGas: 21000,
         );
 
-        return await client.sendTransaction(
-          credentials,
-          transaction,
-          chainId: _currentNetwork!.chainId,
-        );
+        return await client.sendTransaction(credentials, transaction, chainId: _currentNetwork!.chainId);
       case ChainType.Solana:
         final client = _clients[_currentNetwork!.id]!;
         final credentials = _credentials[_currentNetwork!.id]!;
@@ -353,12 +324,7 @@ class AdvancedMultiChainWallet {
   }
 
   // 发送代币交易 (ERC20/SPL)
-  Future<String> sendTokenTransaction({
-    required String tokenAddress,
-    required String to,
-    required double amount,
-    required int decimals,
-  }) async {
+  Future<String> sendTokenTransaction({required String tokenAddress, required String to, required double amount, required int decimals}) async {
     if (_currentNetwork == null || _credentials[_currentNetwork!.id] == null) {
       throw Exception('Wallet not initialized or network not selected');
     }
@@ -371,7 +337,7 @@ class AdvancedMultiChainWallet {
         final contract = DeployedContract(
           ContractAbi.fromJson(
             '[{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]',
-            'ERC20'
+            'ERC20',
           ),
           EthereumAddress.fromHex(tokenAddress),
         );
@@ -392,7 +358,7 @@ class AdvancedMultiChainWallet {
 
         return transaction;
       case ChainType.Solana:
-      // SPL代币转账实现
+        // SPL代币转账实现
         final client = _clients[_currentNetwork!.id]!;
         final credentials = _credentials[_currentNetwork!.id]!;
 
@@ -419,30 +385,40 @@ class AdvancedMultiChainWallet {
 
     switch (_currentNetwork!.chainType) {
       case ChainType.EVM:
-      // 从区块浏览器API获取交易历史
-        final response = await get(Uri.parse('${_currentNetwork!.explorerUrl}/api?module=account&action=txlist&address=${_addresses[_currentNetwork!.id]}&sort=desc'));
+        // 从区块浏览器API获取交易历史
+        final response = await get(
+          Uri.parse('${_currentNetwork!.explorerUrl}/api?module=account&action=txlist&address=${_addresses[_currentNetwork!.id]}&sort=desc'),
+        );
         final data = jsonDecode(response.body)['result'] as List;
-        history.addAll(data.map((tx) => {
-          'txHash': tx['hash'],
-          'from': tx['from'],
-          'to': tx['to'],
-          'value': tx['value'],
-          'timestamp': tx['timeStamp'],
-          'status': tx['isError'] == '0' ? 'Success' : 'Failed',
-        }));
+        history.addAll(
+          data.map(
+            (tx) => {
+              'txHash': tx['hash'],
+              'from': tx['from'],
+              'to': tx['to'],
+              'value': tx['value'],
+              'timestamp': tx['timeStamp'],
+              'status': tx['isError'] == '0' ? 'Success' : 'Failed',
+            },
+          ),
+        );
         break;
       case ChainType.Solana:
-      // 从Solana区块浏览器API获取交易历史
+        // 从Solana区块浏览器API获取交易历史
         final response = await get(Uri.parse('${_currentNetwork!.explorerUrl}/api/account/${_addresses[_currentNetwork!.id]}/transactions'));
         final data = jsonDecode(response.body) as List;
-        history.addAll(data.map((tx) => {
-          'txHash': tx['signature'],
-          'from': tx['source'],
-          'to': tx['destination'],
-          'value': tx['amount'],
-          'timestamp': tx['timestamp'],
-          'status': tx['status'] == 'Success' ? 'Success' : 'Failed',
-        }));
+        history.addAll(
+          data.map(
+            (tx) => {
+              'txHash': tx['signature'],
+              'from': tx['source'],
+              'to': tx['destination'],
+              'value': tx['amount'],
+              'timestamp': tx['timestamp'],
+              'status': tx['status'] == 'Success' ? 'Success' : 'Failed',
+            },
+          ),
+        );
         break;
       default:
         throw Exception('Unsupported chain type for transaction history');
@@ -532,7 +508,7 @@ class AdvancedMultiChainWallet {
     for (final network in supportedNetworks.values) {
       switch (network.chainType) {
         case ChainType.EVM:
-        // 使用BIP44路径派生私钥: m/44'/60'/0'/0/0
+          // 使用BIP44路径派生私钥: m/44'/60'/0'/0/0
           final path = "m/44'/${network.chainId}'/0'/0/0";
           final privateKeyBytes = await _derivePrivateKey(seed, path);
           final privateKeyHex = HEX.encode(privateKeyBytes);
@@ -540,6 +516,7 @@ class AdvancedMultiChainWallet {
           _credentials[network.name] = credentials;
           final address = (await credentials.extractAddress()).hex;
           _addresses[network.name] = address;
+          _addresses[network.id] = address;
           break;
         case ChainType.Solana:
           // Solana使用BIP44路径派生: m/44'/501'/0'/0'
@@ -549,6 +526,7 @@ class AdvancedMultiChainWallet {
 
           _credentials[network.id] = keyPair;
           _addresses[network.id] = keyPair.publicKey.toBase58();
+          _addresses[network.name] = keyPair.publicKey.toBase58();
           break;
         case ChainType.UTXO:
           // 比特币等UTXO模型链的密钥派生
@@ -558,8 +536,6 @@ class AdvancedMultiChainWallet {
 
     _privateKey = HEX.encode(seed.sublist(0, 32));
   }
-
-
 
   //根据助记词获取eth地址
   Future<String> getEthAddressFromMnemonic(String mnemonic, {int index = 0}) async {
@@ -617,16 +593,14 @@ class AdvancedMultiChainWallet {
 
   // 加载保存的代币
   Future<List<Map<String, dynamic>>> _loadSavedTokens() async {
-    return List<Map<String, dynamic>>.from(
-      _localStorage.get('tokens_${_currentNetwork!.id}') ?? [],
-    );
+    return List<Map<String, dynamic>>.from(_localStorage.get('tokens_${_currentNetwork!.id}') ?? []);
   }
 
   // 获取钱包信息
   Map<String, String?> get walletInfo {
     return {
       'currentNetwork': _currentNetwork?.name,
-      'currentAddress': _addresses[_currentNetwork?.id],
+      'currentAddress': _addresses[_currentNetwork?.id] ?? _addresses[_currentNetwork?.name],
       'mnemonic': _mnemonic,
       'privateKey': _privateKey,
     };
@@ -636,7 +610,6 @@ class AdvancedMultiChainWallet {
   Map<String, String?> getAllAddresses() {
     return _addresses.map((key, value) => MapEntry(supportedNetworks[key]?.name ?? key, value));
   }
-
 
   Future<bool> verifyMnemonicInOrder(String mnemonic) async {
     // 获取当前存储的助记词
@@ -666,16 +639,16 @@ class AdvancedMultiChainWallet {
 
       // 3. 分割完整助记词
       final storedWords = storedMnemonic.trim().split(RegExp(r'\s+'));
-  
+
       for (int i = 0; i < positions.length; i++) {
-        final position = positions[i]-1;
+        final position = positions[i] - 1;
         final inputWord = inputWords[i];
-        
+
         if (position < 0 || position >= storedWords.length) {
           _log('无效的位置索引: $position (助记词长度: ${storedWords.length})');
           return false;
         }
-        
+
         if (storedWords[position] != inputWord) {
           _log('位置 $position 不匹配: 存储="${storedWords[position]}"，输入="$inputWord"');
           return false;
@@ -690,7 +663,7 @@ class AdvancedMultiChainWallet {
     }
   }
 
-// 安全日志记录
+  // 安全日志记录
   void _log(String message) {
     print('[MnemonicVerifier] $message');
   }
@@ -749,7 +722,6 @@ void main() async {
     await wallet.switchNetwork('ethereum');
     print('\nAfter switch to Ethereum:');
     print('Current address: ${wallet.getAllAddresses()['Ethereum']}');
-
   } catch (e) {
     print('Error: $e');
   } finally {

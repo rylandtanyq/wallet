@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,31 +5,26 @@ import '../../../constants/AppColors.dart';
 import '../PayeePage.dart';
 
 /*
- *
+ * 选择网络
  */
 class PayeeSelectNetworkDialog extends StatefulWidget {
   final String title;
-  final List<String> items ;
+  final List<String> items;
 
-  const PayeeSelectNetworkDialog({
-    Key? key,
-    required this.title,
-    required this.items,
-  }) : super(key: key);
+  const PayeeSelectNetworkDialog({Key? key, required this.title, required this.items}) : super(key: key);
 
   @override
   State<PayeeSelectNetworkDialog> createState() => _PayeeSelectNetworkDialogState();
 }
 
 class _PayeeSelectNetworkDialogState extends State<PayeeSelectNetworkDialog> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       padding: EdgeInsets.only(bottom: 20.h),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -44,13 +37,11 @@ class _PayeeSelectNetworkDialogState extends State<PayeeSelectNetworkDialog> {
                   child: Text(
                     widget.title,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                    ),
+                    style: TextStyle(fontSize: 18.sp, color: Theme.of(context).colorScheme.onBackground),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, size: 25, color: Colors.black),
+                  icon: Icon(Icons.close, size: 25, color: Theme.of(context).colorScheme.onBackground),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -69,15 +60,11 @@ class _PayeeSelectNetworkDialogState extends State<PayeeSelectNetworkDialog> {
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.background,
                     child: Row(
                       children: [
                         ClipOval(
-                          child: Image.asset(
-                            'assets/images/ic_home_bit_coin.png',
-                            width: 40.w,
-                            height: 40.h,
-                          ),
+                          child: Image.asset('assets/images/ic_home_bit_coin.png', width: 40.w, height: 40.h),
                         ),
                         SizedBox(width: 10.w),
                         Expanded(
@@ -86,18 +73,11 @@ class _PayeeSelectNetworkDialogState extends State<PayeeSelectNetworkDialog> {
                             children: [
                               Text(
                                 widget.items[index],
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                ),
+                                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onBackground),
                               ),
                               Text(
                                 'Solana',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  color: AppColors.color_909090,
-                                ),
+                                style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.onSurface),
                               ),
                             ],
                           ),
@@ -106,22 +86,14 @@ class _PayeeSelectNetworkDialogState extends State<PayeeSelectNetworkDialog> {
                           children: [
                             Text(
                               '9.${index}0',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               '¥${index + 1}.00',
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                color: AppColors.color_909090,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -133,7 +105,4 @@ class _PayeeSelectNetworkDialogState extends State<PayeeSelectNetworkDialog> {
       ),
     );
   }
-
-
 }
-

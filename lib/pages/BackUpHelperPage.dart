@@ -26,7 +26,12 @@ class _BackUpHelperPageState extends State<BackUpHelperPage> with BasePage<BackU
   @override
   void initState() {
     super.initState();
-    wallet.initialize();
+    _createWallet();
+  }
+
+  /// 创建钱包
+  void _createWallet() async {
+    await wallet.initialize(networkId: "solana");
   }
 
   @override
@@ -115,7 +120,7 @@ class _BackUpHelperPageState extends State<BackUpHelperPage> with BasePage<BackU
                   textStyle: TextStyle(fontSize: 18.sp),
                 ),
                 onPressed: () => {createWalletToBackUp()},
-                child: Text('备份助记词'),
+                child: Text('备份助记词', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
               ),
             ),
           ],
@@ -149,23 +154,30 @@ class _BackUpHelperPageState extends State<BackUpHelperPage> with BasePage<BackU
     );
   }
 
+  // 备份助记词, 此处已创建钱包并生成助记词
   void createWalletToBackUp() async {
     showLoadingDialog();
-    final walletData = await createWallet();
+    final walletData = await wallet.createNewWallet();
+    debugPrint('New wallet created:');
+    debugPrint('Mnemonic: ${walletData['mnemonic']}');
+    debugPrint('privateKey: ${walletData['privateKey']}');
+    debugPrint('Current address: ${walletData['currentAddress']}');
+    debugPrint('currentNetwork: ${walletData['currentNetwork']}');
     dismissLoading();
+    // 跳转备份助记词页面, 并将创建的Mnemonic(助记词)、privateKey(私钥)、currentAddress(当前地址)、currentNetwork(当前网络)转递到下一个页面
     Get.off(BackUpHelperOnePage(), arguments: walletData);
   }
 
   // 创建钱包, 并生成助记词
-  Future<Map<String, String>> createWallet() async {
-    final newWallet = await wallet.createNewWallet();
-    print('New wallet created:');
-    print('Mnemonic: ${newWallet['mnemonic']}');
-    print('privateKey: ${newWallet['privateKey']}');
-    print('Current address: ${newWallet['currentAddress']}');
-    print('currentNetwork: ${newWallet['currentNetwork']}');
-    return newWallet;
-  }
+  // Future<Map<String, String>> createWallet() async {
+  //   final newWallet = await wallet.createNewWallet();
+  //   print('New wallet created:');
+  //   print('Mnemonic: ${newWallet['mnemonic']}');
+  //   print('privateKey: ${newWallet['privateKey']}');
+  //   print('Current address: ${newWallet['currentAddress']}');
+  //   print('currentNetwork: ${newWallet['currentNetwork']}');
+  //   return newWallet;
+  // }
 
   @override
   bool get wantKeepAlive => true;

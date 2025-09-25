@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.ai.wallet"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
 //    ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -20,8 +20,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.ai.wallet"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 23
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
@@ -87,7 +87,7 @@ dependencies {
     // 添加缺失的注解库
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // 确保已有error-prone注解.
-    compileOnly("com.google.auto.value:auto-value-annotations:1.9")
+    // compileOnly("com.google.auto.value:auto-value-annotations:1.9")
     implementation("com.google.errorprone:error_prone_annotations:2.18.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 }

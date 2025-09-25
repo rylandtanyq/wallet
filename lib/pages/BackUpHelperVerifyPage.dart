@@ -29,6 +29,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
 
   int _selectedIndex = 0;
   List<String> mnemonics = [];
+  List<String> _orderlyMnemonics = [];
   final List<BackUp> randomMnemonics = [];
   List<int> verifyPosition = [];
   String address = '';
@@ -54,6 +55,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
     print('init --network:${network}');
     String mnemonic = newWallet['mnemonic'];
     mnemonics = mnemonic.split(' ');
+    _orderlyMnemonics = List.from(mnemonics);
     mnemonics.shuffle(random);
   }
 
@@ -197,7 +199,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
                 ),
                 onPressed: () => {
                   // Get.off(),
-                  verifyMnemonic(),
+                  verifyMnemonic(_orderlyMnemonics),
                 },
                 child: Text(
                   '确认',
@@ -211,7 +213,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
     );
   }
 
-  void verifyMnemonic() async {
+  void verifyMnemonic(List<String> orderlyMnemonics) async {
     showLoadingDialog();
     List<String> values = randomMnemonics.map((e) => e.value).toList();
     final advWallet = AdvancedMultiChainWallet();
@@ -227,7 +229,16 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
       // print('\nNative balance:${balance}');
       List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
       final name = _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length})';
-      final walletEntity = Wallet(name: name, balance: '0.00', network: network, address: address, privateKey: privateKey, isBackUp: true);
+      final walletEntity = Wallet(
+        name: name,
+        balance: '0.00',
+        network: network,
+        address: address,
+        privateKey: privateKey,
+        isBackUp: true,
+        mnemonic: orderlyMnemonics,
+      );
+      // debugPrint('新存入的钱包信息$walletEntity');
       await HiveStorage().putObject('currentSelectWallet', walletEntity);
       await HiveStorage().putValue('selected_address', address);
 

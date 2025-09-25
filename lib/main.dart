@@ -33,20 +33,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
-    final solana_wallet = CreateSolanaWallet.empty();
-
-    // @override
-    // void initState() {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     if (solana_wallet.address.isEmpty) {
-    //       debugPrint("没有创建钱包");
-    //       Get.off(Createwalletpage());
-    //     } else {
-    //       Get.off(HomePage());
-    //     }
-    //   });
-    // }
-
+    // final solana_wallet = CreateSolanaWallet.empty();
     return ScreenUtilInit(
       designSize: Size(375, 667),
       minTextAdapt: true,
@@ -76,7 +63,8 @@ class MyApp extends ConsumerWidget {
           //     ),
           //   ),
           // ),
-          home: solana_wallet.address.isEmpty ? Createwalletpage() : HomePage(),
+          // home: solana_wallet.address.isEmpty ? Createwalletpage() : HomePage(),
+          home: MainPage(),
           initialRoute: '/',
         );
       },

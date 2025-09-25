@@ -16,7 +16,12 @@ class SelectTransferCoinTypePage extends StatefulWidget {
 }
 
 class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage> with TickerProviderStateMixin {
-  final List<String> _items = ['USDT', 'USDC', 'ETH', 'SOL', 'BNB', 'BNB', 'BNB', 'BNB', 'BNB', 'BNB', 'BNB', 'BTC'];
+  final List<Map<String, String>> _items = [
+    {"currency": "SOL", "network": "Solana", "tokenAddress": ""},
+    {"currency": "USDT", "network": "Solana", "tokenAddress": "Es9vMFrzaCERJtFyHkz5Ey6erGTBf5Gz7ZvA9VxE7S4"},
+    {"currency": "USDC", "network": "Solana", "tokenAddress": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"},
+    {"currency": "WSOL", "network": "Solana", "tokenAddress": "So11111111111111111111111111111111111111112"},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -115,10 +120,13 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
   }
 
   Widget _buildCoinTypeItem(int index) {
+    final currency = _items[index]["currency"];
+    final tokenAddress = _items[index]["tokenAddress"];
+    final network = _items[index]["network"];
     return GestureDetector(
       onTap: () {
         Navigator.pop(context);
-        Get.to(TransferPage());
+        Get.to(TransferPage(currency: currency!, tokenAddress: tokenAddress!, network: network!));
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -134,10 +142,10 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _items[index],
+                    _items[index]["currency"] ?? "",
                     style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
                   ),
-                  Text('多链', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  Text('Solana', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),

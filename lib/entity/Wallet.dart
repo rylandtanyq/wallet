@@ -5,27 +5,30 @@ part 'Wallet.g.dart';
 
 @JsonSerializable()
 @HiveType(typeId: 1)
-class Wallet extends HiveObject{
+class Wallet extends HiveObject {
   @HiveField(0)
-  final String name;  //钱包名称
+  final String name; //钱包名称
 
   @HiveField(1)
-  late final String balance;  //余额
+  late String balance; //余额
 
   @HiveField(2)
-  final String address;  //钱包地址
+  final String address; //钱包地址
 
   @HiveField(3)
-  final String network;  //钱包网络
+  final String network; //钱包网络
 
   @HiveField(4)
-  final String privateKey;  //钱包私钥
+  final String privateKey; //钱包私钥
 
   @HiveField(5)
-  bool isExpanded;    //是否展开
+  bool isExpanded; //是否展开
 
   @HiveField(6)
-  bool isBackUp;    //是否备份
+  bool isBackUp; //是否备份
+
+  @HiveField(7)
+  final List<String>? mnemonic;
 
   Wallet({
     required this.name,
@@ -35,6 +38,7 @@ class Wallet extends HiveObject{
     required this.privateKey,
     this.isExpanded = false,
     this.isBackUp = false,
+    this.mnemonic,
   });
 
   factory Wallet.empty() => Wallet(
@@ -47,8 +51,7 @@ class Wallet extends HiveObject{
     isBackUp: false,
   );
 
-  factory Wallet.fromJson(Map<String, dynamic> json) =>
-      _$WalletFromJson(json);
+  factory Wallet.fromJson(Map<String, dynamic> json) => _$WalletFromJson(json);
 
   Map<String, dynamic> toJson() => _$WalletToJson(this);
 }
@@ -68,6 +71,7 @@ class WalletHiveAdapter extends TypeAdapter<Wallet> {
       privateKey: reader.read(),
       isExpanded: reader.read(),
       isBackUp: reader.read(),
+      mnemonic: (reader.read() as List<String>?)?.cast<String>(),
     );
   }
 
@@ -80,5 +84,6 @@ class WalletHiveAdapter extends TypeAdapter<Wallet> {
     writer.write(obj.privateKey);
     writer.write(obj.isExpanded);
     writer.write(obj.isBackUp);
+    writer.write(obj.mnemonic);
   }
 }

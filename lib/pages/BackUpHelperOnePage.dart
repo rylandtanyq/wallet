@@ -25,14 +25,13 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
 
   bool _showBlur = true; // 控制模糊层显示
 
-  // 模拟数据
+  // 模拟数据, 接受上一个页面传递的助记词、私钥、钱包地址、当前的网络(例如Eth)
   late List<String> mnemonics;
 
   @override
   void initState() {
     super.initState();
     final newWallet = Get.arguments;
-    debugPrint('$newWallet/////////////////////');
     String mnemonic = newWallet['mnemonic'];
     mnemonics = mnemonic.split(' ');
   }
