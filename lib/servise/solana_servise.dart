@@ -1,4 +1,8 @@
 import 'dart:math';
+import 'dart:typed_data';
+import 'package:bs58/bs58.dart';
+import 'package:flutter/rendering.dart';
+import 'package:hex/hex.dart';
 import 'package:solana/dto.dart';
 import 'package:solana/solana.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -16,16 +20,19 @@ Future<String> sendSol({
   required String mnemonic,
   required String receiverAddress,
   required double amount, // 单位 SOL
-  // 测试网 https://api.testnet.solana.com
-  // 主网 https://api.mainnet-beta.solana.com
-  // 开发网 https://api.devnet.solana.com
-  String rpcUrl = 'https://api.devnet.solana.com',
+  String rpcUrl = 'https://api.mainnet-beta.solana.com',
 }) async {
   // 1. SolanaClient，需要 Uri 类型
   final client = SolanaClient(rpcUrl: Uri.parse(rpcUrl), websocketUrl: Uri.parse(rpcUrl.replaceFirst('http', 'ws')));
 
-  // 2. 生成发送方 Keypair
-  final sender = await Ed25519HDKeyPair.fromMnemonic(mnemonic);
+  // 2. 生成发送方 Keypair，指定派生路径
+  final sender = await Ed25519HDKeyPair.fromMnemonic(
+    mnemonic,
+    account: 0, // m/44'/501'/0'
+    change: 0, // m/44'/501'/0'/0
+  );
+
+  debugPrint('发送方地址: ${sender.publicKey.toBase58()}'); // 确认和钱包地址一致
 
   // 3. 构造转账指令
   final instruction = SystemInstruction.transfer(
@@ -38,7 +45,7 @@ Future<String> sendSol({
   final signature = await client.sendAndConfirmTransaction(
     message: Message(instructions: [instruction]),
     signers: [sender],
-    commitment: Commitment.confirmed, // 必填
+    commitment: Commitment.confirmed,
   );
 
   return signature;
@@ -53,13 +60,19 @@ Future<String> sendSPLToken({
   // 测试网 https://api.testnet.solana.com
   // 主网 https://api.mainnet-beta.solana.com
   // 开发网 https://api.devnet.solana.com
-  String rpcUrl = 'https://api.devnet.solana.com',
+  String rpcUrl = 'https://api.mainnet-beta.solana.com',
 }) async {
   final client = SolanaClient(rpcUrl: Uri.parse(rpcUrl), websocketUrl: Uri.parse(rpcUrl.replaceFirst('http', 'ws')));
 
-  final sender = await Ed25519HDKeyPair.fromMnemonic(mnemonic);
+  final sender = await Ed25519HDKeyPair.fromMnemonic(
+    mnemonic,
+    account: 0, // m/44'/501'/0'
+    change: 0, // m/44'/501'/0'/0
+  );
   final mint = Ed25519HDPublicKey.fromBase58(tokenMintAddress);
   final receiverPubKey = Ed25519HDPublicKey.fromBase58(receiverAddress);
+
+  debugPrint('发送方地址: ${sender.publicKey.toBase58()}'); // 确认和钱包地址一致
 
   // 获取或创建收款方的关联Token账户（ATA）
   final receiverAta = await client.getAssociatedTokenAccount(owner: receiverPubKey, mint: mint);

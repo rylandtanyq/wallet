@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:solana_wallet/solana_package.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/dao/HiveStorage.dart';
-import 'package:untitled1/entity/Wallet.dart';
+import 'package:untitled1/entity/Wallet.dart' as Mywallet;
 import 'package:untitled1/pages/AddressbookAndMywallet.dart';
 import 'package:untitled1/pages/CameraScan.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/pages/view/CustomTextField.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
 
@@ -35,9 +33,9 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   final TextEditingController _textControllerDiyWalletName = TextEditingController();
   final TextEditingController _textControllertransferAmount = TextEditingController();
   final TextEditingController _textControllerGasFees = TextEditingController();
-  var solana = Solana();
   String? _currentWalletMnemonic;
   String? _currentWalletAdderss;
+  String? _currentWalletprivateKey;
   double? balance;
 
   @override
@@ -49,35 +47,13 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
 
   // 获取当前选中的钱包信息
   void _getCurrentSelectedWalletInformation() {
-    final wallet = HiveStorage().getObject<Wallet>('currentSelectWallet');
+    final wallet = HiveStorage().getObject<Mywallet.Wallet>('currentSelectWallet');
     _currentWalletMnemonic = wallet?.mnemonic?.join(" ");
     _currentWalletAdderss = wallet?.address;
+    _currentWalletprivateKey = wallet?.privateKey;
     debugPrint(wallet?.address);
-  }
-
-  // 获取余额
-  void _getBalance() async {
-    if (widget.currency == "SOL") {
-      getSolBalance(rpcUrl: "https://api.devnet.solana.com", ownerAddress: _currentWalletAdderss!)
-          .then((e) {
-            setState(() {
-              balance = e;
-            });
-          })
-          .catchError((e) {
-            debugPrint("获取余额失败");
-          });
-    } else {
-      getSplTokenBalanceRpc(rpcUrl: "https://api.devnet.solana.com", ownerAddress: _currentWalletAdderss!, mintAddress: widget.tokenAddress)
-          .then((e) {
-            setState(() {
-              balance = e;
-            });
-          })
-          .catchError((e) {
-            debugPrint("获取余额失败$e");
-          });
-    }
+    debugPrint(wallet?.mnemonic?.join(" "));
+    debugPrint(wallet?.privateKey);
   }
 
   @override
@@ -239,6 +215,31 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
     );
   }
 
+  // 获取余额
+  void _getBalance() async {
+    if (widget.currency == "SOL") {
+      getSolBalance(rpcUrl: "https://api.mainnet-beta.solana.com", ownerAddress: _currentWalletAdderss!)
+          .then((e) {
+            setState(() {
+              balance = e;
+            });
+          })
+          .catchError((e) {
+            debugPrint("获取余额失败$e");
+          });
+    } else {
+      getSplTokenBalanceRpc(rpcUrl: "https://api.mainnet-beta.solana.com", ownerAddress: _currentWalletAdderss!, mintAddress: widget.tokenAddress)
+          .then((e) {
+            setState(() {
+              balance = e;
+            });
+          })
+          .catchError((e) {
+            debugPrint("获取余额失败$e");
+          });
+    }
+  }
+
   // toast
   void _showSnack(String msg) {
     if (!mounted) return;
@@ -296,9 +297,18 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
 
     // 执行转账
     if (currency == 'SOL') {
-      sendSol(receiverAddress: "6bPZLzFBnYNdZbAkCgkB47j5XyZmgfQaVkNECNZNCRL2", mnemonic: '$_currentWalletMnemonic', amount: 1)
+      sendSol(receiverAddress: "$_diyWalletName", mnemonic: '$_currentWalletMnemonic', amount: double.parse("$_transferAmount"))
           .then((e) {
+            setState(() {
+              _diyWalletName = "";
+              _transferAmount = "";
+              _textControllerDiyWalletName.text = "";
+              _textControllertransferAmount.text = "";
+              _showSnack('转账已提交');
+            });
             debugPrint('转账SOL结果: $e');
+            // MwTiuMKDk1Zco7qKZMePfuYRe7akcooMbX5CmdCMwEsD6zdojT6B8xtBoN4XgkTnKjgF6je5FY9wsUa9f6wg6UW
+            // 34k6sYaofjbasfxb9U6xLRv57HcbHmopcuAzrMWQrH1gygxj1QFK2YxSHHMH93PPpHt1TXPE6UC9xR2kwTX8ACQu
           })
           .catchError((e) {
             debugPrint("转账SOL错误: $e");
@@ -307,11 +317,18 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
       debugPrint('tokenAddress: ${widget.tokenAddress}');
       sendSPLToken(
             mnemonic: "$_currentWalletMnemonic",
-            receiverAddress: "6bPZLzFBnYNdZbAkCgkB47j5XyZmgfQaVkNECNZNCRL2",
+            receiverAddress: "$_diyWalletName",
             tokenMintAddress: widget.tokenAddress,
-            amount: 1.23,
+            amount: double.parse("$_transferAmount"),
           )
           .then((e) {
+            setState(() {
+              _diyWalletName = "";
+              _transferAmount = "";
+              _textControllerDiyWalletName.text = "";
+              _textControllertransferAmount.text = "";
+              _showSnack('转账已提交');
+            });
             debugPrint('派生币转账返回结果: $e');
           })
           .catchError((e) {

@@ -502,38 +502,46 @@ class AdvancedMultiChainWallet {
   // 从助记词生成各链的密钥对 (内部方法)
   Future<void> _generateKeysFromMnemonic() async {
     if (_mnemonic == null) return;
-    //生成种子
+
+    // 生成种子（EVM 可以用，也可以单独派生）
     final seed = bip39.mnemonicToSeed(_mnemonic!);
 
     for (final network in supportedNetworks.values) {
       switch (network.chainType) {
         case ChainType.EVM:
-          // 使用BIP44路径派生私钥: m/44'/60'/0'/0/0
-          final path = "m/44'/${network.chainId}'/0'/0/0";
+          // 使用标准 ETH BIP44 路径：m/44'/60'/0'/0/0
+          final path = "m/44'/60'/0'/0/0";
           final privateKeyBytes = await _derivePrivateKey(seed, path);
           final privateKeyHex = HEX.encode(privateKeyBytes);
           final credentials = EthPrivateKey.fromHex(privateKeyHex);
-          _credentials[network.name] = credentials;
+
+          _credentials[network.id] = credentials;
           final address = (await credentials.extractAddress()).hex;
-          _addresses[network.name] = address;
           _addresses[network.id] = address;
+          _addresses[network.name] = address;
           break;
+
         case ChainType.Solana:
-          // Solana使用BIP44路径派生: m/44'/501'/0'/0'
-          final path = "m/44'/501'/0'/0'";
-          final privateKeyBytes = await _derivePrivateKey(seed, path);
-          final keyPair = await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: privateKeyBytes);
+          // 使用与转账保持一致的路径：m/44'/501'/0'/0
+          final keyPair = await solana.Ed25519HDKeyPair.fromMnemonic(
+            _mnemonic!,
+            account: 0, // m/44'/501'/0'
+            change: 0, // m/44'/501'/0'/0
+          );
 
           _credentials[network.id] = keyPair;
-          _addresses[network.id] = keyPair.publicKey.toBase58();
-          _addresses[network.name] = keyPair.publicKey.toBase58();
+          final address = keyPair.publicKey.toBase58();
+          _addresses[network.id] = address;
+          _addresses[network.name] = address;
           break;
+
         case ChainType.UTXO:
-          // 比特币等UTXO模型链的密钥派生
+          // 比特币等UTXO模型链的密钥派生，可根据需要添加
           break;
       }
     }
 
+    // 存储根私钥
     _privateKey = HEX.encode(seed.sublist(0, 32));
   }
 

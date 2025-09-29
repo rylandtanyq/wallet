@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/dao/HiveStorage.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/pages/view/CustomTextField.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:untitled1/entity/Wallet.dart';
 
 import '../../base/base_page.dart';
 
@@ -19,8 +21,19 @@ class PayeePage extends StatefulWidget {
 }
 
 class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, AutomaticKeepAliveClientMixin {
-  String _diyWalletName = '';
-  final TextEditingController _textController = TextEditingController();
+  String? _currentWalletAdderss;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentSelectedWalletInformation();
+  }
+
+  // 获取当前钱包地址
+  void _getCurrentSelectedWalletInformation() {
+    final wallet = HiveStorage().getObject<Wallet>('currentSelectWallet');
+    _currentWalletAdderss = wallet?.address;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +75,7 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
                       width: 182,
                       height: 182,
                       child: QrImageView(
-                        data: '6bPZLzFBnYNdZbAkCgkB47j5XyZmgfQaVkNECNZNCRL2',
+                        data: _currentWalletAdderss ?? "",
                         version: QrVersions.auto,
                         backgroundColor: Theme.of(context).colorScheme.background,
                         foregroundColor: Theme.of(context).colorScheme.onBackground,
@@ -84,13 +97,13 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.r)),
                       ),
                       onPressed: () {
-                        Clipboard.setData(ClipboardData(text: "6bPZLzFBnYNdZbAkCgkB47j5XyZmgfQaVkNECNZNCRL2"));
+                        Clipboard.setData(ClipboardData(text: _currentWalletAdderss ?? ""));
                       },
                       child: Row(
                         children: [
                           Expanded(
                             child: Text(
-                              '6bPZLzFBnYNdZbAkCgkB47j5XyZmgfQaVkNECNZNCRL2',
+                              _currentWalletAdderss ?? "",
                               style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,

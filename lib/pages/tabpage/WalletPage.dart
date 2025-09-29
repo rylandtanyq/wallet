@@ -183,7 +183,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
     try {
       // NetworkType.Devnet  测试用
       // networktype: NetworkType.Mainnet   真实主网余额
-      var solBalance = await solana.getbalance(address: wallet.address, networktype: NetworkType.Devnet);
+      var solBalance = await solana.getbalance(address: wallet.address, networktype: NetworkType.Mainnet);
       debugPrint("Sol balance:- $solBalance");
       debugPrint("new address:- ${wallet.address}");
       wallet.balance = solBalance.toString();
@@ -194,6 +194,11 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
         });
       }
     } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        wallet.balance = "0.00";
+      });
+      await wallet.save();
       debugPrint("更新余额失败$e");
     }
   }
@@ -246,7 +251,6 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                   ),
                   onPressed: () async {
                     final currentSelectNetwork = await showAnimatedFullScreenDialog(context);
-                    debugPrint('${currentSelectNetwork}');
                     if (currentSelectNetwork != null) {
                       HiveStorage().putObject('currentNetwork', currentSelectNetwork);
                     }
@@ -282,6 +286,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
 
   //选择网络弹窗
   Future<Map<String, String>?> showAnimatedFullScreenDialog(BuildContext context) {
+    _currentNetwork = Map<String, String>.from(HiveStorage().getObject<Map>("currentNetwork") ?? defaultNetwork);
     return Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {

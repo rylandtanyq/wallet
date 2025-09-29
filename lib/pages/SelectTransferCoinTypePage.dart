@@ -18,7 +18,7 @@ class SelectTransferCoinTypePage extends StatefulWidget {
 class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage> with TickerProviderStateMixin {
   final List<Map<String, String>> _items = [
     {"currency": "SOL", "network": "Solana", "tokenAddress": ""},
-    {"currency": "USDT", "network": "Solana", "tokenAddress": "Es9vMFrzaCERJtFyHkz5Ey6erGTBf5Gz7ZvA9VxE7S4"},
+    {"currency": "USDT", "network": "Solana", "tokenAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"},
     {"currency": "USDC", "network": "Solana", "tokenAddress": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"},
     {"currency": "WSOL", "network": "Solana", "tokenAddress": "So11111111111111111111111111111111111111112"},
   ];
