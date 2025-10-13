@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
@@ -86,14 +87,14 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                 Expanded(
                   child: Center(
                     child: Text(
-                      _isEditMode ? '编辑钱包' : '选择钱包',
+                      _isEditMode ? t.wallet.editWallet : t.wallet.selectWallet,
                       style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground),
                     ),
                   ),
                 ),
                 TextButton(
                   child: Text(
-                    _isEditMode ? '保存' : '管理',
+                    _isEditMode ? t.wallet.save : t.wallet.manage,
                     style: TextStyle(
                       fontSize: 15.sp,
                       color: _isEditMode ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onBackground,
@@ -130,7 +131,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
           decoration: BoxDecoration(color: Theme.of(context).colorScheme.background, borderRadius: BorderRadius.circular(8.w)),
           child: Row(
             children: [
-              Text('资产总额', style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+              Text(t.wallet.totalAssets, style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground)),
               IconButton(
                 icon: Image.asset('assets/images/ic_wallet_exclamation.png', width: 13.w, height: 13.w),
                 onPressed: () => Navigator.pop(context),
@@ -162,7 +163,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
               textStyle: TextStyle(fontSize: 18.sp),
             ),
             onPressed: () => {Navigator.pop(context), Get.to(AddWalletPage())},
-            child: Text('+添加钱包', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
+            child: Text('+${t.wallet.addWallet}', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
           ),
         ),
         SizedBox(height: 20.h),
@@ -281,6 +282,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                       Spacer(),
                       if (wallet.isBackUp)
                         SizedBox(
+                          width: 70.w,
                           child: Material(
                             borderRadius: BorderRadius.circular(20.r),
                             clipBehavior: Clip.antiAlias,
@@ -306,9 +308,13 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                                       ),
                                     ),
                                     SizedBox(width: 1.w),
-                                    Text(
-                                      '去备份',
-                                      style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onBackground),
+                                    Expanded(
+                                      child: Text(
+                                        t.Mysettings.go_backup,
+                                        style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onBackground),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ],
                                 ),

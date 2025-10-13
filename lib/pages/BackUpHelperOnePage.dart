@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
@@ -54,21 +55,18 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '备份前请谨记!',
+                    t.wallet.rememberBeforeBackupExclaim,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
                   ),
                   SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildTipItem('建议手写抄录', true),
-                        SizedBox(width: 20),
-                        _buildTipItem('请勿复制保存', false),
-                        SizedBox(width: 20),
-                        _buildTipItem('请勿截屏保存!', false),
-                      ],
-                    ),
+                  Wrap(
+                    children: [
+                      _buildTipItem(t.wallet.handwriteRecommended, true),
+                      SizedBox(width: 20),
+                      _buildTipItem(t.wallet.doNotCopy, false),
+                      SizedBox(width: 20),
+                      _buildTipItem(t.wallet.doNotScreenshot, false),
+                    ],
                   ),
                   SizedBox(height: 10),
                 ],
@@ -143,7 +141,10 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
                                     child: Image.asset('assets/images/ic_wallet_un_eye.png', width: 42.w, height: 34.h),
                                   ),
                                   SizedBox(height: 8),
-                                  Text('点击此处查看助记词', style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                                  Text(
+                                    t.wallet.clickToViewMnemonic,
+                                    style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                                  ),
                                 ],
                               ),
                             ),
@@ -168,7 +169,11 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
                   textStyle: TextStyle(fontSize: 18.sp),
                 ),
                 onPressed: () => {Get.to(BackUpHelperVerifyPage(), arguments: Get.arguments)},
-                child: Text('备份助记词', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+                child: Text(
+                  t.wallet.backupMnemonic,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],

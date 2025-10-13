@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
@@ -40,74 +41,105 @@ class _BackUpHelperPageState extends State<BackUpHelperPage> with BasePage<BackU
 
     return Scaffold(
       appBar: CustomAppBar(title: ''),
-      body: Container(
-        color: Theme.of(context).colorScheme.background,
-        padding: EdgeInsets.only(bottom: 20.h),
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.all(12.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('备份前请谨记!', style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                  SizedBox(height: 10.h),
-                  Row(
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: 20.h),
+                child: Container(
+                  color: Theme.of(context).colorScheme.background,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset('assets/images/ic_wallet_new_work_selected.png', width: 13.w, height: 10.h),
-                      SizedBox(width: 3.5.w),
-                      Text('建议手写抄录', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                      SizedBox(width: 20.w),
-                      Image.asset('assets/images/ic_wallet_unselected.png', width: 10.w, height: 10.h),
-                      SizedBox(width: 3.5.w),
-                      Text('请勿复制保存', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                      SizedBox(width: 20.w),
-                      Image.asset('assets/images/ic_wallet_unselected.png', width: 10.w, height: 10.h),
-                      SizedBox(width: 3.5.w),
-                      Text('请勿截屏保存!', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                      SizedBox(width: 20.w),
+                      Container(
+                        padding: EdgeInsets.all(12.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              t.wallet.rememberBeforeBackup,
+                              style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                            ),
+                            SizedBox(height: 10.h),
+                            Wrap(
+                              children: [
+                                Row(
+                                  children: [
+                                    Image.asset('assets/images/ic_wallet_new_work_selected.png', width: 13.w, height: 10.h),
+                                    SizedBox(width: 3.5.w),
+                                    Text(
+                                      t.wallet.handwriteRecommended,
+                                      style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                                    ),
+                                    SizedBox(width: 20.w),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Image.asset('assets/images/ic_wallet_unselected.png', width: 10.w, height: 10.h),
+                                    SizedBox(width: 3.5.w),
+                                    Text(
+                                      t.wallet.doNotCopy,
+                                      style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                                    ),
+                                    SizedBox(width: 20.w),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Image.asset('assets/images/ic_wallet_unselected.png', width: 10.w, height: 10.h),
+                                    SizedBox(width: 3.5.w),
+                                    Text(
+                                      t.wallet.doNotScreenshot,
+                                      style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                                    ),
+                                    SizedBox(width: 20.w),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            _buildSuggestView('assets/images/ic_wallet_backup1.png', t.wallet.mnemonicIsPassword, t.wallet.mnemonicEqualsOwnership),
+                            _buildSuggestView('assets/images/ic_wallet_backup2.png', t.wallet.handwriteOrColdWallet, t.wallet.copyOrScreenshotRisk),
+                            _buildSuggestView('assets/images/ic_wallet_backup3.png', t.wallet.storeMnemonicSafely, t.wallet.lossIsIrrecoverable),
+                          ],
+                        ),
+                      ),
+
+                      /// 同意条款
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: isSelected,
+                            onChanged: (value) {
+                              setState(() {
+                                isSelected = value!;
+                              });
+                            },
+                            shape: CircleBorder(),
+                            fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                              if (states.contains(MaterialState.selected)) {
+                                return Theme.of(context).colorScheme.primary;
+                              }
+                              return Colors.transparent;
+                            }),
+                          ),
+                          Flexible(
+                            child: Text(
+                              t.wallet.personalResponsibility,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12.sp),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  SizedBox(height: 10),
-                  _buildSuggestView('assets/images/ic_wallet_backup1.png', "助记词相当于你的钱包密码", "获得助记词等于获得资产所有权，一旦泄露资"),
-                  _buildSuggestView('assets/images/ic_wallet_backup2.png', "请手写抄录或存储于冷钱包等离线设备中", "若复制或截屏保存，助记词有可能泄露"),
-                  _buildSuggestView('assets/images/ic_wallet_backup3.png', "将助记词存放在安全的地方", "一旦丢失资产将无法找回资"),
-                ],
+                ),
               ),
             ),
 
-            Expanded(
-              // 自动填充剩余空间
-              child: Container(color: Theme.of(context).colorScheme.background),
-            ),
-
-            Row(
-              children: [
-                Checkbox(
-                  value: isSelected,
-                  onChanged: (value) {
-                    setState(() {
-                      isSelected = value!;
-                    });
-                  },
-                  shape: CircleBorder(), // 圆形
-                  fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-                    if (states.contains(MaterialState.selected)) {
-                      return Theme.of(context).colorScheme.primary; // 选中颜色 #286713
-                    }
-                    return Colors.transparent; // 未选中颜色
-                  }),
-                ),
-                Flexible(
-                  // 或 Expanded
-                  child: Text(
-                    '助记词由您个人保管，请务必备份!一旦丢失资产将无法找回!',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12.sp),
-                  ),
-                ),
-              ],
-            ),
+            /// 按钮
             Padding(
               padding: EdgeInsets.all(15.w),
               child: ElevatedButton(
@@ -120,7 +152,11 @@ class _BackUpHelperPageState extends State<BackUpHelperPage> with BasePage<BackU
                   textStyle: TextStyle(fontSize: 18.sp),
                 ),
                 onPressed: () => {createWalletToBackUp()},
-                child: Text('备份助记词', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
+                child: Text(
+                  t.wallet.backupMnemonic,
+                  style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],

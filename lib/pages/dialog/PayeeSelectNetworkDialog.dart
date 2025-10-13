@@ -31,22 +31,26 @@ class _PayeeSelectNetworkDialogState extends State<PayeeSelectNetworkDialog> {
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Row(
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                Expanded(
+                Center(
                   child: Text(
                     widget.title,
-                    textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 18.sp, color: Theme.of(context).colorScheme.onBackground),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.close, size: 25, color: Theme.of(context).colorScheme.onBackground),
-                  onPressed: () => Navigator.pop(context),
+                Positioned(
+                  right: 0,
+                  child: IconButton(
+                    icon: Icon(Icons.close, size: 25, color: Theme.of(context).colorScheme.onBackground),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
               ],
             ),
           ),
+
           Expanded(
             child: ListView.builder(
               shrinkWrap: true,

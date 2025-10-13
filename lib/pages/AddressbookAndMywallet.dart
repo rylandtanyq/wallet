@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 class Addressbookandmywallet extends StatefulWidget {
@@ -49,8 +50,8 @@ class _AddressbookandmywalletState extends State<Addressbookandmywallet> with Ti
             unselectedLabelStyle: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             overlayColor: MaterialStateProperty.all(Colors.transparent),
             tabs: [
-              Tab(child: Text("地址本")),
-              Tab(child: Text("我的钱包")),
+              Tab(child: Text(t.common.addressBook, maxLines: 1, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.common.myWallet, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ],
           ),
         ),
@@ -80,10 +81,10 @@ Widget _buildAddressBookWidget(BuildContext context) {
               ),
               SizedBox(height: 10),
               Text(
-                "暂未添加地址",
+                t.common.noAddress,
                 style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
               ),
-              Text("转账时可直接填入添加的地址", style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+              Text(t.common.tipFillAddress, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground)),
             ],
           ),
         ),
@@ -92,7 +93,7 @@ Widget _buildAddressBookWidget(BuildContext context) {
           height: 55,
           alignment: Alignment.center,
           decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(50.r)),
-          child: Text("+添加新地址", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
+          child: Text(t.common.addNewAddress, style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
         ),
       ],
     ),
@@ -114,10 +115,10 @@ Widget _buildMyWalletWidget(BuildContext context) {
               ),
               SizedBox(height: 10),
               Text(
-                "暂未添加地址",
+                t.common.noAddress,
                 style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
               ),
-              Text("转账时可直接填入添加的地址", style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+              Text(t.common.tipFillAddress, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground)),
             ],
           ),
         ),

@@ -1,29 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 /// 使用指南
-class Usageguidelines extends StatefulWidget {
+class Usageguidelines extends ConsumerStatefulWidget {
   const Usageguidelines({super.key});
 
   @override
-  State<Usageguidelines> createState() => _UsageguidelinesState();
+  ConsumerState<Usageguidelines> createState() => _UsageguidelinesState();
 }
 
-class _UsageguidelinesState extends State<Usageguidelines> {
-  final List<Map<String, dynamic>> sections = [
-    {
-      "title": "新手入门",
-      "items": ["创建第一个钱包", "获得第一笔加密资产", "完成第一笔交易"],
-    },
-    {
-      "title": "基本概念",
-      "items": ["关于钱包", "公链与代币", "转账与接收", "Swap 交易"],
-    },
-  ];
-
+class _UsageguidelinesState extends ConsumerState<Usageguidelines> {
   @override
   Widget build(BuildContext context) {
+    ref.watch(localeProvider);
+    final List<Map<String, dynamic>> sections = [
+      {
+        "title": t.Mysettings.getting_started,
+        "items": [t.Mysettings.create_first_wallet, t.Mysettings.get_first_crypto_asset, t.Mysettings.complete_first_transaction],
+      },
+      {
+        "title": t.Mysettings.basic_concepts,
+        "items": [t.Mysettings.about_wallet, t.Mysettings.blockchain_and_token, t.Mysettings.transfer_and_receive, t.Mysettings.swap_transaction],
+      },
+    ];
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -33,7 +36,7 @@ class _UsageguidelinesState extends State<Usageguidelines> {
           child: Icon(Icons.arrow_back_ios_new, size: 20.w, color: Theme.of(context).colorScheme.onBackground),
         ),
         centerTitle: true,
-        title: Text("使用指南", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+        title: Text(t.Mysettings.user_guide, style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -58,13 +61,13 @@ class _UsageguidelinesState extends State<Usageguidelines> {
   /// 搜索框
   Widget _buildSearchField() {
     return TextField(
-      cursorColor: Colors.black,
+      cursorColor: Theme.of(context).colorScheme.onBackground,
       decoration: InputDecoration(
-        hintText: "支持搜索问题、正文关键词",
+        hintText: t.Mysettings.support_search_hint,
         hintStyle: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
         filled: true,
         fillColor: Theme.of(context).colorScheme.surface,
-        contentPadding: EdgeInsets.zero,
+        contentPadding: EdgeInsets.only(right: 14),
         border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(25.r)),
         prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
       ),

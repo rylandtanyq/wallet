@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 class StatefulProductCard extends StatefulWidget {
@@ -62,16 +63,29 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '持有WPoS享20...',
-                    style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                  SizedBox(
+                    width: 202,
+                    child: Text(
+                      t.home.hold_syrupusdc,
+                      style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   SizedBox(height: 8),
 
-                  Text('WPoS是由SOLBOT机构....', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  SizedBox(
+                    width: 202,
+                    child: Text(
+                      t.home.syrupusdc_desc,
+                      style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   SizedBox(height: 4),
                   // 描述文字
-                  Text('SOLBOT机构推出的稳定币收...', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  // Text('SOLBOT机构推出的稳定币收...', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
               ClipOval(
@@ -93,7 +107,7 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
                   borderRadius: BorderRadius.circular(5.r),
                   border: Border.all(color: AppColors.color_B5DE5B, width: 0.5),
                 ),
-                child: Text('距结束：$_remainingDays天', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary)),
+                child: Text(t.home.ends_in, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary)),
               ),
               SizedBox(width: 3.w),
               Container(
@@ -120,7 +134,7 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
               ClipOval(
                 child: Image.asset('assets/images/ic_home_bit_coin.png', width: 13.w, height: 13.w, fit: BoxFit.cover),
               ),
-              Text('总奖励  ', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+              Text(t.home.total_reward, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
               Text(
                 '\$100,000',
                 style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
@@ -138,7 +152,7 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(Icons.access_time, size: 13.w, color: Theme.of(context).colorScheme.onSurface),
-                        Text('耗时 ', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                        Text(t.home.duration_abbr, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         Text(
                           '2分钟',
                           style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
@@ -151,7 +165,7 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(Icons.person_outline, size: 13.w, color: Theme.of(context).colorScheme.onSurface),
-                        Text('参与人数 ', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                        Text(t.home.join_now_abbr, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         Text(
                           '200人',
                           overflow: TextOverflow.ellipsis,
@@ -177,7 +191,7 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
                   ),
                   onPressed: _isParticipated ? null : _handleParticipate,
                   child: Text(
-                    _isParticipated ? '已参与' : '立即参与',
+                    _isParticipated ? t.home.participated : t.home.join_now,
                     style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
                   ),
                 ),

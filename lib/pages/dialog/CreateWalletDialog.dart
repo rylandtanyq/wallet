@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
@@ -80,7 +81,7 @@ class _ToggleDialogState extends State<CreateWalletDialog> {
                   widget.child,
                   _buildCreateCard(
                     'assets/images/ic_wallet_create.png',
-                    '助记词钱包',
+                    t.wallet.mnemonicWallet,
                     '',
                     _isTextVisible,
                     () {
@@ -94,7 +95,7 @@ class _ToggleDialogState extends State<CreateWalletDialog> {
                   ),
                   _buildCreateCard(
                     'assets/images/ic_wallet_create.png',
-                    '无私钥钱包',
+                    t.wallet.noPrivateKeyWallet,
                     '',
                     _isPrivateKeyTextVisible,
                     () {
@@ -139,22 +140,26 @@ class _ToggleDialogState extends State<CreateWalletDialog> {
                 children: [
                   Image.asset(icon, width: 50.w, height: 50.w, fit: BoxFit.cover),
                   SizedBox(width: 8.w),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: AppTextStyles.size17.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 8.h),
-                      InkWell(
-                        onTap: onTap,
-                        child: Text('显示详情', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: AppTextStyles.size17.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8.h),
+                        InkWell(
+                          onTap: onTap,
+                          child: Text(t.wallet.showDetails, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                        ),
+                      ],
+                    ),
                   ),
-                  Spacer(),
+                  // Spacer(),
+                  SizedBox(width: 8.w),
                   SizedBox(
+                    width: 70.w,
                     child: InkWell(
                       onTap: onNextPage,
                       child: Container(
@@ -163,10 +168,13 @@ class _ToggleDialogState extends State<CreateWalletDialog> {
                           border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.3), width: 1),
                           borderRadius: BorderRadius.circular(21.5.r),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 22.w),
+                        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 10.w),
                         child: Text(
-                          '创建',
+                          t.wallet.create,
                           style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
@@ -193,12 +201,12 @@ class _ToggleDialogState extends State<CreateWalletDialog> {
                           runSpacing: 5.0,
                           alignment: WrapAlignment.start,
                           children: [
-                            _buildItem("最常使用"),
-                            _buildItem("助记词是12个单词"),
-                            _buildItem("助记词类似“密码”"),
-                            _buildItem("需自己保管"),
-                            _buildItem("手写备份"),
-                            _buildIconItem("支持"),
+                            _buildItem(t.wallet.mostUsed),
+                            _buildItem(t.wallet.mnemonicIs12Words),
+                            _buildItem(t.wallet.mnemonicIsLikePassword),
+                            _buildItem(t.wallet.keepItSafe),
+                            _buildItem(t.wallet.handwrittenBackup),
+                            _buildIconItem(t.wallet.support),
                           ],
                         ),
                       );

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/pages/view/CustomTextField.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -61,17 +62,17 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('输入助记词或私钥!', style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                    SizedBox(height: 10.h),
                     Text(
-                      '助记词之间用空格隔开。支持任意钱包的 12位、24位助记词或私钥导入.',
-                      style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                      t.wallet.enterMnemonicOrPrivateKey,
+                      style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground),
                     ),
+                    SizedBox(height: 10.h),
+                    Text(t.wallet.mnemonicHint, style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                     SizedBox(height: 10.h),
                     Stack(
                       children: [
                         CustomTextField(
-                          hintText: "请输入内容",
+                          hintText: t.wallet.pleaseEnterContent,
                           controller: _textController,
                           minLines: 5,
                           onChanged: (text) {
@@ -99,10 +100,10 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
                           textStyle: TextStyle(fontSize: 18.sp),
                         ),
                         onPressed: () => {importWallet(_importKeyValue)},
-                        child: Text('确认导入', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
+                        child: Text(t.wallet.confirmImport, style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
                       ),
                     ),
-                    Text('提示', style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                    Text(t.wallet.notice, style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                     SizedBox(height: 8.h),
                     Row(
                       children: [
@@ -113,10 +114,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
                         ),
                         SizedBox(width: 11.w),
                         Flexible(
-                          child: Text(
-                            '我们不会存储你的助记词或私钥。若助记词或私钥泄漏,可能导致资产丢失,请妥善保管',
-                            style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                          ),
+                          child: Text(t.wallet.securityWarning, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         ),
                       ],
                     ),
@@ -130,10 +128,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
                         ),
                         SizedBox(width: 11.w),
                         Flexible(
-                          child: Text(
-                            '建议你手写输入或扫码导入助记词或私钥，请勿使用不熟悉的三方软件复制粘贴,以防诈骗',
-                            style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                          ),
+                          child: Text(t.wallet.safetyAdvice, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         ),
                       ],
                     ),

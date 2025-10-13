@@ -5,3 +5,11 @@ import 'package:untitled1/state/app_notifier.dart';
 final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((ref) {
   return ThemeNotifier();
 });
+
+final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
+  return LocaleNotifier();
+});
+
+final riseAndFallCycleProvide = StateNotifierProvider<RiseAndFallCycleNotifier, String>((ref) {
+  return RiseAndFallCycleNotifier();
+});

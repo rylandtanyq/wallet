@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
@@ -53,7 +54,7 @@ class _CamerascanState extends State<Camerascan> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: "扫描二维码",
+        title: t.common.scanQRCode,
         actions: [
           GestureDetector(child: _isFlash ? Icon(Icons.flash_off) : Icon(Icons.flash_on), onTap: () => _flshToggle()),
           SizedBox(width: 12.w),
@@ -97,7 +98,7 @@ class _CamerascanState extends State<Camerascan> {
             ),
             const SizedBox(height: 20),
             Text(
-              '扫一扫识别收款地址，连接 DApp 或向商户付款',
+              t.common.scanTip,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.onBackground),
               textAlign: TextAlign.center,
             ),

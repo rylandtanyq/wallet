@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:badges/badges.dart' as badges;
-import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -51,15 +51,32 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
             unselectedLabelStyle: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             overlayColor: MaterialStateProperty.all(Colors.transparent),
             tabs: [
-              Tab(child: Text("系统通知")),
+              Tab(
+                child: Text(
+                  t.common.system_notifications,
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               Tab(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("消息通知"),
+                    Flexible(child: Text(t.common.message_notifications, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false)),
+                    SizedBox(width: 4.w),
                     badges.Badge(
-                      badgeContent: Text('3', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
-                      badgeStyle: badges.BadgeStyle(badgeColor: Theme.of(context).colorScheme.primary),
+                      badgeContent: Text(
+                        '3',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 10.sp),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      badgeStyle: badges.BadgeStyle(
+                        badgeColor: Theme.of(context).colorScheme.primary,
+                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      ),
                     ),
                   ],
                 ),
@@ -71,6 +88,7 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
         actions: [
           Container(
             margin: EdgeInsets.only(right: 13.w),
+            padding: EdgeInsets.symmetric(horizontal: 4),
             width: 47.w,
             height: 20.h,
             decoration: BoxDecoration(
@@ -82,9 +100,16 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset('assets/images/read.png', width: 11.w, height: 8.h),
-                Text(
-                  "已读",
-                  style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      t.common.mark_as_read,
+                      style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -155,7 +180,12 @@ Widget _systemMessages(BuildContext context) {
                           side: BorderSide(width: 1, color: Theme.of(context).colorScheme.primary),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
                         ),
-                        child: Text("查看详情", style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary)),
+                        child: Text(
+                          t.common.view_details,
+                          style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
@@ -183,14 +213,18 @@ Widget _transactionNotification(BuildContext context) {
         Image.asset("assets/images/bell.png", width: 97, height: 103.h),
         SizedBox(height: 10.h),
         Text(
-          "暂无消息",
+          t.common.no_messages,
           // style: TextStyle(fontSize: 19.sp, color: Colors.black, fontWeight: FontWeight.bold),
           style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 6.h),
-        Text(
-          "快加入电报群或关注我们的社交媒体吧",
-          style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+        Padding(
+          padding: EdgeInsetsGeometry.symmetric(horizontal: 12),
+          child: Text(
+            t.common.join_telegram_prompt,
+            style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
         ),
         SizedBox(height: 26.h),
         Row(

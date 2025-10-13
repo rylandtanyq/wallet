@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/entity/AddWalletEntity.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/LinkHardwareWalletPage.dart';
 import 'package:untitled1/pages/dialog/CreateWalletDialog.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
@@ -16,31 +18,14 @@ import 'dialog/ImportWalletDialog.dart';
 /*
  * 添加钱包
  */
-class AddWalletPage extends StatefulWidget {
+class AddWalletPage extends ConsumerStatefulWidget {
   const AddWalletPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _AddWalletPageState();
+  ConsumerState<AddWalletPage> createState() => _AddWalletPageState();
 }
 
-class _AddWalletPageState extends State<AddWalletPage> with BasePage<AddWalletPage>, AutomaticKeepAliveClientMixin {
-  final List<Map<String, dynamic>> items = [
-    {
-      'icon': 'assets/images/ic_wallet_create.png',
-      'mainTitle': '创建钱包',
-      'subTitle': '创建新的助记词或无私钥钱包',
-      'action': () => Get.to(LinkHardwareWalletPage()),
-    },
-    {'icon': 'assets/images/ic_wallet_import.png', 'mainTitle': '导入钱包', 'subTitle': '通过助记词、私钥或备份导入已有钱包', 'action': () => Get.toNamed('/profile')},
-    {
-      'icon': 'assets/images/ic_wallet_hardware.png',
-      'mainTitle': '连接硬件钱包',
-      'subTitle': '通过扫描二维码连接硬件钱包',
-      'action': () => Get.to(LinkHardwareWalletPage()),
-    },
-    {'icon': 'assets/images/ic_wallet_observe.png', 'mainTitle': '使用观察钱包', 'subTitle': '通过钱包地址追踪钱包资产动态', 'action': () => Get.to(ObserveWalletPage())},
-  ];
-
+class _AddWalletPageState extends ConsumerState<AddWalletPage> with BasePage<AddWalletPage>, AutomaticKeepAliveClientMixin {
   final List<AddWallet> _wallets = [
     AddWallet(name: "我的钱包", balance: "￥0.00", address: "EVM: 0X01F0...459F39", infoDetails: "超长的文本---------", isExpanded: false),
     AddWallet(name: "测试钱包", balance: "￥100.00", address: "EVM: 0X89A2...782B1C", infoDetails: "超长的文本---------", isExpanded: false),
@@ -49,6 +34,34 @@ class _AddWalletPageState extends State<AddWalletPage> with BasePage<AddWalletPa
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    ref.read(localeProvider);
+
+    final List<Map<String, dynamic>> items = [
+      {
+        'icon': 'assets/images/ic_wallet_create.png',
+        'mainTitle': t.wallet.createWallet,
+        'subTitle': t.wallet.createNewMnemonicOrKeylessWallet,
+        'action': () => Get.to(LinkHardwareWalletPage()),
+      },
+      {
+        'icon': 'assets/images/ic_wallet_import.png',
+        'mainTitle': t.wallet.importWallet,
+        'subTitle': t.wallet.importExistingWallet,
+        'action': () => Get.toNamed('/profile'),
+      },
+      {
+        'icon': 'assets/images/ic_wallet_hardware.png',
+        'mainTitle': t.wallet.connectHardwareWallet,
+        'subTitle': t.wallet.connectHardwareWalletByQr,
+        'action': () => Get.to(LinkHardwareWalletPage()),
+      },
+      {
+        'icon': 'assets/images/ic_wallet_observe.png',
+        'mainTitle': t.wallet.useWatchWallet,
+        'subTitle': t.wallet.trackWalletAssets,
+        'action': () => Get.to(ObserveWalletPage()),
+      },
+    ];
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -67,7 +80,7 @@ class _AddWalletPageState extends State<AddWalletPage> with BasePage<AddWalletPa
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('添加钱包', style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+            Text(t.wallet.addWallet, style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
             SizedBox(height: 10.h),
             Expanded(
               child: ListView.builder(
@@ -101,7 +114,7 @@ class _AddWalletPageState extends State<AddWalletPage> with BasePage<AddWalletPa
   void showCreateWalletDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => CreateWalletDialog(title: '创建钱包', items: _wallets, child: SizedBox()),
+      builder: (context) => CreateWalletDialog(title: t.wallet.createWallet, items: _wallets, child: SizedBox()),
       isScrollControlled: true,
     );
   }
@@ -109,7 +122,7 @@ class _AddWalletPageState extends State<AddWalletPage> with BasePage<AddWalletPa
   void showImportWalletDialog() {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ImportWalletDialog(title: '导入钱包', items: _wallets, child: SizedBox()),
+      builder: (context) => ImportWalletDialog(title: t.wallet.importWallet, items: _wallets, child: SizedBox()),
       isScrollControlled: true,
     );
   }

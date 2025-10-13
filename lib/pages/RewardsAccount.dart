@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:solana/dto.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 /// 奖励账户
@@ -35,10 +36,10 @@ class _RewardsaccountState extends State<Rewardsaccount> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "奖励账户",
+              t.Mysettings.rewards_account,
               style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
             ),
-            Text("我的钱包", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+            Text(t.common.my_wallet, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
           ],
         ),
         actions: [
@@ -54,14 +55,14 @@ class _RewardsaccountState extends State<Rewardsaccount> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("可用余额", style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+            Text(t.Mysettings.available_balance, style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onSurface)),
             Text(
               "¥0.00",
               style: AppTextStyles.size30.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 26),
             Text(
-              "我的资产",
+              t.Mysettings.my_assets,
               style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
             ),
             ListView.separated(
@@ -116,14 +117,11 @@ class _RewardsaccountState extends State<Rewardsaccount> {
               children: [
                 Image.asset("assets/images/rewardsAccount_popup_img.png", width: 160.w, height: 153.h),
                 Text(
-                  "什么是奖励账户",
+                  t.Mysettings.what_is_rewards_account,
                   style: AppTextStyles.size21.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 19.h),
-                Text(
-                  "你参与活动所获得的代币奖励默认存入奖励账户。 \n\n你可以将奖励代币轻松提现到钱包中，也可以将选定的代币划转到钱包账户，用于抵扣链上交易手续费。\n\n代币会自动加入到你的钱包账户中，可按照与美元 1:1 的汇率抵扣手续费。",
-                  style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                ),
+                Text(t.Mysettings.rewards_account_desc, style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 SizedBox(height: 23.h),
                 SizedBox(height: 20.h),
                 TextButton(
@@ -135,7 +133,7 @@ class _RewardsaccountState extends State<Rewardsaccount> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(25.r)),
                   ),
                   child: Text(
-                    "知道了",
+                    t.Mysettings.got_it,
                     // style: TextStyle(fontSize: 18.sp, color: Colors.white),
                     style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary),
                   ),

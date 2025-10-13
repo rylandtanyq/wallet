@@ -3,12 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/MoreSetting.dart';
 import 'package:untitled1/pages/RewardsAccount.dart';
 import 'package:untitled1/pages/UsageGuidelines.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:untitled1/state/app_riverpod.dart';
+import 'package:untitled1/state/app_notifier.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 class Mysettings extends ConsumerStatefulWidget {
@@ -19,40 +21,66 @@ class Mysettings extends ConsumerStatefulWidget {
 }
 
 class _MysettingsState extends ConsumerState<Mysettings> {
-  final TextStyle titleStyle = TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: Colors.black);
-
-  final TextStyle trailingStyle = TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: const Color(0xFF757F7F));
-
-  final _languages = ["English", "中文简体", "中文繁体", "日本语", "越南语", "Indonesia", "Tiéng Viet", "Jeol", "Turkge", "Español (Latinoamérica)", "Italiano"];
-
   final _currencyUnit = ["USD", "CNY", "NGN", "IDR", "INR", "BDT", "VND", "PKR", "RUB", "EUR", "UAH"];
-
-  // final _themeModel = ["跟随系统", "日间模式", "夜间模式"];
-  final List<Map<String, String>> _themeModel = [
-    {"model": "跟随系统", "subtitle": "开启后，主题将跟随系统设置调整主题模式"},
-    {"model": "日间模式", "subtitle": "日间模式"},
-    {"model": "夜间模式", "subtitle": "夜间模式"},
-  ];
-
-  // final _riseAndFallCycleData = ["0 点涨跌幅", "24小时涨跌幅"];
-  final List<Map<String, String>> _riseAndFallCycleData = [
-    {"model": "0 点涨跌幅", "subtitle": "涨跌幅以自然天计算，与你所在时区一致 (UTC+8)"},
-    {"model": "24小时涨跌幅", "subtitle": "涨跌幅以过去 24 小时滚动计算"},
-  ];
-
-  String _selectedLanguageTralingText = "中文简体";
   String _selectedCurrencyTralingText = "USD";
-  String _selectedThemeModelText = "跟随系统";
-  String _selectedRiseAndFallCycleText = "0 点涨跌幅";
+  String _selectedThemeModelText = t.Mysettings.follow_system;
 
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeProvider);
+    final riseAndFallKey = ref.watch(riseAndFallCycleProvide);
+    final riseAndFallNotifier = ref.read(riseAndFallCycleProvide.notifier);
+    ref.watch(localeProvider);
+    final appLocale = LocaleSettings.currentLocale;
+    String selectedRiseAndFallCycleText = riseAndFallKey == t.Mysettings.zero_clock_change
+        ? t.Mysettings.zero_clock_change
+        : t.Mysettings.twenty_four_hour_change;
+
+    final languages = [
+      t.common.english,
+      t.common.simplified_Chinese,
+      t.common.traditional_Chinese,
+      t.common.spanish,
+      t.common.japanese,
+      t.common.russian,
+    ];
+
+    final languageLocaleMap = {
+      t.common.english: AppLocale.en,
+      t.common.simplified_Chinese: AppLocale.zhHans,
+      t.common.traditional_Chinese: AppLocale.zhHant,
+      t.common.spanish: AppLocale.es,
+      t.common.japanese: AppLocale.ja,
+      t.common.russian: AppLocale.ru,
+    };
+
+    final trailingText =
+        {
+          AppLocale.en: t.common.english,
+          AppLocale.zhHans: t.common.simplified_Chinese,
+          AppLocale.zhHant: t.common.traditional_Chinese,
+          AppLocale.es: t.common.spanish,
+          AppLocale.ja: t.common.japanese,
+          AppLocale.ru: t.common.russian,
+        }[appLocale] ??
+        t.common.english;
+
+    final List<Map<String, String>> themeModel = [
+      {"model": t.Mysettings.follow_system, "subtitle": t.Mysettings.follow_system_desc},
+      {"model": t.Mysettings.light_mode, "subtitle": t.Mysettings.light_mode},
+      {"model": t.Mysettings.dark_mode, "subtitle": t.Mysettings.dark_mode},
+    ];
+
+    final List<Map<String, String>> riseAndFallCycleData = [
+      {"model": t.Mysettings.zero_clock_change, "subtitle": t.Mysettings.zero_clock_change_desc},
+      {"model": t.Mysettings.twenty_four_hour_change, "subtitle": t.Mysettings.twenty_four_hour_change_desc},
+    ];
+
     _selectedThemeModelText = themeMode == ThemeMode.light
-        ? "日间模式"
+        ? t.Mysettings.light_mode
         : themeMode == ThemeMode.dark
-        ? "夜间模式"
-        : "跟随系统";
+        ? t.Mysettings.dark_mode
+        : t.Mysettings.follow_system;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -65,11 +93,11 @@ class _MysettingsState extends ConsumerState<Mysettings> {
                 ref.read(themeProvider.notifier).toggleTheme();
                 setState(() {
                   if (themeMode == ThemeMode.dark) {
-                    _selectedThemeModelText = "日间模式";
+                    _selectedThemeModelText = t.Mysettings.light_mode;
                   } else if (themeMode == ThemeMode.light) {
-                    _selectedThemeModelText = "夜间模式";
+                    _selectedThemeModelText = t.Mysettings.dark_mode;
                   } else {
-                    _selectedThemeModelText = "跟随系统";
+                    _selectedThemeModelText = t.Mysettings.follow_system;
                   }
                 });
               },
@@ -92,29 +120,37 @@ class _MysettingsState extends ConsumerState<Mysettings> {
               child: ListView(
                 children: [
                   SizedBox(height: 22.h),
-                  _SectionTitle("偏好设置"),
-                  _SettingItem(title: "语言", trailingText: _selectedLanguageTralingText, onTap: () => _onSelectLanguage()),
-                  _SettingItem(title: "货币单位", trailingText: _selectedCurrencyTralingText, onTap: () => _onSelectedCurrencyUnit()),
-                  _SettingItem(title: "主题模式", trailingText: _selectedThemeModelText, onTap: () => _changeThemeModel()),
-                  _SettingItem(title: "涨跌幅周期", trailingText: _selectedRiseAndFallCycleText, onTap: () => _riseAndFallCycle()),
-                  _SettingItem(title: "奖励账户", onTap: () => _rewardsAccount()),
-                  _SettingItem(title: "更多设置", onTap: () => _moreSetting()),
+                  _SectionTitle(t.Mysettings.preferences),
+                  _SettingItem(
+                    title: t.Mysettings.language,
+                    trailingText: trailingText,
+                    onTap: () => _onSelectLanguage(languages, languageLocaleMap, trailingText),
+                  ),
+                  _SettingItem(title: t.Mysettings.currency_unit, trailingText: _selectedCurrencyTralingText, onTap: () => _onSelectedCurrencyUnit()),
+                  _SettingItem(title: t.Mysettings.theme_mode, trailingText: _selectedThemeModelText, onTap: () => _changeThemeModel(themeModel)),
+                  _SettingItem(
+                    title: t.Mysettings.change_period,
+                    trailingText: selectedRiseAndFallCycleText,
+                    onTap: () => _riseAndFallCycle(riseAndFallCycleData, riseAndFallKey, riseAndFallNotifier),
+                  ),
+                  _SettingItem(title: t.Mysettings.rewards_account, onTap: () => _rewardsAccount()),
+                  _SettingItem(title: t.Mysettings.more_settings, onTap: () => _moreSetting()),
                   const _SectionDivider(),
 
                   SizedBox(height: 22.h),
-                  _SectionTitle("学习"),
-                  _SettingItem(title: "使用指南", onTap: () => _usageGuidelines()),
-                  _SettingItem(title: "钱包学院", onTap: _onTap),
-                  _SettingItem(title: "帮助中心", onTap: _onTap),
-                  _SettingItem(title: "用户反馈", onTap: _onTap),
-                  _SettingItem(title: "安全与隐私", onTap: _onTap),
+                  _SectionTitle(t.Mysettings.learn),
+                  _SettingItem(title: t.Mysettings.user_guide, onTap: () => _usageGuidelines()),
+                  _SettingItem(title: t.Mysettings.wallet_academy, onTap: _onTap),
+                  _SettingItem(title: t.Mysettings.help_center, onTap: _onTap),
+                  _SettingItem(title: t.Mysettings.user_feedback, onTap: _onTap),
+                  _SettingItem(title: t.Mysettings.security_privacy, onTap: _onTap),
                   const _SectionDivider(),
 
                   SizedBox(height: 22.h),
-                  _SectionTitle("加入我们"),
-                  _SettingItem(title: "全球社区", onTap: _onTap),
-                  _SettingItem(title: "工作机会", onTap: _onTap),
-                  _SettingItem(title: "关于我们", trailingText: "v 8.32.0", onTap: _onTap),
+                  _SectionTitle(t.Mysettings.join_us),
+                  _SettingItem(title: t.Mysettings.global_community, onTap: _onTap),
+                  _SettingItem(title: t.Mysettings.career_opportunities, onTap: _onTap),
+                  _SettingItem(title: t.Mysettings.about_us, trailingText: "v 8.32.0", onTap: _onTap),
                 ],
               ),
             ),
@@ -130,18 +166,20 @@ class _MysettingsState extends ConsumerState<Mysettings> {
   }
 
   /// 语言
-  void _onSelectLanguage() async {
+  void _onSelectLanguage(List<String> languages, Map<String, AppLocale> languageLocaleMap, String trailingText) async {
     HapticFeedback.heavyImpact();
     final selected = await _showModalBottomSheet<String>(
       context: context,
-      title: "选择语言",
-      items: _languages,
-      currentValue: _selectedLanguageTralingText,
+      title: t.common.select_Language,
+      items: languages,
+      currentValue: trailingText,
     );
+
     if (selected != null) {
-      setState(() {
-        _selectedLanguageTralingText = selected;
-      });
+      final locale = languageLocaleMap[selected];
+      if (locale != null) {
+        ref.read(localeProvider.notifier).changeLocale(locale);
+      }
     }
   }
 
@@ -150,7 +188,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
     HapticFeedback.heavyImpact();
     final selected = await _showModalBottomSheet<String>(
       context: context,
-      title: "选择货币单位",
+      title: t.Mysettings.select_currency_unit,
       items: _currencyUnit,
       currentValue: _selectedCurrencyTralingText,
     );
@@ -163,18 +201,18 @@ class _MysettingsState extends ConsumerState<Mysettings> {
   }
 
   /// 主题模式
-  void _changeThemeModel() async {
+  void _changeThemeModel(List<Map<String, String>> themeModel) async {
     HapticFeedback.heavyImpact();
     final selected = await _themeModelOrRiseAndFallCycle(
       context: context,
-      title: "选择主题模式",
-      contentList: _themeModel,
+      title: t.Mysettings.select_theme_mode,
+      contentList: themeModel,
       currentValue: _selectedThemeModelText,
     );
     if (selected != null) {
-      if (selected == '夜间模式') {
+      if (selected == t.Mysettings.dark_mode) {
         ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
-      } else if (selected == '日间模式') {
+      } else if (selected == t.Mysettings.light_mode) {
         ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
       } else {
         ref.read(themeProvider.notifier).setTheme(ThemeMode.system);
@@ -186,17 +224,18 @@ class _MysettingsState extends ConsumerState<Mysettings> {
   }
 
   /// 涨幅周期
-  void _riseAndFallCycle() async {
+  void _riseAndFallCycle(List<Map<String, String>> riseAndFallCycleData, String riseAndFallKey, RiseAndFallCycleNotifier riseAndFallNotifier) async {
     HapticFeedback.heavyImpact();
     final selected = await _themeModelOrRiseAndFallCycle(
       context: context,
-      title: "涨跌幅周期",
-      contentList: _riseAndFallCycleData,
-      currentValue: _selectedRiseAndFallCycleText,
+      title: t.Mysettings.change_period,
+      contentList: riseAndFallCycleData,
+      currentValue: riseAndFallKey == t.Mysettings.zero_clock_change ? t.Mysettings.zero_clock_change : t.Mysettings.twenty_four_hour_change,
     );
     if (selected != null) {
       setState(() {
-        _selectedRiseAndFallCycleText = selected;
+        riseAndFallKey = selected == t.Mysettings.zero_clock_change ? t.Mysettings.zero_clock_change : t.Mysettings.twenty_four_hour_change;
+        riseAndFallNotifier.setRiseAndFallCycle(selected);
       });
     }
   }
@@ -290,7 +329,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
                           height: 60.h,
                           alignment: Alignment.center,
                           child: Text(
-                            "关闭",
+                            t.common.close,
                             style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -387,7 +426,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
                           height: 60.h,
                           alignment: Alignment.center,
                           child: Text(
-                            "关闭",
+                            t.common.close,
                             style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -416,33 +455,46 @@ class _MysettingsState extends ConsumerState<Mysettings> {
           Expanded(
             child: Row(
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("我的钱包", style: AppTextStyles.headline3.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                    SizedBox(height: 2.h),
-                    Text(
-                      "ID: deed...27dc",
-                      // style: TextStyle(fontSize: 12.sp, color: const Color(0xFF757F7F)),
-                      style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.common.my_wallet,
+                        style: AppTextStyles.headline3.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        "ID: deed...27dc",
+                        // style: TextStyle(fontSize: 12.sp, color: const Color(0xFF757F7F)),
+                        style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(width: 31.w),
                 Container(
+                  width: 90.w,
                   padding: EdgeInsets.symmetric(vertical: 9, horizontal: 16),
                   decoration: BoxDecoration(
                     border: Border.all(width: 1.w, color: Theme.of(context).colorScheme.onSurface),
                     borderRadius: BorderRadius.circular(45.r),
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.error_rounded, size: 14.w, color: Theme.of(context).appBarTheme.foregroundColor),
                       SizedBox(width: 3.w),
-                      Text(
-                        "去备份",
-                        style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.onBackground),
+                      Expanded(
+                        child: Text(
+                          t.Mysettings.go_backup,
+                          style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.onBackground),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
@@ -473,13 +525,13 @@ class _MysettingsState extends ConsumerState<Mysettings> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("绑定交易所账号", style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                Text(t.Mysettings.bind_exchange_account, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 16.w),
                   decoration: BoxDecoration(color: AppColors.color_286713, borderRadius: BorderRadius.circular(25.r)),
                   child: Row(
                     children: [
-                      Text("去绑定", style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
+                      Text(t.Mysettings.go_bind, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
                       Icon(Icons.keyboard_arrow_right_rounded, color: Colors.white, size: 17.h),
                     ],
                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/dialog/PayeeSelectNetworkDialog.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -13,7 +14,6 @@ class SelectedPayeePage extends StatefulWidget {
 }
 
 class _SelectedPayeePageState extends State<SelectedPayeePage> with TickerProviderStateMixin {
-  final List<String> categories = ['按币种', '按网络'];
   int _selectedIndex = 0;
   late PageController _pageController;
   final List<String> _items = ['USDT', 'USDC', 'ETH', 'SOL', 'BNB', 'BTC'];
@@ -49,8 +49,10 @@ class _SelectedPayeePageState extends State<SelectedPayeePage> with TickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final List<String> categories = [t.home.byCoin, t.home.byNetwork];
+
     return Scaffold(
-      appBar: CustomAppBar(title: '收款', centerTitle: false),
+      appBar: CustomAppBar(title: t.home.receive, centerTitle: false),
       body: Container(
         padding: EdgeInsets.only(bottom: 20.h),
         child: Column(
@@ -133,7 +135,7 @@ class _SelectedPayeePageState extends State<SelectedPayeePage> with TickerProvid
                   children: [
                     Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                     SizedBox(width: 8.w),
-                    Text('代币名称或者合约地址', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                    Text(t.home.tokenNameOrContract, style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                   ],
                 ),
               ),
@@ -174,7 +176,7 @@ class _SelectedPayeePageState extends State<SelectedPayeePage> with TickerProvid
                     _items[index],
                     style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
                   ),
-                  Text('多链', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  Text(t.home.multiChain, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),
@@ -206,7 +208,7 @@ class _SelectedPayeePageState extends State<SelectedPayeePage> with TickerProvid
             children: [
               Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
               SizedBox(width: 8.w),
-              Text('网络名称', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+              Text(t.home.networkName, style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
             ],
           ),
         ),
@@ -245,7 +247,7 @@ class _SelectedPayeePageState extends State<SelectedPayeePage> with TickerProvid
                     'BNB Chain',
                     style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
                   ),
-                  Text('多链', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  Text(t.home.multiChain, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),
@@ -260,7 +262,7 @@ class _SelectedPayeePageState extends State<SelectedPayeePage> with TickerProvid
   void showPayeeSelectNetworkDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => PayeeSelectNetworkDialog(title: '选择网络', items: _items),
+      builder: (context) => PayeeSelectNetworkDialog(title: t.transfer_receive_payment.selectNetwork, items: _items),
       isScrollControlled: true,
     );
   }

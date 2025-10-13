@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 /// 更多服务
@@ -13,61 +14,56 @@ class MoreServices extends StatefulWidget {
 class _MoreServicesState extends State<MoreServices> {
   final List<Map<String, dynamic>> _moreServicesData = [
     {
-      "title": "热门功能",
+      "title": t.home.hotFeatures,
       "item": [
-        {"path": "assets/images/transfer.png", "text": "转账"},
-        {"path": "assets/images/financial_management.png", "text": "理财"},
-        {"path": "assets/images/shopping.png", "text": "购物"},
+        {"path": "assets/images/transfer.png", "text": t.home.transfer},
+        {"path": "assets/images/financial_management.png", "text": t.home.finance},
+        {"path": "assets/images/shopping.png", "text": t.home.shopping},
       ],
     },
     {
-      "title": "行情和交易",
+      "title": t.home.marketTrade,
       "item": [
-        {"path": "assets/images/contract.png", "text": "合约"},
-        {"path": "assets/images/golden_dog_radar.png", "text": "金狗雷达"},
-        {"path": "assets/images/meme_pump.png", "text": "Meme Pump"},
-        {"path": "assets/images/limit_order.png", "text": "限价委托"},
-        {"path": "assets/images/c2c.png", "text": "C2C"},
-        {"path": "assets/images/buy_coins.png", "text": "买币"},
-        {"path": "assets/images/bank_card.png", "text": "银行卡"},
+        {"path": "assets/images/contract.png", "text": t.home.contract},
+        {"path": "assets/images/golden_dog_radar.png", "text": t.home.golden_dog_radar},
+        {"path": "assets/images/meme_pump.png", "text": t.home.memePump},
+        {"path": "assets/images/limit_order.png", "text": t.home.limitOrder},
+        {"path": "assets/images/c2c.png", "text": t.home.c2c},
+        {"path": "assets/images/buy_coins.png", "text": t.home.buyCoin},
+        {"path": "assets/images/bank_card.png", "text": t.home.bankCard},
       ],
     },
     {
-      "title": "赚币",
+      "title": t.home.transfer,
       "item": [
-        {"path": "assets/images/earn_coins.png", "text": "赚币"},
-        {"path": "assets/images/red_envelope.png", "text": "红包"},
-        {"path": "assets/images/invitation_center.png", "text": "限价委托"},
-        {"path": "assets/images/rewards_account.png", "text": "奖励账户"},
+        {"path": "assets/images/earn_coins.png", "text": t.home.earnCoin},
+        {"path": "assets/images/red_envelope.png", "text": t.home.redPacket},
+        {"path": "assets/images/invitation_center.png", "text": t.home.limitOrder},
+        {"path": "assets/images/rewards_account.png", "text": t.Mysettings.rewards_account},
       ],
     },
     {
-      "title": "钱包工具",
+      "title": t.home.walletTools,
       "item": [
-        {"path": "assets/images/receiving_payments.png", "text": "收款"},
-        {"path": "assets/images/authorization_detection.png", "text": "授权检测"},
-        {"path": "assets/images/contract_testing.png", "text": "合约检测"},
-        {"path": "assets/images/get_gas.png", "text": "GetGas"},
-        {"path": "assets/images/SOL_rental_recovery.png", "text": "SOL租金回收"},
-        {"path": "assets/images/blockchain_explorer.png", "text": "区块链浏览器"},
-        {"path": "assets/images/EIP-7702_detection.png", "text": "EIP-7702 检测"},
-        {"path": "assets/images/transaction_history.png", "text": "交易历史"},
-        {"path": "assets/images/batch_transfers.png", "text": "批量转账"},
-        {"path": "assets/images/beginner's_guide.png", "text": "新手引导"},
+        {"path": "assets/images/receiving_payments.png", "text": t.home.receive},
+        {"path": "assets/images/authorization_detection.png", "text": t.home.authCheck},
+        {"path": "assets/images/contract_testing.png", "text": t.home.contractCheck},
+        {"path": "assets/images/get_gas.png", "text": t.home.getGas},
+        {"path": "assets/images/SOL_rental_recovery.png", "text": t.home.solRentRecovery},
+        {"path": "assets/images/blockchain_explorer.png", "text": t.home.blockchainExplorer},
+        {"path": "assets/images/EIP-7702_detection.png", "text": t.home.eip7702Check},
+        {"path": "assets/images/transaction_history.png", "text": t.home.transactionHistory},
+        {"path": "assets/images/batch_transfers.png", "text": t.home.batchTransfer},
+        {"path": "assets/images/beginner's_guide.png", "text": t.home.beginnerGuide},
       ],
     },
   ];
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final crossAxisCount = 4;
-    final spacing = 0.w;
-    final horizontalPadding = 24.w;
-    final itemWidth = (screenWidth - horizontalPadding - (crossAxisCount - 1) * spacing) / crossAxisCount;
-
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         leadingWidth: 40,
         leading: GestureDetector(
           onTap: () => {Feedback.forTap(context), Navigator.of(context).pop()},
@@ -75,7 +71,7 @@ class _MoreServicesState extends State<MoreServices> {
         ),
         centerTitle: true,
         title: Text(
-          "更多服务",
+          t.home.moreServices,
           // style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.w500),
           style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w500),
         ),
@@ -113,7 +109,12 @@ class _MoreServicesState extends State<MoreServices> {
                           children: [
                             Image.asset(item["path"], width: 50, height: 50),
                             SizedBox(height: 8.h),
-                            Text(item["text"], style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                            Text(
+                              item["text"],
+                              style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                            ),
                           ],
                         ),
                       );

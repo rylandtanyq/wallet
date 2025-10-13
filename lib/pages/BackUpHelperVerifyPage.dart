@@ -8,6 +8,7 @@ import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
 import 'package:untitled1/entity/BackUpEntity.dart';
 import 'package:untitled1/entity/Wallet.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/main.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -43,9 +44,24 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
     final range = List.generate(12, (i) => i + 1); // 生成1到12的数字列表
     range.shuffle(random); // 打乱顺序
     verifyPosition = range.take(3).toList();
-    randomMnemonics.add(BackUp(name: "第${range[0]}个", value: ""));
-    randomMnemonics.add(BackUp(name: "第${range[1]}个", value: ""));
-    randomMnemonics.add(BackUp(name: "第${range[2]}个", value: ""));
+    randomMnemonics.add(
+      BackUp(
+        name: t.wallet.verifyWordPosition(index: range[0]),
+        value: "",
+      ),
+    );
+    randomMnemonics.add(
+      BackUp(
+        name: t.wallet.verifyWordPosition(index: range[1]),
+        value: "",
+      ),
+    );
+    randomMnemonics.add(
+      BackUp(
+        name: t.wallet.verifyWordPosition(index: range[2]),
+        value: "",
+      ),
+    );
     final newWallet = Get.arguments;
     address = newWallet['currentAddress'] ?? '';
     privateKey = newWallet['privateKey'] ?? '';
@@ -64,7 +80,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
     super.build(context);
 
     return Scaffold(
-      appBar: CustomAppBar(title: '备份助记词'),
+      appBar: CustomAppBar(title: t.wallet.backupMnemonic),
       body: Container(
         color: Theme.of(context).colorScheme.background,
         padding: EdgeInsets.only(bottom: 20.h),
@@ -77,9 +93,9 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('验证助记词', style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                  Text(t.wallet.verifyMnemonic, style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                   SizedBox(height: 10),
-                  Text('请按顺序验证助记词', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  Text(t.wallet.verifyMnemonicTip, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                   SizedBox(height: 10),
                 ],
               ),

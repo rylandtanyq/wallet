@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/TransferPage.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/pages/view/HorizntalSelectList.dart';
@@ -26,7 +27,7 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: '选中转账币种'),
+      appBar: CustomAppBar(title: t.transfer_receive_payment.selectTransferCoin),
       body: Container(
         padding: EdgeInsets.only(bottom: 20.h),
         child: Column(
@@ -44,7 +45,10 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
                       children: [
                         Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                         SizedBox(width: 8.w),
-                        Text('代币名称或者合约地址', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                        Text(
+                          t.transfer_receive_payment.tokenOrContract,
+                          style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                        ),
                       ],
                     ),
                   ),
@@ -82,7 +86,7 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
                         children: [
                           Center(
                             child: Text(
-                              '没找到相应的代币?\n可点击下方按钮添加',
+                              t.transfer_receive_payment.tokenNotFound,
                               style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
                               textAlign: TextAlign.center,
                             ),
@@ -100,7 +104,7 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
                                   // 按钮点击事件
                                 },
                                 child: Text(
-                                  '添加代币',
+                                  t.transfer_receive_payment.addToken,
                                   style: AppTextStyles.size17.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
                                 ),
                               ),

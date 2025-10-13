@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/tabpage/SituationChildPage.dart';
 import 'package:untitled1/pages/tabpage/SituationToChancePage.dart';
 import 'package:untitled1/pages/tabpage/SituationToTrendPage.dart';
@@ -27,7 +28,11 @@ class _SituationPageState extends State<SituationPage> with BasePage<SituationPa
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(mainAxisAlignment: MainAxisAlignment.start, children: [_buildTabText(0, '行情'), _buildTabText(1, '机会'), _buildTabText(2, '趋势')]),
+        surfaceTintColor: Colors.transparent,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [_buildTabText(0, t.situation.market), _buildTabText(1, t.situation.opportunity), _buildTabText(2, t.situation.trend)],
+        ),
       ),
       body: _pages[_selectedIndex],
     );

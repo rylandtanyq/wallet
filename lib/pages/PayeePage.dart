@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/dao/HiveStorage.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
 import 'package:untitled1/pages/view/CustomTextField.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -62,12 +63,12 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
                     Image.asset('assets/images/ic_clip_photo.png', width: 55.h, height: 55.h),
                     SizedBox(height: 15.h),
                     Text(
-                      'USDT收款',
+                      'USDT${t.home.receive}',
                       style: TextStyle(fontSize: 25.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onBackground),
                     ),
                     SizedBox(height: 10.h),
                     Text(
-                      '收款网络 Solana',
+                      '${t.transfer_receive_payment.receiveNetwork} Solana',
                       style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onBackground),
                     ),
                     SizedBox(height: 36.h),
@@ -140,7 +141,7 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '从交易平台收款',
+                                        t.transfer_receive_payment.receiveFromExchange,
                                         style: TextStyle(
                                           fontSize: 17.sp,
                                           fontWeight: FontWeight.bold,
@@ -151,7 +152,7 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
                                       InkWell(
                                         onTap: () {},
                                         child: Text(
-                                          '支持从你的账户直接充值，方便快捷',
+                                          t.transfer_receive_payment.directDeposit,
                                           style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface),
                                         ),
                                       ),
@@ -176,7 +177,7 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
                                   ),
                                   SizedBox(width: 4.w),
                                   Text(
-                                    '仅支持接收USDT(Solana)资产到',
+                                    t.transfer_receive_payment.usdtOnlyNotice,
                                     style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onBackground),
                                   ),
                                 ],
@@ -210,7 +211,7 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27.5.r)),
                 ),
                 onPressed: () {},
-                child: Text('分享'),
+                child: Text(t.transfer_receive_payment.share),
               ),
             ),
           ],

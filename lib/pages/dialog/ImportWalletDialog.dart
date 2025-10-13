@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/ImportWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -64,7 +65,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                   widget.child,
                   _buildCreateCard(
                     'assets/images/ic_wallet_create.png',
-                    '助记词或私钥钱包',
+                    t.wallet.mnemonicOrPrivateKeyWallet,
                     '',
                     _isTextVisible,
                     () {
@@ -79,7 +80,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                   ),
                   _buildCreateCard(
                     'assets/images/ic_wallet_create.png',
-                    '无私钥钱包',
+                    t.wallet.noPrivateKeyWallet,
                     '',
                     _isPrivateKeyTextVisible,
                     () {
@@ -124,22 +125,26 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                 children: [
                   Image.asset(icon, width: 50.w, height: 50.w, fit: BoxFit.cover),
                   SizedBox(width: 8.w),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: AppTextStyles.size17.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
-                      ),
-                      SizedBox(height: 8.h),
-                      InkWell(
-                        onTap: onTap,
-                        child: Text('显示详情', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: AppTextStyles.size17.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
+                        ),
+                        SizedBox(height: 8.h),
+                        InkWell(
+                          onTap: onTap,
+                          child: Text(t.wallet.showDetails, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                        ),
+                      ],
+                    ),
                   ),
-                  Spacer(),
+                  // Spacer(),
+                  SizedBox(width: 8.w),
                   SizedBox(
+                    width: 70.w,
                     child: InkWell(
                       onTap: onNextPage,
                       child: Container(
@@ -148,8 +153,14 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                           border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.3), width: 1),
                           borderRadius: BorderRadius.circular(21.5.r),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 22.w),
-                        child: Text('导入', style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 10.w),
+                        child: Text(
+                          t.wallet.import,
+                          style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ),
@@ -174,7 +185,11 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                           spacing: 12.0,
                           runSpacing: 5.0,
                           alignment: WrapAlignment.start,
-                          children: [_buildItem("支持 12 /24 位助记词"), _buildItem("支持数百种网络的私钥"), _buildIconItem("支持")],
+                          children: [
+                            _buildItem(t.wallet.support12or24Mnemonic),
+                            _buildItem(t.wallet.supportsHundredsOfNetworks),
+                            _buildIconItem(t.wallet.support),
+                          ],
                         ),
                       );
                     },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 
 class FiltrateView extends StatefulWidget {
   final ValueChanged<SortType> onSortNameChanged;
@@ -46,7 +47,7 @@ class _FiltrateViewState extends State<FiltrateView> {
             onTap: () => {_toggleNameSort()},
             child: Row(
               children: [
-                Text('名额', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                Text(t.home.name, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
                 SizedBox(width: 3.w),
                 _buildSortIcon(_currentNameSort),
               ],
@@ -60,7 +61,7 @@ class _FiltrateViewState extends State<FiltrateView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('24小时交易额', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  Text(t.home.volume_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
                   SizedBox(width: 3.w),
                   _buildSortIcon(_currentVolumeSort),
                 ],
@@ -74,7 +75,7 @@ class _FiltrateViewState extends State<FiltrateView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('最新价格', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  Text(t.home.latest_price, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
                   SizedBox(width: 3.w),
                   Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
@@ -88,7 +89,7 @@ class _FiltrateViewState extends State<FiltrateView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('24小时涨跌', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  Text(t.home.change_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
                   SizedBox(width: 3.w),
                   Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],

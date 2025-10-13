@@ -1,12 +1,15 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/LinkedWalletDApp.dart';
 import 'package:untitled1/pages/MoreServices.dart';
 import 'package:untitled1/pages/MySettings.dart';
 import 'package:untitled1/pages/NotificationPage.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
@@ -17,15 +20,14 @@ import '../view/FinancialDataView.dart';
 import '../view/HorizntalSelectList.dart';
 import '../view/StatefulProductCard.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticKeepAliveClientMixin {
-  final List<String> _titles = ["赚币", "合约", "收款", "金狗雷达", "更多"];
+class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, AutomaticKeepAliveClientMixin {
   final List<Widget> _navIcons = [
     Image.asset('assets/images/ic_home_grid_profitable.png', width: 46.w, height: 46.w),
     Image.asset('assets/images/ic_home_grid_contract.png', width: 46.w, height: 46.w),
@@ -47,6 +49,8 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    ref.watch(localeProvider);
+    final List<String> titles = [t.home.transfer, t.home.contract, t.home.receive, t.home.golden_dog_radar, t.home.more];
 
     return Scaffold(
       appBar: AppBar(
@@ -143,7 +147,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '我的钱包',
+                          t.common.my_wallet,
                           style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: 8.w),
@@ -193,7 +197,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45)),
                     color: AppColors.color_2B6D16,
                     textColor: Colors.white,
-                    child: Text('去充值', style: TextStyle(fontSize: 17.sp)),
+                    child: Text(t.home.recharge, style: TextStyle(fontSize: 17.sp)),
                   ),
                   SizedBox(height: 35.h),
                   GridView.count(
@@ -203,7 +207,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                     childAspectRatio: 0.8, // 调整宽高比例
-                    children: List.generate(_titles.length, (index) {
+                    children: List.generate(titles.length, (index) {
                       return GestureDetector(
                         onTap: () {
                           if (index == 2) {
@@ -229,7 +233,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                               _navIcons[index],
                               SizedBox(height: 5),
                               Text(
-                                _titles[index],
+                                titles[index],
                                 style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground),
                                 maxLines: 1, // 限制文本行数
                                 overflow: TextOverflow.ellipsis, // 超出显示省略号
@@ -249,9 +253,14 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                       Positioned(
                         top: 16,
                         left: 15,
-                        child: Text(
-                          '备份钱包, 确保资产安全',
-                          style: TextStyle(color: Colors.black, fontSize: 17.sp, fontWeight: FontWeight.bold),
+                        child: SizedBox(
+                          width: 180.w,
+                          child: Text(
+                            t.home.backup_wallet_tip,
+                            style: TextStyle(color: Colors.black, fontSize: 17.sp, fontWeight: FontWeight.bold),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
 
@@ -267,7 +276,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                '立即备份',
+                                t.home.backup_now,
                                 style: TextStyle(fontSize: 12.sp, color: Colors.black),
                               ),
                               SizedBox(width: 5.w),
@@ -293,11 +302,11 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                       children: [
                         Expanded(
                           child: Text(
-                            '赚币中心',
+                            t.home.earn_center,
                             style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
-                        Text('共3个活动', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                        Text(t.home.activity_count, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         SizedBox(width: 5.w),
                         Image.asset('assets/images/ic_arrows_right.png', width: 7, height: 12),
                       ],
@@ -316,7 +325,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                     child: Row(
                       children: [
                         Text(
-                          '全链榜单',
+                          t.home.cross_chain_rank,
                           style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -335,7 +344,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                     child: Row(
                       children: [
                         Text(
-                          '热搜代币',
+                          t.home.trending_tokens,
                           style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -358,7 +367,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                       children: [
                         Expanded(
                           child: Text(
-                            '合约交易',
+                            t.home.contract_trading,
                             style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -375,7 +384,7 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
                       children: [
                         Expanded(
                           child: Text(
-                            '使用指南',
+                            t.Mysettings.user_guide,
                             style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -471,9 +480,9 @@ class _HomePageState extends State<HomePage> with BasePage<HomePage>, AutomaticK
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('创建第一个钱包开始', style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                Text(t.home.create_first_wallet, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                 SizedBox(height: 2.h),
-                Text('从创建钱包开始加密货币之旅', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                Text(t.home.start_crypto_journey, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 SizedBox(height: 8.h),
               ],
             ),

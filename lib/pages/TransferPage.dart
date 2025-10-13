@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/dao/HiveStorage.dart';
 import 'package:untitled1/entity/Wallet.dart' as Mywallet;
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddressbookAndMywallet.dart';
 import 'package:untitled1/pages/CameraScan.dart';
 import 'package:untitled1/pages/view/CustomAppBar.dart';
@@ -76,11 +77,11 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '转账',
+                          t.transfer_receive_payment.transfer,
                           style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w600),
                         ),
                         SizedBox(height: 10.h),
-                        Text('选择币种和网络', style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
+                        Text(t.transfer_receive_payment.selectCoinNetwork, style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
                         SizedBox(height: 10.h),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -103,7 +104,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                                 ),
                               ),
                               Text(
-                                '转账网络 ${widget.network}',
+                                '${t.transfer_receive_payment.transferNetwork} ${widget.network}',
                                 style: TextStyle(fontSize: 13.sp, color: AppColors.color_757F7F),
                               ),
                               SizedBox(width: 8.w),
@@ -114,7 +115,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                         SizedBox(height: 16.h),
                         Row(
                           children: [
-                            Expanded(child: Text('收款地址')),
+                            Expanded(child: Text(t.transfer_receive_payment.recipientAddress)),
                             GestureDetector(
                               onTap: () {
                                 Get.to(Addressbookandmywallet(), transition: Transition.rightToLeft);
@@ -144,7 +145,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                         ),
                         SizedBox(height: 12.h),
                         CustomTextField(
-                          hintText: "请输入收款地址",
+                          hintText: t.transfer_receive_payment.enterRecipientAddress,
                           controller: _textControllerDiyWalletName,
                           onChanged: (text) {
                             setState(() {
@@ -155,9 +156,9 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                         SizedBox(height: 12.h),
                         Row(
                           children: [
-                            Expanded(child: Text('转账数量')),
+                            Expanded(child: Text(t.transfer_receive_payment.transferAmount)),
                             Text(
-                              '可用: ${balance ?? 0.0} ${widget.currency}',
+                              '${t.transfer_receive_payment.available}: ${balance ?? 0.0} ${widget.currency}',
                               style: TextStyle(fontSize: 13.sp, color: AppColors.color_757F7F),
                             ),
                             SizedBox(width: 5.w),
@@ -176,7 +177,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                         ),
 
                         SizedBox(height: 16.h),
-                        Text('Gas费'),
+                        Text(t.transfer_receive_payment.gasFee),
                         SizedBox(height: 6.h),
                         CustomTextField(
                           hintText: "<¥0.01",
@@ -205,7 +206,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27.5.r)),
                   ),
                   onPressed: () => _onTransferPressed(widget.currency),
-                  child: Text('确认'),
+                  child: Text(t.transfer_receive_payment.confirm),
                 ),
               ),
             ],
@@ -261,37 +262,37 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
     _diyWalletName = _textControllerDiyWalletName.text.trim();
 
     if (_diyWalletName == null || _diyWalletName!.isEmpty) {
-      _showSnack("请输入钱包地址");
+      _showSnack(t.transfer_receive_payment.enterWalletAddress);
       return;
     }
 
     if (!isValidSolanaAddress("$_diyWalletName")) {
-      _showSnack("钱包地址格式错误");
+      _showSnack(t.transfer_receive_payment.invalidWalletAddress);
       return;
     }
 
     // 输入是否为空
     if (_transferAmount == null || _transferAmount!.isEmpty) {
-      _showSnack('请输入数量');
+      _showSnack(t.transfer_receive_payment.enterAmount);
       return;
     }
 
     // 转成 double
     final amount = double.tryParse(_transferAmount!);
     if (amount == null) {
-      _showSnack('请输入有效的数字');
+      _showSnack(t.transfer_receive_payment.invalidNumber);
       return;
     }
 
     // balance 是否获取到
     if (balance == null) {
-      _showSnack('余额获取失败，请稍后重试');
+      _showSnack(t.transfer_receive_payment.balanceFetchFailed);
       return;
     }
 
     // 校验余额是否足够
     if (amount > balance!) {
-      _showSnack('余额不够');
+      _showSnack(t.transfer_receive_payment.insufficientBalance);
       return;
     }
 
@@ -304,7 +305,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
               _transferAmount = "";
               _textControllerDiyWalletName.text = "";
               _textControllertransferAmount.text = "";
-              _showSnack('转账已提交');
+              _showSnack(t.transfer_receive_payment.transferSubmitted);
             });
             debugPrint('转账SOL结果: $e');
             // MwTiuMKDk1Zco7qKZMePfuYRe7akcooMbX5CmdCMwEsD6zdojT6B8xtBoN4XgkTnKjgF6je5FY9wsUa9f6wg6UW
@@ -327,7 +328,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
               _transferAmount = "";
               _textControllerDiyWalletName.text = "";
               _textControllertransferAmount.text = "";
-              _showSnack('转账已提交');
+              _showSnack(t.transfer_receive_payment.transferSubmitted);
             });
             debugPrint('派生币转账返回结果: $e');
           })

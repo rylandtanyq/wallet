@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 class ContractTradingCard extends StatefulWidget {
@@ -28,7 +29,7 @@ class _ContractTradingCardState extends State<ContractTradingCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ethwusdt 24小时涨幅',
+                    t.home.ethwusdt_24h_increase,
                     // style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                     style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
                   ),

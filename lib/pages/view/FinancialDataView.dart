@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 
 import '../../entity/FinancialItem.dart';
 
@@ -52,7 +53,7 @@ class FinancialDataPage extends StatelessWidget {
             ),
             onPressed: () => {},
             child: Text(
-              '查看全部  >',
+              '${t.home.view_all}  >',
               style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary),
             ),
           ),
@@ -71,7 +72,7 @@ class FinancialDataPage extends StatelessWidget {
             onTap: () => {},
             child: Row(
               children: [
-                Text('名额', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                Text(t.home.name, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
                 SizedBox(width: 3.w),
                 Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
               ],
@@ -85,7 +86,7 @@ class FinancialDataPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('24小时交易额', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  Text(t.home.volume_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
                   SizedBox(width: 3.w),
                   Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
@@ -99,7 +100,7 @@ class FinancialDataPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('最新价格', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  Text(t.home.latest_price, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
                   SizedBox(width: 3.w),
                   Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
@@ -113,7 +114,7 @@ class FinancialDataPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('24小时涨跌', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  Text(t.home.change_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
                   SizedBox(width: 3.w),
                   Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],

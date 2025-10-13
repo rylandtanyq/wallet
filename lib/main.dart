@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:untitled1/hive/create_solana_wallet.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/CreateWalletPage.dart';
 import 'package:untitled1/pages/SplashPage.dart';
 import 'package:untitled1/pages/tabpage/DiscoveryPage.dart';
@@ -11,7 +12,7 @@ import 'package:untitled1/pages/tabpage/HomePage.dart';
 import 'package:untitled1/pages/tabpage/SituationPage.dart';
 import 'package:untitled1/pages/tabpage/TradePage.dart';
 import 'package:untitled1/pages/tabpage/WalletPage.dart';
-import 'package:untitled1/state/app_riverpod.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_theme.dart';
 import 'package:untitled1/util/CheckUpgrade.dart';
 
@@ -20,10 +21,10 @@ import 'entity/Wallet.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  LocaleSettings.useDeviceLocale();
   // 初始化Hive并注册适配器
   await HiveStorage().init(adapters: [WalletHiveAdapter()]);
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(ProviderScope(child: TranslationProvider(child: MyApp())));
 }
 
 class MyApp extends ConsumerWidget {
@@ -33,6 +34,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
+    final locale = ref.watch(localeProvider);
     // final solana_wallet = CreateSolanaWallet.empty();
     return ScreenUtilInit(
       designSize: Size(375, 667),
@@ -40,29 +42,15 @@ class MyApp extends ConsumerWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return GetMaterialApp(
+          locale: locale,
+          supportedLocales: AppLocaleUtils.supportedLocales,
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeMode,
           builder: FToastBuilder(),
           debugShowCheckedModeBanner: false,
           title: 'Wallet App',
-          // theme: ThemeData(
-          //   colorScheme: ColorScheme.light(
-          //     primary: Colors.white, // 主要颜色
-          //     surface: Colors.white, // 表面颜色（如卡片）
-          //   ),
-          //   scaffoldBackgroundColor: Colors.white, // 页面背景
-          //   appBarTheme: AppBarTheme(
-          //     backgroundColor: Colors.white, // AppBar背景
-          //     elevation: 0, // 去除阴影
-          //     iconTheme: IconThemeData(color: Colors.black), // 图标颜色
-          //     titleTextStyle: TextStyle(
-          //       color: Colors.black, // 标题文字颜色
-          //       fontSize: 20,
-          //       fontWeight: FontWeight.bold,
-          //     ),
-          //   ),
-          // ),
           // home: solana_wallet.address.isEmpty ? Createwalletpage() : HomePage(),
           home: MainPage(),
           initialRoute: '/',
@@ -73,20 +61,19 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-class MainPage extends StatefulWidget {
+class MainPage extends ConsumerStatefulWidget {
   const MainPage({super.key, this.initialPageIndex = 0});
 
   final int initialPageIndex;
 
   @override
-  State<MainPage> createState() => _MyHomePageState();
+  ConsumerState<MainPage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MainPage> {
+class _MyHomePageState extends ConsumerState<MainPage> {
   late int _selectedItemIndex;
   late PageController _pageController;
 
-  final List<String> _titles = ["首页", "行情", "交易", "发现", "钱包"];
   final List<Widget> _navIcons = [
     ColorFiltered(
       colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn),
@@ -124,6 +111,9 @@ class _MyHomePageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(localeProvider);
+    final List<String> _titles = [t.tabbar.home, t.tabbar.markets, t.tabbar.trade, t.tabbar.discover, t.tabbar.wallet];
+
     final List<Widget> _navIconsActive = [
       ColorFiltered(
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
@@ -163,7 +153,7 @@ class _MyHomePageState extends State<MainPage> {
         backgroundColor: Theme.of(context).colorScheme.background,
         selectedItemColor: Theme.of(context).colorScheme.onBackground,
         unselectedItemColor: Theme.of(context).colorScheme.onSurface,
-        items: _generateBottomNavList(_navIconsActive),
+        items: _generateBottomNavList(_titles, _navIconsActive),
         currentIndex: _selectedItemIndex,
         onTap: _onNavItemTapped,
       ),
@@ -180,9 +170,9 @@ class _MyHomePageState extends State<MainPage> {
     );
   }
 
-  List<BottomNavigationBarItem> _generateBottomNavList(List<Widget> _navIconsActive) {
-    return List.generate(_titles.length, (index) {
-      return BottomNavigationBarItem(icon: _navIcons[index], activeIcon: _navIconsActive[index], label: _titles[index]);
+  List<BottomNavigationBarItem> _generateBottomNavList(List<String> titles, List<Widget> navIconsActive) {
+    return List.generate(titles.length, (index) {
+      return BottomNavigationBarItem(icon: _navIcons[index], activeIcon: navIconsActive[index], label: titles[index]);
     });
   }
 

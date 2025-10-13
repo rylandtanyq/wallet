@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/widget/CustomSwitch.dart';
 
@@ -33,12 +34,12 @@ class _MoresettingState extends State<Moresetting> {
           Padding(
             padding: EdgeInsetsGeometry.symmetric(horizontal: 12.w),
             child: Text(
-              "更多设置",
+              t.Mysettings.more_settings,
               style: AppTextStyles.headline1.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
             ),
           ),
           _setItemListTile(
-            title: "需解锁打开App",
+            title: t.Mysettings.unlock_to_open_app,
             iconWidget: false,
             trailing: CustomSwitch(
               value: _unlockApp,
@@ -52,7 +53,7 @@ class _MoresettingState extends State<Moresetting> {
             ),
           ),
           _setItemListTile(
-            title: "面容 / 指纹支付",
+            title: t.Mysettings.face_fingerprint_payment,
             iconWidget: false,
             trailing: CustomSwitch(
               value: _faceID,
@@ -66,7 +67,7 @@ class _MoresettingState extends State<Moresetting> {
             ),
           ),
           _setItemListTile(
-            title: "免密支付",
+            title: t.Mysettings.password_free_payment,
             iconWidget: true,
             trailing: CustomSwitch(
               value: _passwordFreePayment,
@@ -83,14 +84,14 @@ class _MoresettingState extends State<Moresetting> {
             onTap: () {
               HapticFeedback.heavyImpact();
             },
-            title: "默认启动页设置",
+            title: t.Mysettings.default_start_page_setting,
             iconWidget: false,
             trailing: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "首页",
+                  t.tabbar.home,
                   // style: TextStyle(fontSize: 15.sp, color: Color(0xFF757F7F)),
                   style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onSurface),
                 ),
@@ -106,7 +107,7 @@ class _MoresettingState extends State<Moresetting> {
             onTap: () {
               HapticFeedback.heavyImpact();
             },
-            title: "地址本管理",
+            title: t.Mysettings.address_book_management,
             iconWidget: false,
             trailing: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +122,7 @@ class _MoresettingState extends State<Moresetting> {
             onTap: () {
               HapticFeedback.heavyImpact();
             },
-            title: "节点设置",
+            title: t.Mysettings.node_settings,
             iconWidget: false,
             trailing: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -136,7 +137,7 @@ class _MoresettingState extends State<Moresetting> {
             onTap: () {
               HapticFeedback.heavyImpact();
             },
-            title: "切换线路",
+            title: t.Mysettings.switch_network,
             iconWidget: false,
             trailing: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +153,7 @@ class _MoresettingState extends State<Moresetting> {
             onTap: () {
               HapticFeedback.heavyImpact();
             },
-            title: "用户使用协议",
+            title: t.Mysettings.user_agreement,
             iconWidget: false,
             trailing: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -167,7 +168,7 @@ class _MoresettingState extends State<Moresetting> {
             onTap: () {
               HapticFeedback.heavyImpact();
             },
-            title: "隐私协议",
+            title: t.Mysettings.privacy_policy,
             iconWidget: false,
             trailing: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -182,7 +183,7 @@ class _MoresettingState extends State<Moresetting> {
             onTap: () {
               HapticFeedback.heavyImpact();
             },
-            title: "开源与审计",
+            title: t.Mysettings.open_source_and_audit,
             iconWidget: false,
             trailing: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -213,22 +214,21 @@ class _setItemListTile extends StatelessWidget {
       color: Colors.transparent,
       child: ListTile(
         onTap: onTap,
-        contentPadding: EdgeInsetsGeometry.symmetric(horizontal: 12.w),
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
+        title: Row(
           children: [
-            Text(
-              title,
-              // style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500, color: Colors.black),
-              style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+            Expanded(
+              child: Text(
+                title,
+                style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             if (iconWidget)
               Padding(
-                padding: EdgeInsets.only(left: 4),
-                child: Transform.translate(
-                  offset: Offset(0, 1),
-                  child: Icon(Icons.help_outline, size: 17.w, color: Color(0xFFA3ADAD)),
-                ),
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.help_outline, size: 17.w, color: const Color(0xFFA3ADAD)),
               ),
           ],
         ),

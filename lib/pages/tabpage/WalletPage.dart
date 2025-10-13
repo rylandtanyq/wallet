@@ -2,15 +2,18 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/CoinDetailPage.dart';
 import 'package:untitled1/pages/SelectedPayeePage.dart';
 import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import '../../base/base_page.dart';
 import '../../constants/AppColors.dart';
@@ -21,17 +24,17 @@ import '../dialog/SelectWalletDialog.dart';
 import '../dialog/FullScreenDialog.dart';
 import '../view/StickyTabBarDelegate.dart';
 
-class WalletPage extends StatefulWidget {
+class WalletPage extends ConsumerStatefulWidget {
   const WalletPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _WalletPageState();
+  ConsumerState<WalletPage> createState() => _WalletPageState();
 }
 
-class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, TickerProviderStateMixin, WidgetsBindingObserver {
+class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPage>, TickerProviderStateMixin, WidgetsBindingObserver {
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
   final solana = Solana();
-  final List<String> _titles = ["转账", "收款", "理财", "GetGas", "交易历史"];
+
   final List<Widget> _navIcons = [
     Image.asset('assets/images/ic_wallet_transfer.png', width: 48.w, height: 48.w),
     Image.asset('assets/images/ic_home_grid_collection.png', width: 48.w, height: 48.w),
@@ -43,8 +46,6 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
   late PageController _pageController;
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 0;
-
-  final List<String> categories = ['代币', 'DeFi', 'NFT', '银行卡'];
   final List<List<Token>> tokenLists = [
     [
       Token(name: 'USDT', apy: '3.07%', price: '¥7.25', change: '0.00%'),
@@ -62,18 +63,6 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
   ];
 
   int _selectedNetWorkIndex = 0; // 存储选中的索引
-  // final List<String> _items = ['全部网络', 'Solana', 'BNB Chain', 'BitCoin', 'Base', 'Ethereum', 'Polygon', 'Arbitrum', 'Sui'];
-  final List<Map<String, String>> _items = [
-    {"netName": "全部网络", "path": "assets/images/all_network.png"},
-    {"netName": "Solana", "path": "assets/images/solana_logo.png"},
-    {"netName": "BNB Chain", "path": "assets/images/BTC.png"},
-    {"netName": "BitCoin", "path": "assets/images/BTC.png"},
-    {"netName": "Base", "path": "assets/images/BTC.png"},
-    {"netName": "Ethereum", "path": "assets/images/BTC.png"},
-    {"netName": "Polygon", "path": "assets/images/BTC.png"},
-    {"netName": "Arbitrum", "path": "assets/images/BTC.png"},
-    {"netName": "Sui", "path": "assets/images/BTC.png"},
-  ];
 
   int _selectedWalletIndex = 0;
 
@@ -88,7 +77,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: categories.length, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _pageController = PageController();
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
@@ -208,10 +197,53 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
     setState(() {});
   }
 
+  String _getCommonName(String key) {
+    switch (key) {
+      case 'allNetworks':
+        return t.common.allNetworks;
+      case 'Solana':
+        return t.common.Solana;
+      case 'BNB':
+        return t.common.BNB;
+      case 'Bitcoin':
+        return t.common.Bitcoin;
+      case 'Base':
+        return t.common.Base;
+      case 'Ethereum':
+        return t.common.Ethereum;
+      case 'Polygon':
+        return t.common.Polygon;
+      case 'Arbitrum':
+        return t.common.Arbitrum;
+      case 'Sui':
+        return t.common.Sui;
+      default:
+        return key;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.watch(localeProvider);
+    final List<String> categories = [t.common.token, 'DeFi', 'NFT', t.home.bankCard];
+    final id = HiveStorage().getObject<Map>('currentNetwork')?['id'] ?? 'allNetworks';
+    final languageNetName = _getCommonName(id);
+    final List<String> titles = [t.home.transfer, t.home.receive, t.home.finance, t.home.getGas, t.home.transaction_history];
+    final List<Map<String, String>> items = [
+      {"id": "allNetworks", "path": "assets/images/all_network.png", "netName": t.common.allNetworks},
+      {"id": "Solana", "path": "assets/images/solana_logo.png", "netName": t.common.Solana},
+      {"id": "BNB", "path": "assets/images/BTC.png", "netName": t.common.BNB},
+      {"id": "Bitcoin", "path": "assets/images/BTC.png", "netName": t.common.Bitcoin},
+      {"id": "Base", "path": "assets/images/BTC.png", "netName": t.common.Base},
+      {"id": "Ethereum", "path": "assets/images/BTC.png", "netName": t.common.Ethereum},
+      {"id": "Polygon", "path": "assets/images/BTC.png", "netName": t.common.Polygon},
+      {"id": "Arbitrum", "path": "assets/images/BTC.png", "netName": t.common.Arbitrum},
+      {"id": "Sui", "path": "assets/images/BTC.png", "netName": t.common.Sui},
+    ];
+
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         title: Padding(
           padding: EdgeInsets.all(5),
           child: Row(
@@ -239,6 +271,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                 ),
               ),
               SizedBox(
+                width: 120.w,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.background,
@@ -250,7 +283,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                     ),
                   ),
                   onPressed: () async {
-                    final currentSelectNetwork = await showAnimatedFullScreenDialog(context);
+                    final currentSelectNetwork = await showAnimatedFullScreenDialog(context, items);
                     if (currentSelectNetwork != null) {
                       HiveStorage().putObject('currentNetwork', currentSelectNetwork);
                     }
@@ -259,16 +292,20 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                     children: [
                       ClipOval(
                         child: Image.asset(
-                          HiveStorage().getObject<Map>('currentNetwork')?['image'] ?? _items[_selectedNetWorkIndex]["path"],
+                          HiveStorage().getObject<Map>('currentNetwork')?['image'] ?? items[_selectedNetWorkIndex]["path"],
                           width: 25.w,
                           height: 25.w,
                           fit: BoxFit.cover,
                         ),
                       ),
                       SizedBox(width: 5.w),
-                      Text(
-                        HiveStorage().getObject<Map>('currentNetwork')?['netName'] ?? "全部网络",
-                        style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Text(
+                          languageNetName,
+                          style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       SizedBox(width: 8.w),
                       Image.asset('assets/images/ic_arrows_right.png', width: 9.w, height: 5.5.w),
@@ -280,18 +317,23 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
           ),
         ),
       ),
-      body: EasyRefresh(controller: _refreshController, header: const ClassicHeader(), onRefresh: _onRefresh, child: _buildPageContent()),
+      body: EasyRefresh(
+        controller: _refreshController,
+        header: const ClassicHeader(),
+        onRefresh: _onRefresh,
+        child: _buildPageContent(titles, categories),
+      ),
     );
   }
 
   //选择网络弹窗
-  Future<Map<String, String>?> showAnimatedFullScreenDialog(BuildContext context) {
+  Future<Map<String, String>?> showAnimatedFullScreenDialog(BuildContext context, List<Map<String, String>> _items) {
     _currentNetwork = Map<String, String>.from(HiveStorage().getObject<Map>("currentNetwork") ?? defaultNetwork);
     return Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
           return FullScreenDialog(
-            title: '选择网络',
+            title: t.transfer_receive_payment.selectNetwork,
             child: Column(
               children: [
                 // 搜索框
@@ -300,7 +342,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: '搜索网络',
+                      hintText: t.common.searchNetwork,
                       hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                       filled: true,
@@ -342,7 +384,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                           setState(() {
                             _selectedNetWorkIndex = index;
                           });
-                          Navigator.pop(context, {"netName": "${item['netName']}", "image": "${item['path']}"});
+                          Navigator.pop(context, {"id": "${item['id']}", "image": "${item['path']}"});
                         },
                       );
                     },
@@ -386,7 +428,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
     }
   }
 
-  Widget _buildTopView() {
+  Widget _buildTopView(List<String> titles) {
     return Container(
       padding: EdgeInsets.only(top: 10.h),
       child: Column(
@@ -449,7 +491,9 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                       ),
                       child: Center(
                         child: Row(
-                          children: [Text('今天', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground))],
+                          children: [
+                            Text(t.common.today, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                          ],
                         ),
                       ),
                     ),
@@ -466,7 +510,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             childAspectRatio: 0.8,
-            children: List.generate(_titles.length, (index) {
+            children: List.generate(titles.length, (index) {
               return GestureDetector(
                 onTap: () {
                   if (index == 0) {
@@ -483,7 +527,7 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                       _navIcons[index],
                       SizedBox(height: 5),
                       Text(
-                        _titles[index],
+                        titles[index],
                         style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -505,10 +549,10 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
     );
   }
 
-  Widget _buildPageContent() {
+  Widget _buildPageContent(titles, List<String> categories) {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: _buildTopView()),
+        SliverToBoxAdapter(child: _buildTopView(titles)),
         SliverPersistentHeader(
           pinned: true,
           delegate: StickyTabBarDelegate(
@@ -574,9 +618,9 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
                 onPressed: () {
                   // 按钮点击事件
                 },
-                child: const Text(
-                  '管理代币',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                child: Text(
+                  t.common.manageToken,
+                  style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -785,9 +829,14 @@ class _WalletPageState extends State<WalletPage> with BasePage<WalletPage>, Tick
   }
 
   Widget _buildNetworkText() {
-    return Text(
-      '去备份',
-      style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+    return SizedBox(
+      width: 40.w,
+      child: Text(
+        t.Mysettings.go_backup,
+        style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 

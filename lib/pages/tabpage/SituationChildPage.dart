@@ -1,6 +1,7 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/view/FiltrateView.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
@@ -34,13 +35,12 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
   late PageController _pageController;
   int _chainSubIndex = 0; // 0:全链, 1:合约
   int _collectSubIndex = 0; // 0:收藏, 1:浏览记录
-  final List<String> _tabs = ['自选', '全链', '合约'];
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _pageController = PageController();
 
     // Tab切换时同步PageView
@@ -63,7 +63,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
   @override
   Widget build(BuildContext context) {
     final pageCount = (_items.length / _itemsPerPage).ceil();
-
+    final List<String> tabs = [t.situation.favorites, t.situation.allChains, t.situation.contract];
     return Scaffold(
       body: EasyRefresh(
         controller: _refreshController,
@@ -87,7 +87,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
                           children: [
                             Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                             SizedBox(width: 8.w),
-                            Text('搜索您感兴趣的币', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                            Text(t.situation.searchCoins, style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                           ],
                         ),
                       ),
@@ -177,7 +177,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: List.generate(_tabs.length, (index) {
+                      children: List.generate(tabs.length, (index) {
                         return GestureDetector(
                           onTap: () {
                             setState(() {
@@ -197,7 +197,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
                                     builder: (context) {
                                       final isSelected = _selectedIndex == index;
                                       return Text(
-                                        _tabs[index],
+                                        tabs[index],
                                         style: AppTextStyles.size15.copyWith(
                                           color: isSelected ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
                                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -266,7 +266,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
               ),
               onPressed: () => setState(() => _chainSubIndex = 0),
               child: Text(
-                '全链',
+                t.situation.allChains,
                 style: TextStyle(
                   color: _chainSubIndex == 0 ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
                   fontSize: 13.sp,
@@ -287,7 +287,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
               ),
               onPressed: () => setState(() => _chainSubIndex = 1),
               child: Text(
-                '合约',
+                t.situation.contract,
                 style: TextStyle(
                   color: _chainSubIndex == 1 ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
                   fontSize: 13.sp,
@@ -329,7 +329,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
               ),
               onPressed: () => setState(() => _collectSubIndex = 0),
               child: Text(
-                '我的收藏',
+                t.situation.myFavorites,
                 style: TextStyle(
                   color: _collectSubIndex == 0 ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
                   fontSize: 11.sp,
@@ -349,7 +349,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
               ),
               onPressed: () => setState(() => _collectSubIndex = 1),
               child: Text(
-                '浏览记录',
+                t.situation.history,
                 style: TextStyle(
                   color: _collectSubIndex == 1 ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
                   fontSize: 11.sp,

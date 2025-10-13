@@ -29,6 +29,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> with BasePage<DiscoveryPa
 
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [_buildTabText(0, 'DApp'), _buildTabText(1, '赚币中心'), _buildTabText(2, '热榜')],
