@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 

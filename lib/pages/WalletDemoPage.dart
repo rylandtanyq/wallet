@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
 
 import '../../../base/base_page.dart';
 
@@ -13,20 +13,14 @@ class WalletDemoPage extends StatefulWidget {
   State<StatefulWidget> createState() => _WalletDemoPageState();
 }
 
-class _WalletDemoPageState extends State<WalletDemoPage>
-    with BasePage<WalletDemoPage>, AutomaticKeepAliveClientMixin ,TickerProviderStateMixin {
-
-
+class _WalletDemoPageState extends State<WalletDemoPage> with BasePage<WalletDemoPage>, AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: '',
-      ),
-      body: Column(
-        children: [
+      appBar: CustomAppBar(title: ''),
+      body: Column(children: [
         ],
       ),
     );
@@ -34,5 +28,4 @@ class _WalletDemoPageState extends State<WalletDemoPage>
 
   @override
   bool get wantKeepAlive => true;
-
 }

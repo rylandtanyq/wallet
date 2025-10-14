@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/dialog/PayeeSelectNetworkDialog.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/widget/dialog/PayeeSelectNetworkDialog.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import '../constants/AppColors.dart';
 

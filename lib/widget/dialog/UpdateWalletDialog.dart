@@ -6,8 +6,8 @@ import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
 
 import '../../entity/Wallet.dart';
-import '../AddWalletPage.dart';
-import '../view/CustomTextField.dart';
+import '../../pages/AddWalletPage.dart';
+import '../CustomTextField.dart';
 
 class UpdateWalletDialog extends StatefulWidget {
   @override

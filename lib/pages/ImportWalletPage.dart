@@ -4,8 +4,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
-import 'package:untitled1/pages/view/CustomTextField.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
+import 'package:untitled1/widget/CustomTextField.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 

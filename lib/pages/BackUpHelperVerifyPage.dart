@@ -10,7 +10,7 @@ import 'package:untitled1/entity/BackUpEntity.dart';
 import 'package:untitled1/entity/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/main.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import '../../base/base_page.dart';
 import '../util/HiveStorage.dart';

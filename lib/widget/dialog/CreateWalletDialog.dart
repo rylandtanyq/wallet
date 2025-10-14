@@ -1,32 +1,36 @@
 // 新建一个独立的 StatefulDialog 组件
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
-import 'package:untitled1/pages/ImportWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../constants/AppColors.dart';
+import '../../core/AdvancedMultiChainWallet.dart';
 import '../../entity/AddWalletEntity.dart';
-import '../LinkHardwareWalletPage.dart';
+import '../../pages/LinkHardwareWalletPage.dart';
 
-class ImportWalletDialog extends StatefulWidget {
+class CreateWalletDialog extends StatefulWidget {
   final String title;
   final List<AddWallet> items;
   final Widget child;
 
-  const ImportWalletDialog({Key? key, required this.title, required this.items, required this.child}) : super(key: key);
+  const CreateWalletDialog({Key? key, required this.title, required this.items, required this.child}) : super(key: key);
 
   @override
-  State<ImportWalletDialog> createState() => _ImportWalletDialogState();
+  State<CreateWalletDialog> createState() => _ToggleDialogState();
 }
 
-class _ImportWalletDialogState extends State<ImportWalletDialog> {
+class _ToggleDialogState extends State<CreateWalletDialog> {
   bool _isTextVisible = false;
   bool _isPrivateKeyTextVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +38,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
       height: MediaQuery.of(context).size.height * 0.6,
       padding: EdgeInsets.only(bottom: 20.h),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        // color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -46,7 +50,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                 Expanded(
                   child: Text(
                     widget.title,
-                    style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
@@ -61,11 +65,23 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // ListView.builder(
+                  //   itemCount: widget.items.length,
+                  //   itemBuilder: (context, index) {
+                  //     return ItemWidget(
+                  //       item: widget.items[index],
+                  //       onTap: () {
+                  //         setState(() {
+                  //           widget.items[index].isExpanded = !widget.items[index].isExpanded;
+                  //         });
+                  //       },
+                  //     );
+                  //   },
                   // ),
                   widget.child,
                   _buildCreateCard(
                     'assets/images/ic_wallet_create.png',
-                    t.wallet.mnemonicOrPrivateKeyWallet,
+                    t.wallet.mnemonicWallet,
                     '',
                     _isTextVisible,
                     () {
@@ -74,8 +90,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                       });
                     },
                     () {
-                      Navigator.pop(context);
-                      Get.to(ImportWalletPage());
+                      Get.to(BackUpHelperPage());
                     },
                   ),
                   _buildCreateCard(
@@ -118,8 +133,8 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 12.5.w, vertical: 20.h),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
               ),
               child: Row(
                 children: [
@@ -131,7 +146,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                       children: [
                         Text(
                           name,
-                          style: AppTextStyles.size17.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
+                          style: AppTextStyles.size17.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 8.h),
                         InkWell(
@@ -149,14 +164,14 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                       onTap: onNextPage,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
+                          // color: Colors.white,
                           border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.3), width: 1),
                           borderRadius: BorderRadius.circular(21.5.r),
                         ),
                         padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 10.w),
                         child: Text(
-                          t.wallet.import,
-                          style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                          t.wallet.create,
+                          style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
@@ -170,7 +185,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
             Container(
               padding: EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                // color: Theme.of(context).colorScheme.background,
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
               ),
               child: Column(
@@ -186,8 +201,11 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                           runSpacing: 5.0,
                           alignment: WrapAlignment.start,
                           children: [
-                            _buildItem(t.wallet.support12or24Mnemonic),
-                            _buildItem(t.wallet.supportsHundredsOfNetworks),
+                            _buildItem(t.wallet.mostUsed),
+                            _buildItem(t.wallet.mnemonicIs12Words),
+                            _buildItem(t.wallet.mnemonicIsLikePassword),
+                            _buildItem(t.wallet.keepItSafe),
+                            _buildItem(t.wallet.handwrittenBackup),
                             _buildIconItem(t.wallet.support),
                           ],
                         ),
@@ -219,7 +237,10 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
       decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(.1), borderRadius: BorderRadius.circular(13.5.r)),
-      child: Text(text, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface),
+      ),
     );
   }
 
@@ -229,7 +250,10 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
       decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(.1), borderRadius: BorderRadius.circular(13.5.r)),
       child: Wrap(
         children: [
-          Text(text, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+          Text(
+            text,
+            style: TextStyle(fontSize: 12.sp, color: AppColors.color_757F7F),
+          ),
           SizedBox(width: 2.w),
           Image.asset('assets/images/ic_home_app_icon.png', width: 17.w, height: 17.w),
           SizedBox(width: 2.w),

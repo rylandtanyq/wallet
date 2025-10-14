@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
 
 import '../../base/base_page.dart';
 
@@ -14,10 +14,8 @@ class CoinDetailPage extends StatefulWidget {
   State<StatefulWidget> createState() => _CoinDetailPageState();
 }
 
-class _CoinDetailPageState extends State<CoinDetailPage>
-    with BasePage<CoinDetailPage>, AutomaticKeepAliveClientMixin ,TickerProviderStateMixin {
-
-  final List<String> categories = ['按网络','按币种'];
+class _CoinDetailPageState extends State<CoinDetailPage> with BasePage<CoinDetailPage>, AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
+  final List<String> categories = ['按网络', '按币种'];
   int _selectedIndex = 0;
   late PageController _pageController;
 
@@ -38,10 +36,7 @@ class _CoinDetailPageState extends State<CoinDetailPage>
     super.build(context);
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: '',
-
-      ),
+      appBar: CustomAppBar(title: ''),
       body: Column(
         children: [
           Stack(
@@ -120,8 +115,6 @@ class _CoinDetailPageState extends State<CoinDetailPage>
     );
   }
 
-
   @override
   bool get wantKeepAlive => true;
-
 }

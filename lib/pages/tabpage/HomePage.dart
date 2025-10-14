@@ -15,10 +15,10 @@ import 'package:untitled1/theme/app_textStyle.dart';
 import '../../base/base_page.dart';
 import '../../entity/FinancialItem.dart';
 import '../SelectedPayeePage.dart';
-import '../view/ContractTradingCard.dart';
-import '../view/FinancialDataView.dart';
-import '../view/HorizntalSelectList.dart';
-import '../view/StatefulProductCard.dart';
+import '../../widget/ContractTradingCard.dart';
+import '../../widget/FinancialDataView.dart';
+import '../../widget/HorizntalSelectList.dart';
+import '../../widget/StatefulProductCard.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});

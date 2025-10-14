@@ -2,14 +2,14 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/view/FiltrateView.dart';
+import 'package:untitled1/widget/FiltrateView.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
 import '../../constants/AppColors.dart';
-import '../view/HorizntalSelectList.dart';
-import '../view/SliverHeaderDelegate.dart';
-import '../view/StickyTabBarDelegate.dart';
+import '../../widget/HorizntalSelectList.dart';
+import '../../widget/SliverHeaderDelegate.dart';
+import '../../widget/StickyTabBarDelegate.dart';
 
 /*
  * 行情子页面

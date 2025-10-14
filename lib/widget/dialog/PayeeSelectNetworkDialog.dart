@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../constants/AppColors.dart';
-import '../PayeePage.dart';
+import '../../pages/PayeePage.dart';
 
 /*
  * 选择网络

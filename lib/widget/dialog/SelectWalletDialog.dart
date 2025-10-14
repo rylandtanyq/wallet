@@ -9,7 +9,7 @@ import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import '../../entity/Wallet.dart';
-import '../AddWalletPage.dart';
+import '../../pages/AddWalletPage.dart';
 
 /*
  * 选择钱包

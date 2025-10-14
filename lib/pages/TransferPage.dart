@@ -7,8 +7,8 @@ import 'package:untitled1/entity/Wallet.dart' as Mywallet;
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddressbookAndMywallet.dart';
 import 'package:untitled1/pages/CameraScan.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
-import 'package:untitled1/pages/view/CustomTextField.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
+import 'package:untitled1/widget/CustomTextField.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 

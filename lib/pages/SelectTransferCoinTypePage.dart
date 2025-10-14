@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/TransferPage.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
-import 'package:untitled1/pages/view/HorizntalSelectList.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
+import 'package:untitled1/widget/HorizntalSelectList.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import '../constants/AppColors.dart';
 

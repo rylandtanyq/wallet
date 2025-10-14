@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
-import '../view/HorizntalSelectList.dart';
+import '../../widget/HorizntalSelectList.dart';
 import 'DiscoveryDAppPage.dart';
 import 'DiscoveryHotListPage.dart';
 import 'DiscoveryMakingCoinCenterPage.dart';

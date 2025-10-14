@@ -20,9 +20,9 @@ import '../../constants/AppColors.dart';
 import '../../util/HiveStorage.dart';
 import '../../entity/Token.dart';
 import '../../entity/Wallet.dart';
-import '../dialog/SelectWalletDialog.dart';
-import '../dialog/FullScreenDialog.dart';
-import '../view/StickyTabBarDelegate.dart';
+import '../../widget/dialog/SelectWalletDialog.dart';
+import '../../widget/dialog/FullScreenDialog.dart';
+import '../../widget/StickyTabBarDelegate.dart';
 
 class WalletPage extends ConsumerStatefulWidget {
   const WalletPage({super.key});

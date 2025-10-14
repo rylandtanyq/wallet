@@ -7,7 +7,7 @@ import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/MoreSetting.dart';
 import 'package:untitled1/pages/RewardsAccount.dart';
 import 'package:untitled1/pages/UsageGuidelines.dart';
-import 'package:untitled1/pages/view/CustomAppBar.dart';
+import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled1/state/app_notifier.dart';
 import 'package:untitled1/state/app_provider.dart';

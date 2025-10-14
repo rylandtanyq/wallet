@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 
-import '../../entity/FinancialItem.dart';
+import '../entity/FinancialItem.dart';
 
 class FinancialDataPage extends StatelessWidget {
   final List<FinancialItem> items;
