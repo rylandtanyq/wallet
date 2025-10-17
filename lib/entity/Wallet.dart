@@ -1,6 +1,11 @@
+import 'package:bs58/bs58.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:cryptography/cryptography.dart';
+import 'package:convert/convert.dart';
 part 'Wallet.g.dart';
 
 @JsonSerializable()
@@ -16,7 +21,7 @@ class Wallet extends HiveObject {
   final String address; //钱包地址
 
   @HiveField(3)
-  final String network; //钱包网络
+  String network; //钱包网络
 
   @HiveField(4)
   final String privateKey; //钱包私钥
@@ -85,5 +90,50 @@ class WalletHiveAdapter extends TypeAdapter<Wallet> {
     writer.write(obj.isExpanded);
     writer.write(obj.isBackUp);
     writer.write(obj.mnemonic);
+  }
+}
+
+extension SolanaSigner on Wallet {
+  /// 使用钱包私钥对 message 签名，返回 Base58 签名
+  Future<String> signMessage(String message) async {
+    final algorithm = Ed25519();
+    final messageBytes = utf8.encode(message);
+
+    // 解析 32 字节 Hex 私钥
+    final seed = Uint8List.fromList(hex.decode(privateKey));
+
+    // 生成 KeyPair
+    final keyPair = await algorithm.newKeyPairFromSeed(seed);
+
+    // 签名
+    final signature = await algorithm.sign(messageBytes, keyPair: keyPair);
+
+    // ⚡️ 将 List<int> 转成 Uint8List
+    final signatureBytes = Uint8List.fromList(signature.bytes);
+
+    // 返回 Base58 编码签名
+    return base58.encode(signatureBytes);
+  }
+
+  /// 获取对应公钥 Base58
+  Future<String> getPublicKey() async {
+    final algorithm = Ed25519();
+    final seed = Uint8List.fromList(hex.decode(privateKey));
+    final keyPair = await algorithm.newKeyPairFromSeed(seed);
+    final simpleKeyPair = await keyPair.extract();
+
+    final publicKeyBytes = Uint8List.fromList(simpleKeyPair.publicKey.bytes);
+    return base58.encode(publicKeyBytes);
+  }
+
+  Future<String> signMessageBytes(List<int> messageBytes) async {
+    final algorithm = Ed25519();
+    final seed = Uint8List.fromList(hex.decode(privateKey));
+    final keyPair = await algorithm.newKeyPairFromSeed(seed);
+
+    final signature = await algorithm.sign(messageBytes, keyPair: keyPair);
+    final signatureBytes = Uint8List.fromList(signature.bytes);
+
+    return base58.encode(signatureBytes); // 或 base64.encode(signatureBytes) 根据 DApp 要求
   }
 }

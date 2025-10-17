@@ -71,7 +71,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   static const double _borderRadius = 20;
   static const double _borderWidth = 1.0;
 
-  final defaultNetwork = {"network": "solana", "image": "assets/images/solana_logo.png"};
+  final defaultNetwork = {"id": "Solana", "path": "assets/images/solana_logo.png"};
   late Map<String, String> _currentNetwork;
 
   @override
@@ -176,7 +176,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       debugPrint("Sol balance:- $solBalance");
       debugPrint("new address:- ${wallet.address}");
       wallet.balance = solBalance.toString();
-      await wallet.save();
+      await HiveStorage().putObject('currentSelectWallet', wallet);
       if (mounted) {
         setState(() {
           _wallet = wallet;
@@ -187,7 +187,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       setState(() {
         wallet.balance = "0.00";
       });
-      await wallet.save();
+      await HiveStorage().putObject('currentSelectWallet', wallet);
       debugPrint("更新余额失败$e");
     }
   }
@@ -305,10 +305,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                           style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                       SizedBox(width: 8.w),
-                      Image.asset('assets/images/ic_arrows_right.png', width: 9.w, height: 5.5.w),
+                      Image.asset('assets/images/ic_arrows_right.png', width: 12.w, height: 12.w),
                     ],
                   ),
                 ),
@@ -327,7 +328,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   //选择网络弹窗
-  Future<Map<String, String>?> showAnimatedFullScreenDialog(BuildContext context, List<Map<String, String>> _items) {
+  Future<Map<String, String>?> showAnimatedFullScreenDialog(BuildContext context, List<Map<String, String>> items) {
     _currentNetwork = Map<String, String>.from(HiveStorage().getObject<Map>("currentNetwork") ?? defaultNetwork);
     return Navigator.of(context).push(
       PageRouteBuilder(
@@ -358,18 +359,17 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                 // 列表
                 Expanded(
                   child: ListView.builder(
-                    itemCount: _items.length,
+                    itemCount: items.length,
                     itemBuilder: (context, index) {
-                      final item = _items[index];
-                      final isSelected = item['netName'] == _currentNetwork["netName"];
-
+                      final itemCurrent = items[index];
+                      final isSelected = itemCurrent['netName'] == _currentNetwork["id"];
                       return ListTile(
-                        leading: Image.asset(item["path"] ?? "", width: 37.5.w, height: 37.5.w),
+                        leading: Image.asset(itemCurrent["path"] ?? "", width: 37.5.w, height: 37.5.w),
                         title: Row(
                           children: [
                             Expanded(
                               child: Text(
-                                item["netName"] ?? "",
+                                itemCurrent["netName"] ?? "",
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onBackground,
@@ -384,7 +384,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                           setState(() {
                             _selectedNetWorkIndex = index;
                           });
-                          Navigator.pop(context, {"id": "${item['id']}", "image": "${item['path']}"});
+                          _wallet.network = itemCurrent['id']!;
+                          Navigator.pop(context, {"id": "${itemCurrent['id']}", "image": "${itemCurrent['path']}"});
                         },
                       );
                     },

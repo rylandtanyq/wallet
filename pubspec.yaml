@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_inappwebview: ^6.1.5
   slang: ^4.8.1
   slang_flutter: ^4.8.0
   bs58: ^1.0.2
@@ -107,6 +108,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  cryptography: ^2.7.0
 
 dev_dependencies:
   flutter_test:
@@ -236,6 +238,9 @@ flutter:
     - assets/images/all_network.png
     - assets/images/solana_logo.png
     - assets/images/addressBook.png
+    - assets/images/fiery_first.png
+    - assets/images/fiery_second.png
+    - assets/images/fiery_third.png
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg

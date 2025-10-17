@@ -76,6 +76,7 @@ class AdvancedMultiChainWallet {
     _mnemonic = mnemonic;
     await _generateKeysFromMnemonic();
     await _saveToSecureStorage();
+    _currentNetwork = supportedNetworks['solana'];
     return _getWalletInfo();
   }
 
@@ -157,8 +158,11 @@ class AdvancedMultiChainWallet {
   Future<Map<String, String>> _getWalletInfo() async {
     // final balance = await getNativeBalance();
     final blockchain = _currentNetwork?.name ?? '';
-    final address = _addresses[_currentNetwork?.id] ?? _addresses[_currentNetwork?.name] ?? '';
+    var address = _addresses[_currentNetwork?.id] ?? _addresses[_currentNetwork?.name] ?? '';
     // final balance =  await getNativeBalanceByAddress(blockchain,address);
+    if (_currentNetwork?.id == 'solana' && _addresses['solana'] != null) {
+      address = _addresses['solana']!;
+    }
     return {'mnemonic': _mnemonic ?? '', 'balance': '0.00', 'privateKey': _privateKey ?? '', 'currentNetwork': blockchain, 'currentAddress': address};
   }
 

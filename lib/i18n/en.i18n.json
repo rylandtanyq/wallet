@@ -261,5 +261,13 @@
         "contract": "Contract",
         "myFavorites": "My Favs",
         "history": "History"
+    },
+    "search": {
+        "search": "Search",
+        "placeholder": "Enter token, contract, or DApp name",
+        "hotSearch": "Hot Searches",
+        "dapp": "DApp",
+        "token": "Token",
+        "contract": "Contract"
     }
 }

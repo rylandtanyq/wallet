@@ -9,6 +9,7 @@ import 'package:untitled1/pages/LinkedWalletDApp.dart';
 import 'package:untitled1/pages/MoreServices.dart';
 import 'package:untitled1/pages/MySettings.dart';
 import 'package:untitled1/pages/NotificationPage.dart';
+import 'package:untitled1/pages/search_page/index.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
@@ -70,17 +71,20 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
               ),
               SizedBox(width: 22.w),
               Expanded(
-                child: Container(
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(19.r)),
-                  padding: EdgeInsets.all(10),
-                  height: 37.h,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
-                      SizedBox(width: 8.w),
-                      Text('BTC/USDT', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                    ],
+                child: GestureDetector(
+                  onTap: () => Get.to(SearchPage(), transition: Transition.rightToLeft, popGesture: true),
+                  child: Container(
+                    decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(19.r)),
+                    padding: EdgeInsets.all(10),
+                    height: 37.h,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
+                        SizedBox(width: 8.w),
+                        Text('BTC/USDT', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -147,7 +147,8 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
     await _advWallet.initialize();
     if (CryptoInputValidator.isMnemonic(input)) {
       print('importWallet --- 助记词导入');
-      importWalletByMnemonic();
+      importWalletByMnemonic(input);
+      debugPrint('input: $input');
     } else if (CryptoInputValidator.isPrivateKey(input)) {
       print('importWallet --- 私钥导入');
       importWalletByPrivateKey();
@@ -190,9 +191,10 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
    * 助记词导入
    * TODO: 需要弹出选择网络弹窗
    */
-  Future<void> importWalletByMnemonic() async {
+  Future<void> importWalletByMnemonic(String mnemonicString) async {
     final wallet = await _advWallet.restoreFromMnemonic(_importKeyValue);
     List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
+    final List<String> mnemonic = mnemonicString.trim().split(' ');
     final currentAddress = wallet['currentAddress'];
     bool exists = _wallets.any((item) => item.address == currentAddress);
     if (!exists) {
@@ -208,6 +210,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       // 保存回 Hive
       await HiveStorage().putObject('currentSelectWallet', newWallet);
       await HiveStorage().putValue('selected_address', currentAddress);
+      await HiveStorage().putValue('currentSelectWallet_mnemonic', mnemonic.join(" "));
       _wallets.add(newWallet);
       await HiveStorage().putList('wallets_data', _wallets);
       print('新钱包已添加: ${newWallet.address}');

@@ -49,12 +49,14 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   // 获取当前选中的钱包信息
   void _getCurrentSelectedWalletInformation() {
     final wallet = HiveStorage().getObject<Mywallet.Wallet>('currentSelectWallet');
-    _currentWalletMnemonic = wallet?.mnemonic?.join(" ");
+    final mnemonic = HiveStorage().getValue<String>('currentSelectWallet_mnemonic');
+    _currentWalletMnemonic = wallet?.mnemonic?.join(" ") ?? mnemonic;
     _currentWalletAdderss = wallet?.address;
     _currentWalletprivateKey = wallet?.privateKey;
     debugPrint(wallet?.address);
     debugPrint(wallet?.mnemonic?.join(" "));
     debugPrint(wallet?.privateKey);
+    debugPrint(mnemonic);
   }
 
   @override

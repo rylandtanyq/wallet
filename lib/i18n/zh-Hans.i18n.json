@@ -261,5 +261,13 @@
         "contract": "合约",
         "myFavorites": "我的收藏",
         "history": "浏览记录"
+    },
+    "search": {
+        "search": "搜索",
+        "placeholder": "输入币种、合约或DApp名称",
+        "hotSearch": "热门搜索",
+        "dapp": "DApp",
+        "token": "币种",
+        "contract": "合约"
     }
 }

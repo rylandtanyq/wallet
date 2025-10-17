@@ -261,5 +261,13 @@
         "contract": "Contrato",
         "myFavorites": "Mis Favs",
         "history": "Hist"
+    },
+    "search": {
+        "search": "Buscar",
+        "placeholder": "Ingrese token, contrato o nombre de DApp",
+        "hotSearch": "Búsquedas populares",
+        "dapp": "DApp",
+        "token": "Token",
+        "contract": "Contrato"
     }
 }

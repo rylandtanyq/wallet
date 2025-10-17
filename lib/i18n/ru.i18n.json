@@ -261,5 +261,13 @@
         "contract": "Контракт",
         "myFavorites": "Мои избр",
         "history": "История"
+    },
+    "search": {
+        "search": "Поиск",
+        "placeholder": "Введите токен, контракт или название DApp",
+        "hotSearch": "Популярные поисковые запросы",
+        "dapp": "DApp",
+        "token": "Токен",
+        "contract": "Контракт"
     }
 }

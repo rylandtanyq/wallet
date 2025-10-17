@@ -25,3 +25,13 @@
 # Flutter 动态组件相关
 -keep class io.flutter.embedding.engine.deferredcomponents.** { *; }
 -keep class io.flutter.embedding.android.FlutterPlayStoreSplitApplication { *; }
+
+# Flutter core
+-keep class io.flutter.** { *; }
+
+# InAppWebView
+-keep class com.pichillilorenzo.flutter_inappwebview.** { *; }
+
+# 保留 WebView 通信类
+-keepclassmembers class * extends android.webkit.WebViewClient { *; }
+-keepclassmembers class * extends android.webkit.WebChromeClient { *; }

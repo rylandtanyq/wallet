@@ -261,5 +261,13 @@
         "contract": "契約",
         "myFavorites": "マイコレクション",
         "history": "閲覧履歴"
+    },
+    "search": {
+        "search": "検索",
+        "placeholder": "トークン、コントラクトまたはDApp名を入力",
+        "hotSearch": "人気の検索",
+        "dapp": "DApp",
+        "token": "トークン",
+        "contract": "コントラクト"
     }
 }
