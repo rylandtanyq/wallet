@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:untitled1/dao/HiveStorage.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/TransferPage.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
@@ -128,8 +129,9 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
     final tokenAddress = _items[index]["tokenAddress"];
     final network = _items[index]["network"];
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         Navigator.pop(context);
+        await HiveStorage().ensureBoxReady();
         Get.to(TransferPage(currency: currency!, tokenAddress: tokenAddress!, network: network!));
       },
       child: Container(

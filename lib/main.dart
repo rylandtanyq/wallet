@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/CreateWalletPage.dart';
 import 'package:untitled1/pages/SplashPage.dart';
@@ -22,8 +23,9 @@ import 'entity/Wallet.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LocaleSettings.useDeviceLocale();
+  await Hive.deleteFromDisk();
   // 初始化Hive并注册适配器
-  await HiveStorage().init(adapters: [WalletHiveAdapter()]);
+  await HiveStorage().init(adapters: [WalletAdapter()]);
   runApp(ProviderScope(child: TranslationProvider(child: MyApp())));
 }
 

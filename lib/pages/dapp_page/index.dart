@@ -280,10 +280,18 @@ class _DAppPageState extends State<DAppPage> {
   @override
   void initState() {
     super.initState();
-    _currentNetwork = HiveStorage().getObject<Map>('currentNetwork');
-    _wallet = HiveStorage().getObject('currentSelectWallet') ?? Wallet.empty();
-    debugPrint('1-->$_currentNetwork');
-    debugPrint('3-->${_wallet.address}');
+    _getCurrentSelectedWalletInformation();
+  }
+
+  // 获取当前选中的钱包信息
+  void _getCurrentSelectedWalletInformation() async {
+    _currentNetwork = await HiveStorage().getObject<Map>('currentNetwork');
+    final _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
+    final mnemonic = await HiveStorage().getValue<String>('currentSelectWallet_mnemonic');
+    debugPrint('---000${_wallet?.address}');
+    debugPrint(_wallet?.mnemonic?.join(" "));
+    debugPrint(_wallet?.privateKey);
+    debugPrint(mnemonic);
   }
 
   /// 双 Base64 签名函数

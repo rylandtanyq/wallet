@@ -31,9 +31,11 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
   }
 
   // 获取当前钱包地址
-  void _getCurrentSelectedWalletInformation() {
-    final wallet = HiveStorage().getObject<Wallet>('currentSelectWallet');
-    _currentWalletAdderss = wallet?.address;
+  void _getCurrentSelectedWalletInformation() async {
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
+    setState(() {
+      _currentWalletAdderss = wallet?.address;
+    });
   }
 
   @override

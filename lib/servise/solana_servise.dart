@@ -20,7 +20,7 @@ Future<String> sendSol({
   required String mnemonic,
   required String receiverAddress,
   required double amount, // 单位 SOL
-  String rpcUrl = 'https://api.mainnet-beta.solana.com',
+  String rpcUrl = 'https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/',
 }) async {
   // 1. SolanaClient，需要 Uri 类型
   final client = SolanaClient(rpcUrl: Uri.parse(rpcUrl), websocketUrl: Uri.parse(rpcUrl.replaceFirst('http', 'ws')));
@@ -60,7 +60,7 @@ Future<String> sendSPLToken({
   // 测试网 https://api.testnet.solana.com
   // 主网 https://api.mainnet-beta.solana.com
   // 开发网 https://api.devnet.solana.com
-  String rpcUrl = 'https://api.mainnet-beta.solana.com',
+  String rpcUrl = 'https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/',
 }) async {
   final client = SolanaClient(rpcUrl: Uri.parse(rpcUrl), websocketUrl: Uri.parse(rpcUrl.replaceFirst('http', 'ws')));
 

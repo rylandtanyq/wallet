@@ -12,7 +12,7 @@ class HiveStorage {
   /// 初始化Hive
   Future<void> init({List<TypeAdapter>? adapters}) async {
     await Hive.initFlutter();
-    
+
     // 注册类型适配器
     if (adapters != null) {
       for (final adapter in adapters) {
@@ -21,7 +21,7 @@ class HiveStorage {
         }
       }
     }
-    
+
     await Hive.openBox(_defaultBoxName);
   }
 
@@ -46,7 +46,7 @@ class HiveStorage {
       await _getBox().delete(_objectPrefix + key);
       return;
     }
-    
+
     await _getBox().put(_objectPrefix + key, object);
   }
 
@@ -61,7 +61,7 @@ class HiveStorage {
       await _getBox().delete(_collectionPrefix + key);
       return;
     }
-    
+
     await _getBox().put(_collectionPrefix + key, list);
   }
 
@@ -75,7 +75,7 @@ class HiveStorage {
       await _getBox().delete(_collectionPrefix + key);
       return;
     }
-    
+
     await _getBox().put(_collectionPrefix + key, map);
   }
 
@@ -97,8 +97,12 @@ class HiveStorage {
   }
 
   bool containsKey(String key) {
-    return _getBox().containsKey(key) || 
-           _getBox().containsKey(_collectionPrefix + key) ||
-           _getBox().containsKey(_objectPrefix + key);
+    return _getBox().containsKey(key) || _getBox().containsKey(_collectionPrefix + key) || _getBox().containsKey(_objectPrefix + key);
+  }
+
+  Future<void> ensureBoxReady([String boxName = _defaultBoxName]) async {
+    if (!Hive.isBoxOpen(boxName)) {
+      await Hive.openBox(boxName);
+    }
   }
 }

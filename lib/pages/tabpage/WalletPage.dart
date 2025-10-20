@@ -13,6 +13,7 @@ import 'package:untitled1/pages/CoinDetailPage.dart';
 import 'package:untitled1/pages/SelectedPayeePage.dart';
 import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
+import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import '../../base/base_page.dart';
@@ -95,6 +96,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       _currentNetwork = Map<String, String>.from(defaultNetwork);
       HiveStorage().putObject('currentNetwork', _currentNetwork);
     }
+    _initWalletAndNetwork();
     debugPrint('新存的助记词${_wallet.mnemonic}');
   }
 
@@ -127,34 +129,45 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     }
   }
 
+  Future<void> _initWalletAndNetwork() async {
+    await HiveStorage().ensureBoxReady(); // ✅ 保证 Hive box 打开
+
+    final wallet = HiveStorage().getObject<Wallet>('currentSelectWallet');
+    final network = HiveStorage().getObject<Map>('currentNetwork');
+
+    if (wallet != null) {
+      debugPrint("✅ 读取钱包地址: ${wallet.address}");
+      setState(() => _wallet = wallet);
+      await _updataWalletBalance(wallet); // ✅ 延后更新余额
+    } else {
+      debugPrint("⚠️ 未找到钱包，使用默认 Wallet.empty()");
+      _wallet = Wallet.empty();
+    }
+
+    if (network != null) {
+      _currentNetwork = Map<String, String>.from(network);
+    } else {
+      _currentNetwork = Map<String, String>.from(defaultNetwork);
+      await HiveStorage().putObject('currentNetwork', _currentNetwork);
+    }
+
+    debugPrint("✅ 当前网络: ${_currentNetwork['id']}");
+    debugPrint("✅ 助记词: ${_wallet.mnemonic}");
+  }
+
   Future<void> _loadWalletData() async {
-    if (!mounted) return;
-
-    // setState(() {
-    //   _isLoading = true;
-    //   _errorMessage = null;
-    // });
-
+    await HiveStorage().ensureBoxReady();
     try {
-      final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
-
+      final wallet = HiveStorage().getObject<Wallet>('currentSelectWallet');
       if (wallet != null) {
-        // final updatedWallet = await _updateWalletBalance(wallet);
-
-        if (!mounted) return;
-
-        setState(() {
-          _wallet = wallet;
-          // _isLoading = false;
-        });
-
-        // 更新Hive中的钱包数据
-        // await HiveStorage().saveObject('currentSelectWallet', updatedWallet);
+        debugPrint("✅ 刷新钱包数据: ${wallet.address}");
+        setState(() => _wallet = wallet);
+        await _updataWalletBalance(wallet);
       } else {
-        if (!mounted) return;
+        debugPrint("⚠️ 未找到 currentSelectWallet");
       }
     } catch (e) {
-      if (!mounted) return;
+      debugPrint("❌ 加载钱包数据失败: $e");
     }
   }
 
@@ -169,26 +182,32 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   // 获取实时钱包余额
   Future<void> _updataWalletBalance(Wallet wallet) async {
+    await HiveStorage().ensureBoxReady();
+
+    if (wallet.address.isEmpty || wallet.address.startsWith('0x000')) {
+      debugPrint("⚠️ 无效钱包地址，跳过余额更新");
+      return;
+    }
+
     try {
-      // NetworkType.Devnet  测试用
-      // networktype: NetworkType.Mainnet   真实主网余额
-      var solBalance = await solana.getbalance(address: wallet.address, networktype: NetworkType.Mainnet);
-      debugPrint("Sol balance:- $solBalance");
-      debugPrint("new address:- ${wallet.address}");
+      var solBalance = await getSolBalance(
+        rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
+        ownerAddress: wallet.address,
+      );
+      debugPrint("✅ Sol balance:- $solBalance");
+      debugPrint("✅ 钱包地址:- ${wallet.address}");
+
       wallet.balance = solBalance.toString();
       await HiveStorage().putObject('currentSelectWallet', wallet);
+
       if (mounted) {
-        setState(() {
-          _wallet = wallet;
-        });
+        setState(() => _wallet = wallet);
       }
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        wallet.balance = "0.00";
-      });
+      wallet.balance = "0.00";
       await HiveStorage().putObject('currentSelectWallet', wallet);
-      debugPrint("更新余额失败$e");
+      debugPrint("❌ 更新余额失败: $e");
     }
   }
 

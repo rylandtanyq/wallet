@@ -42,21 +42,26 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   @override
   void initState() {
     super.initState();
-    _getCurrentSelectedWalletInformation();
+    _initWalletData();
+  }
+
+  Future<void> _initWalletData() async {
+    await _getCurrentSelectedWalletInformation();
     _getBalance();
   }
 
   // 获取当前选中的钱包信息
-  void _getCurrentSelectedWalletInformation() {
-    final wallet = HiveStorage().getObject<Mywallet.Wallet>('currentSelectWallet');
-    final mnemonic = HiveStorage().getValue<String>('currentSelectWallet_mnemonic');
+  Future<void> _getCurrentSelectedWalletInformation() async {
+    final wallet = await HiveStorage().getObject<Mywallet.Wallet>('currentSelectWallet');
+    final mnemonic = await HiveStorage().getValue<String>('currentSelectWallet_mnemonic');
+
     _currentWalletMnemonic = wallet?.mnemonic?.join(" ") ?? mnemonic;
     _currentWalletAdderss = wallet?.address;
     _currentWalletprivateKey = wallet?.privateKey;
-    debugPrint(wallet?.address);
-    debugPrint(wallet?.mnemonic?.join(" "));
-    debugPrint(wallet?.privateKey);
-    debugPrint(mnemonic);
+
+    debugPrint('钱包地址: ${wallet?.address}');
+    debugPrint('助记词: ${wallet?.mnemonic?.join(" ")}');
+    debugPrint('私钥: ${wallet?.privateKey}');
   }
 
   @override
@@ -221,7 +226,10 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   // 获取余额
   void _getBalance() async {
     if (widget.currency == "SOL") {
-      getSolBalance(rpcUrl: "https://api.mainnet-beta.solana.com", ownerAddress: _currentWalletAdderss!)
+      getSolBalance(
+            rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
+            ownerAddress: _currentWalletAdderss!,
+          )
           .then((e) {
             setState(() {
               balance = e;
@@ -231,7 +239,11 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
             debugPrint("获取余额失败$e");
           });
     } else {
-      getSplTokenBalanceRpc(rpcUrl: "https://api.mainnet-beta.solana.com", ownerAddress: _currentWalletAdderss!, mintAddress: widget.tokenAddress)
+      getSplTokenBalanceRpc(
+            rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
+            ownerAddress: _currentWalletAdderss!,
+            mintAddress: widget.tokenAddress,
+          )
           .then((e) {
             setState(() {
               balance = e;
@@ -333,6 +345,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
               _showSnack(t.transfer_receive_payment.transferSubmitted);
             });
             debugPrint('派生币转账返回结果: $e');
+            // 33uboZ2oLMTJpQLkjWX3iU6JaCtvmP2cg3P7snKXXop9HAYxiGwFT9XdpFo5qJZvKRGRmDA8nj2BcQidkEzTpXg
           })
           .catchError((e) {
             debugPrint('派生币转账捕获的错误: $e');
