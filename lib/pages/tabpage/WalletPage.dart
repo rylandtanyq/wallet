@@ -14,6 +14,7 @@ import 'package:untitled1/pages/CoinDetailPage.dart';
 import 'package:untitled1/pages/SelectedPayeePage.dart';
 import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
+import 'package:untitled1/pages/adding_tokens.dart';
 import 'package:untitled1/pages/transaction_history.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
@@ -36,6 +37,8 @@ class WalletPage extends ConsumerStatefulWidget {
 class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPage>, TickerProviderStateMixin, WidgetsBindingObserver {
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
   final solana = Solana();
+  final TextEditingController _textEditingController = TextEditingController();
+  String? tokensSearchContent;
 
   final List<Widget> _navIcons = [
     Image.asset('assets/images/ic_wallet_transfer.png', width: 48.w, height: 48.w),
@@ -615,6 +618,50 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     );
   }
 
+  /// 代币筛选
+  Widget _filterAddWidget() {
+    return Container(
+      width: double.infinity,
+      height: 50,
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Icon(Icons.sort, color: Theme.of(context).colorScheme.onBackground),
+          SizedBox(width: 15),
+          Expanded(
+            child: TextField(
+              controller: _textEditingController,
+              decoration: InputDecoration(
+                hintText: "代币名称",
+                hintStyle: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+                contentPadding: EdgeInsets.only(right: 14),
+                border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(25.r)),
+                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
+              ),
+              onChanged: (e) {
+                setState(() {
+                  tokensSearchContent = _textEditingController.text;
+                });
+              },
+            ),
+          ),
+          SizedBox(width: 15),
+          Icon(Icons.update_sharp, color: Theme.of(context).colorScheme.onBackground),
+          SizedBox(width: 15),
+          GestureDetector(
+            onTap: () {
+              Get.to(AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+            },
+            child: Icon(Icons.add_circle_outline_sharp),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 代币
   Widget _buildHomePage() {
     return CustomScrollView(
@@ -626,6 +673,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         //     childCount: 6,
         //   ),
         // ),
+        SliverToBoxAdapter(child: _filterAddWidget()),
         SliverToBoxAdapter(
           child: SingleChildScrollView(
             physics: NeverScrollableScrollPhysics(),
