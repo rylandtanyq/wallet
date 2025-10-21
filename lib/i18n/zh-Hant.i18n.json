@@ -164,7 +164,9 @@
         "byNetwork": "按網絡",
         "multiChain": "多鏈",
         "networkName": "網絡名稱",
-        "transaction_history": "交易歷史"
+        "transaction_history": "交易歷史",
+        "trade_history": "交易歷史",
+        "no_transfer_records_yet": "還沒有轉帳記錄"
     },
     "wallet": {
         "selectWallet": "選擇錢包",

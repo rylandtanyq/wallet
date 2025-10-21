@@ -164,7 +164,9 @@
         "byNetwork": "By Network",
         "multiChain": "Multi-Chain",
         "networkName": "Network Name",
-        "transaction_history": "Tx History"
+        "transaction_history": "Tx History",
+        "trade_history": "Trade History",
+        "no_transfer_records_yet": "No transfer records yet"
     },
     "wallet": {
         "selectWallet": "Select Wallet",

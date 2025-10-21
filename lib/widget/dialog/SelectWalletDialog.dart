@@ -3,12 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
-import '../../entity/Wallet.dart';
 import '../../pages/AddWalletPage.dart';
 
 /*
@@ -42,12 +42,11 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
     //     Wallet(name: "测试钱包", balance: "￥100.00", network: 'eth',address: 'egh',privateKey: "0X89A2...782B1C"),
     //   ]);
     // }
-
+    _wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
     setState(() {
-      _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
       _originalItems = List.from(_wallets);
     });
-    _selectedWalletAddress = HiveStorage().getValue('selected_address') ?? '';
+    _selectedWalletAddress = await HiveStorage().getValue('selected_address') ?? '';
   }
 
   void _selectWallet(Wallet wallet) {

@@ -164,7 +164,9 @@
         "byNetwork": "ネットワーク別",
         "multiChain": "マルチチェーン",
         "networkName": "ネットワーク名",
-        "transaction_history": "交易歷史"
+        "transaction_history": "交易歷史",
+        "trade_history": "トランザクション履歴",
+        "no_transfer_records_yet": "まだ送金履歴がありません"
     },
     "wallet": {
         "selectWallet": "ウォレットを選択",

@@ -164,7 +164,9 @@
         "byNetwork": "Por Red",
         "multiChain": "Multicadena",
         "networkName": "Nombre de la Red",
-        "transaction_history": "Historial"
+        "transaction_history": "Historial",
+        "trade_history": "Historial de operaciones",
+        "no_transfer_records_yet": "Aún no hay registros de transferencias"
     },
     "wallet": {
         "selectWallet": "Seleccionar billetera",

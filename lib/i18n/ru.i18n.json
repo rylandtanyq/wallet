@@ -164,7 +164,9 @@
         "byNetwork": "По сети",
         "multiChain": "Мультичейн",
         "networkName": "Название сети",
-        "transaction_history": "История"
+        "transaction_history": "История",
+        "trade_history": "История операций",
+        "no_transfer_records_yet": "Пока нет записей о переводах"
     },
     "wallet": {
         "selectWallet": "Выбрать кошелёк",

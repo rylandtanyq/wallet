@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
 import 'package:untitled1/entity/BackUpEntity.dart';
-import 'package:untitled1/entity/Wallet.dart';
+import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/main.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
@@ -243,7 +243,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
     } else {
       // final balance = await advWallet.getNativeBalanceByAddress(blockchain: network,address: address);
       // print('\nNative balance:${balance}');
-      List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
+      List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
       final name = _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length})';
       final walletEntity = Wallet(
         name: name,

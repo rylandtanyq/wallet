@@ -9,6 +9,7 @@ import 'package:untitled1/pages/LinkedWalletDApp.dart';
 import 'package:untitled1/pages/MoreServices.dart';
 import 'package:untitled1/pages/MySettings.dart';
 import 'package:untitled1/pages/NotificationPage.dart';
+import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:untitled1/pages/search_page/index.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -214,7 +215,9 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
                     children: List.generate(titles.length, (index) {
                       return GestureDetector(
                         onTap: () {
-                          if (index == 2) {
+                          if (index == 0) {
+                            Get.to(SelectTransferCoinTypePage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+                          } else if (index == 2) {
                             Get.to(
                               SelectedPayeePage(), // 要跳转的页面
                               transition: Transition.rightToLeft, // 设置从右到左的动画

@@ -11,7 +11,7 @@ import 'package:untitled1/theme/app_textStyle.dart';
 import '../../base/base_page.dart';
 import '../core/AdvancedMultiChainWallet.dart';
 import '../util/HiveStorage.dart';
-import '../entity/Wallet.dart';
+import '../hive/Wallet.dart';
 import '../main.dart';
 import '../util/CryptoInputValidator.dart';
 import 'BackUpHelperOnePage.dart';
@@ -163,7 +163,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
   Future<void> importWalletByPrivateKey() async {
     final wallet = await _advWallet.importWalletFromPrivateKey(_importKeyValue);
     final currentAddress = wallet['currentAddress'];
-    List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
+    List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
     bool exists = _wallets.any((item) => item.address == currentAddress);
     if (!exists) {
       // 创建新钱包对象
@@ -193,7 +193,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
    */
   Future<void> importWalletByMnemonic(String mnemonicString) async {
     final wallet = await _advWallet.restoreFromMnemonic(_importKeyValue);
-    List<Wallet> _wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
+    List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
     final List<String> mnemonic = mnemonicString.trim().split(' ');
     final currentAddress = wallet['currentAddress'];
     bool exists = _wallets.any((item) => item.address == currentAddress);

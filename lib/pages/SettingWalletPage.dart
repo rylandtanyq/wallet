@@ -6,7 +6,7 @@ import 'package:untitled1/widget/CustomAppBar.dart';
 
 import '../../base/base_page.dart';
 import '../util/HiveStorage.dart';
-import '../entity/Wallet.dart';
+import '../hive/Wallet.dart';
 import '../main.dart';
 import 'BackUpHelperPage.dart';
 import '../widget/dialog/UpdateWalletDialog.dart';
@@ -258,7 +258,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
     showLoadingDialog();
     // 1. 获取当前选中的地址和钱包列表
     String? selectedAddress = await HiveStorage().getValue('selected_address');
-    List<Wallet> wallets = HiveStorage().getList<Wallet>('wallets_data') ?? [];
+    List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
     //判断是否是当前选中的钱包
     if (selectedAddress == _wallet.address) {
       // 如果地址相同，移除匹配的钱包对象

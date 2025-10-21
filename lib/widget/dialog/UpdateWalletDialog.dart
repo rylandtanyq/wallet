@@ -5,7 +5,6 @@ import 'package:hive/hive.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
 
-import '../../entity/Wallet.dart';
 import '../../pages/AddWalletPage.dart';
 import '../CustomTextField.dart';
 

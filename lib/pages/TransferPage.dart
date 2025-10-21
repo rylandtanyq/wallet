@@ -1,12 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/constants/AppColors.dart';
-import 'package:untitled1/dao/HiveStorage.dart';
-import 'package:untitled1/entity/Wallet.dart' as Mywallet;
+import 'package:untitled1/hive/Wallet.dart' as Mywallet;
+import 'package:untitled1/hive/transaction_record.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddressbookAndMywallet.dart';
 import 'package:untitled1/pages/CameraScan.dart';
+import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/widget/CustomTextField.dart';
 import 'package:untitled1/servise/solana_servise.dart';
@@ -38,6 +42,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   String? _currentWalletAdderss;
   String? _currentWalletprivateKey;
   double? balance;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -269,8 +274,24 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
     );
   }
 
+  void _showLoading() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  void _hideLoading() {
+    if (mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop(); // 关闭加载弹窗
+    }
+  }
+
   // 执行转账逻辑
-  void _onTransferPressed(String currency) async {
+  Future<void> _onTransferPressed(String currency) async {
+    if (_isSubmitting) return; // 防连点
+
     // 取输入框里的值
     _transferAmount = _textControllertransferAmount.text.trim();
     _diyWalletName = _textControllerDiyWalletName.text.trim();
@@ -279,77 +300,89 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
       _showSnack(t.transfer_receive_payment.enterWalletAddress);
       return;
     }
-
     if (!isValidSolanaAddress("$_diyWalletName")) {
       _showSnack(t.transfer_receive_payment.invalidWalletAddress);
       return;
     }
-
-    // 输入是否为空
     if (_transferAmount == null || _transferAmount!.isEmpty) {
       _showSnack(t.transfer_receive_payment.enterAmount);
       return;
     }
-
-    // 转成 double
     final amount = double.tryParse(_transferAmount!);
     if (amount == null) {
       _showSnack(t.transfer_receive_payment.invalidNumber);
       return;
     }
-
-    // balance 是否获取到
     if (balance == null) {
       _showSnack(t.transfer_receive_payment.balanceFetchFailed);
       return;
     }
-
-    // 校验余额是否足够
     if (amount > balance!) {
       _showSnack(t.transfer_receive_payment.insufficientBalance);
       return;
     }
 
-    // 执行转账
-    if (currency == 'SOL') {
-      sendSol(receiverAddress: "$_diyWalletName", mnemonic: '$_currentWalletMnemonic', amount: double.parse("$_transferAmount"))
-          .then((e) {
-            setState(() {
-              _diyWalletName = "";
-              _transferAmount = "";
-              _textControllerDiyWalletName.text = "";
-              _textControllertransferAmount.text = "";
-              _showSnack(t.transfer_receive_payment.transferSubmitted);
-            });
-            debugPrint('转账SOL结果: $e');
-            // MwTiuMKDk1Zco7qKZMePfuYRe7akcooMbX5CmdCMwEsD6zdojT6B8xtBoN4XgkTnKjgF6je5FY9wsUa9f6wg6UW
-            // 34k6sYaofjbasfxb9U6xLRv57HcbHmopcuAzrMWQrH1gygxj1QFK2YxSHHMH93PPpHt1TXPE6UC9xR2kwTX8ACQu
-          })
-          .catchError((e) {
-            debugPrint("转账SOL错误: $e");
-          });
-    } else {
-      debugPrint('tokenAddress: ${widget.tokenAddress}');
-      sendSPLToken(
-            mnemonic: "$_currentWalletMnemonic",
-            receiverAddress: "$_diyWalletName",
-            tokenMintAddress: widget.tokenAddress,
-            amount: double.parse("$_transferAmount"),
-          )
-          .then((e) {
-            setState(() {
-              _diyWalletName = "";
-              _transferAmount = "";
-              _textControllerDiyWalletName.text = "";
-              _textControllertransferAmount.text = "";
-              _showSnack(t.transfer_receive_payment.transferSubmitted);
-            });
-            debugPrint('派生币转账返回结果: $e');
-            // 33uboZ2oLMTJpQLkjWX3iU6JaCtvmP2cg3P7snKXXop9HAYxiGwFT9XdpFo5qJZvKRGRmDA8nj2BcQidkEzTpXg
-          })
-          .catchError((e) {
-            debugPrint('派生币转账捕获的错误: $e');
-          });
+    _isSubmitting = true;
+    _showLoading();
+
+    try {
+      String tx;
+      if (currency == 'SOL') {
+        tx = await sendSol(receiverAddress: "$_diyWalletName", mnemonic: '$_currentWalletMnemonic', amount: double.parse("$_transferAmount"));
+        await saveTransaction(tx, _transferAmount!);
+        debugPrint('转账SOL结果: $tx');
+      } else {
+        tx = await sendSPLToken(
+          mnemonic: "$_currentWalletMnemonic",
+          receiverAddress: "$_diyWalletName",
+          tokenMintAddress: widget.tokenAddress,
+          amount: double.parse("$_transferAmount"),
+        );
+        await saveTransaction(tx, _transferAmount!);
+        debugPrint('派生币转账返回结果: $tx');
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _diyWalletName = "";
+        _transferAmount = "";
+        _textControllerDiyWalletName.text = "";
+        _textControllertransferAmount.text = "";
+      });
+      _showSnack(t.transfer_receive_payment.transferSubmitted);
+    } catch (e) {
+      debugPrint('转账错误: $e');
+      if (mounted) _showSnack(t.transfer_receive_payment.transferSubmitted);
+    } finally {
+      _hideLoading();
+      _isSubmitting = false;
+    }
+  }
+
+  Future<void> saveTransaction(String txHash, String amount) async {
+    // 先把 TransactionRecord 转成可序列化的 Map
+    final recordMap = {
+      'txHash': txHash,
+      'from': _currentWalletAdderss ?? '',
+      'to': _diyWalletName ?? '',
+      'amount': amount.toString(),
+      'tokenSymbol': widget.currency,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+      'status': 'success',
+    };
+
+    const key = 'transactions_data';
+    final prefs = await SharedPreferences.getInstance();
+
+    // 读已有列表（可能为空）
+    final List<String> rawList = prefs.getStringList(key) ?? <String>[];
+
+    // 新记录插到最前面
+    rawList.insert(0, jsonEncode(recordMap));
+
+    final ok = await prefs.setStringList(key, rawList);
+    if (!ok) {
+      debugPrint('保存转账记录失败');
     }
   }
 

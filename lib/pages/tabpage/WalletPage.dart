@@ -7,12 +7,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
+import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/CoinDetailPage.dart';
 import 'package:untitled1/pages/SelectedPayeePage.dart';
 import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
+import 'package:untitled1/pages/transaction_history.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -20,7 +22,6 @@ import '../../base/base_page.dart';
 import '../../constants/AppColors.dart';
 import '../../util/HiveStorage.dart';
 import '../../entity/Token.dart';
-import '../../entity/Wallet.dart';
 import '../../widget/dialog/SelectWalletDialog.dart';
 import '../../widget/dialog/FullScreenDialog.dart';
 import '../../widget/StickyTabBarDelegate.dart';
@@ -67,13 +68,13 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   int _selectedWalletIndex = 0;
 
-  late Wallet _wallet;
+  late Wallet _wallet = Wallet.empty();
 
   static const double _borderRadius = 20;
   static const double _borderWidth = 1.0;
 
   final defaultNetwork = {"id": "Solana", "path": "assets/images/solana_logo.png"};
-  late Map<String, String> _currentNetwork;
+  late Map<String, String> _currentNetwork = {};
 
   @override
   void initState() {
@@ -87,17 +88,22 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     });
     _searchController.addListener(_filterItems);
     WidgetsBinding.instance.addObserver(this);
-    _wallet = HiveStorage().getObject<Wallet>('currentSelectWallet') ?? Wallet.empty();
-    _updataWalletBalance(_wallet);
-    final currentNetworkResult = HiveStorage().getObject<Map>("currentNetwork");
+    // _wallet = HiveStorage().getObject<Wallet>('currentSelectWallet') ?? Wallet.empty();
+    _getCurrentSelectWalletfn();
+    _updataWalletBalance();
+    _initWalletAndNetwork();
+    debugPrint('新存的助记词${_wallet.mnemonic}');
+  }
+
+  void _getCurrentSelectWalletfn() async {
+    _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet') ?? Wallet.empty();
+    final currentNetworkResult = await HiveStorage().getObject<Map>("currentNetwork");
     if (currentNetworkResult != null) {
       _currentNetwork = Map<String, String>.from(currentNetworkResult);
     } else {
       _currentNetwork = Map<String, String>.from(defaultNetwork);
       HiveStorage().putObject('currentNetwork', _currentNetwork);
     }
-    _initWalletAndNetwork();
-    debugPrint('新存的助记词${_wallet.mnemonic}');
   }
 
   @override
@@ -132,13 +138,13 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   Future<void> _initWalletAndNetwork() async {
     await HiveStorage().ensureBoxReady(); // ✅ 保证 Hive box 打开
 
-    final wallet = HiveStorage().getObject<Wallet>('currentSelectWallet');
-    final network = HiveStorage().getObject<Map>('currentNetwork');
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
+    final network = await HiveStorage().getObject<Map>('currentNetwork');
 
     if (wallet != null) {
       debugPrint("✅ 读取钱包地址: ${wallet.address}");
       setState(() => _wallet = wallet);
-      await _updataWalletBalance(wallet); // ✅ 延后更新余额
+      await _updataWalletBalance(); // ✅ 延后更新余额
     } else {
       debugPrint("⚠️ 未找到钱包，使用默认 Wallet.empty()");
       _wallet = Wallet.empty();
@@ -158,11 +164,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   Future<void> _loadWalletData() async {
     await HiveStorage().ensureBoxReady();
     try {
-      final wallet = HiveStorage().getObject<Wallet>('currentSelectWallet');
+      final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
       if (wallet != null) {
         debugPrint("✅ 刷新钱包数据: ${wallet.address}");
         setState(() => _wallet = wallet);
-        await _updataWalletBalance(wallet);
+        await _updataWalletBalance();
       } else {
         debugPrint("⚠️ 未找到 currentSelectWallet");
       }
@@ -181,7 +187,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   // 获取实时钱包余额
-  Future<void> _updataWalletBalance(Wallet wallet) async {
+  Future<void> _updataWalletBalance() async {
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet') ?? Wallet.empty();
     await HiveStorage().ensureBoxReady();
 
     if (wallet.address.isEmpty || wallet.address.startsWith('0x000')) {
@@ -245,7 +252,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   Widget build(BuildContext context) {
     ref.watch(localeProvider);
     final List<String> categories = [t.common.token, 'DeFi', 'NFT', t.home.bankCard];
-    final id = HiveStorage().getObject<Map>('currentNetwork')?['id'] ?? 'allNetworks';
+    final id = _currentNetwork['id'] ?? 'allNetworks';
     final languageNetName = _getCommonName(id);
     final List<String> titles = [t.home.transfer, t.home.receive, t.home.finance, t.home.getGas, t.home.transaction_history];
     final List<Map<String, String>> items = [
@@ -304,14 +311,14 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   onPressed: () async {
                     final currentSelectNetwork = await showAnimatedFullScreenDialog(context, items);
                     if (currentSelectNetwork != null) {
-                      HiveStorage().putObject('currentNetwork', currentSelectNetwork);
+                      await HiveStorage().putObject('currentNetwork', currentSelectNetwork);
                     }
                   },
                   child: Row(
                     children: [
                       ClipOval(
                         child: Image.asset(
-                          HiveStorage().getObject<Map>('currentNetwork')?['image'] ?? items[_selectedNetWorkIndex]["path"],
+                          _currentNetwork['image'] ?? items[_selectedNetWorkIndex]["path"]!,
                           width: 25.w,
                           height: 25.w,
                           fit: BoxFit.cover,
@@ -347,8 +354,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   //选择网络弹窗
-  Future<Map<String, String>?> showAnimatedFullScreenDialog(BuildContext context, List<Map<String, String>> items) {
-    _currentNetwork = Map<String, String>.from(HiveStorage().getObject<Map>("currentNetwork") ?? defaultNetwork);
+  Future<Map<String, String>?> showAnimatedFullScreenDialog(BuildContext context, List<Map<String, String>> items) async {
+    _currentNetwork = Map<String, String>.from(await HiveStorage().getObject<Map>("currentNetwork") ?? defaultNetwork);
     return Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
@@ -444,7 +451,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         _wallet = resultWallet;
       });
 
-      await _updataWalletBalance(resultWallet);
+      await _updataWalletBalance();
     }
   }
 
@@ -537,6 +544,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                     Get.to(SelectTransferCoinTypePage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
                   } else if (index == 1) {
                     Get.to(SelectedPayeePage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+                  } else if (index == 4) {
+                    Get.to(TransactionHistory(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
                   }
                 },
                 child: SizedBox(

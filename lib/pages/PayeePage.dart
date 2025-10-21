@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
-import 'package:untitled1/dao/HiveStorage.dart';
+import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/widget/CustomTextField.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
-import 'package:untitled1/entity/Wallet.dart';
 
 import '../../base/base_page.dart';
 

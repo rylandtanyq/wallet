@@ -164,7 +164,9 @@
         "byNetwork": "按网络",
         "multiChain": "多链",
         "networkName": "网络名称",
-        "transaction_history": "交易历史"
+        "transaction_history": "交易历史",
+        "trade_history": "交易记录",
+        "no_transfer_records_yet": "还没有转账记录"
     },
     "wallet": {
         "selectWallet": "选择钱包",
