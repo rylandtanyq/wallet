@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/widget/CustomTextField.dart';
@@ -163,7 +164,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
   Future<void> importWalletByPrivateKey() async {
     final wallet = await _advWallet.importWalletFromPrivateKey(_importKeyValue);
     final currentAddress = wallet['currentAddress'];
-    List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
+    List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
     bool exists = _wallets.any((item) => item.address == currentAddress);
     if (!exists) {
       // 创建新钱包对象
@@ -176,10 +177,10 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
         isBackUp: true,
       );
       // 保存回 Hive
-      await HiveStorage().putObject('currentSelectWallet', newWallet);
+      await HiveStorage().putObject('currentSelectWallet', newWallet, boxName: boxWallet);
       await HiveStorage().putValue('selected_address', currentAddress);
       _wallets.add(newWallet);
-      await HiveStorage().putList('wallets_data', _wallets);
+      await HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);
       print('新钱包已添加: ${newWallet.address}');
     } else {
       Fluttertoast.showToast(msg: '钱包已存在，未添加: $currentAddress');
@@ -193,7 +194,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
    */
   Future<void> importWalletByMnemonic(String mnemonicString) async {
     final wallet = await _advWallet.restoreFromMnemonic(_importKeyValue);
-    List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
+    List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
     final List<String> mnemonic = mnemonicString.trim().split(' ');
     final currentAddress = wallet['currentAddress'];
     bool exists = _wallets.any((item) => item.address == currentAddress);
@@ -208,11 +209,11 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
         isBackUp: true,
       );
       // 保存回 Hive
-      await HiveStorage().putObject('currentSelectWallet', newWallet);
+      await HiveStorage().putObject('currentSelectWallet', newWallet, boxName: boxWallet);
       await HiveStorage().putValue('selected_address', currentAddress);
       await HiveStorage().putValue('currentSelectWallet_mnemonic', mnemonic.join(" "));
       _wallets.add(newWallet);
-      await HiveStorage().putList('wallets_data', _wallets);
+      await HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);
       print('新钱包已添加: ${newWallet.address}');
     } else {
       // 钱包已存在，不添加

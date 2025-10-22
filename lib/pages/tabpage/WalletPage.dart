@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
@@ -99,7 +101,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   void _getCurrentSelectWalletfn() async {
-    _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet') ?? Wallet.empty();
+    _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
     final currentNetworkResult = await HiveStorage().getObject<Map>("currentNetwork");
     if (currentNetworkResult != null) {
       _currentNetwork = Map<String, String>.from(currentNetworkResult);
@@ -139,9 +141,9 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Future<void> _initWalletAndNetwork() async {
-    await HiveStorage().ensureBoxReady(); // ✅ 保证 Hive box 打开
+    // // await HiveStorage().ensureBoxReady(); // ✅ 保证 Hive box 打开
 
-    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
     final network = await HiveStorage().getObject<Map>('currentNetwork');
 
     if (wallet != null) {
@@ -165,9 +167,9 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Future<void> _loadWalletData() async {
-    await HiveStorage().ensureBoxReady();
+    // await HiveStorage().ensureBoxReady();
     try {
-      final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
+      final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
       if (wallet != null) {
         debugPrint("✅ 刷新钱包数据: ${wallet.address}");
         setState(() => _wallet = wallet);
@@ -191,8 +193,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   // 获取实时钱包余额
   Future<void> _updataWalletBalance() async {
-    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet') ?? Wallet.empty();
-    await HiveStorage().ensureBoxReady();
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
+    // await HiveStorage().ensureBoxReady();
 
     if (wallet.address.isEmpty || wallet.address.startsWith('0x000')) {
       debugPrint("⚠️ 无效钱包地址，跳过余额更新");
@@ -208,7 +210,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       debugPrint("✅ 钱包地址:- ${wallet.address}");
 
       wallet.balance = solBalance.toString();
-      await HiveStorage().putObject('currentSelectWallet', wallet);
+      await HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
 
       if (mounted) {
         setState(() => _wallet = wallet);
@@ -216,7 +218,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     } catch (e) {
       if (!mounted) return;
       wallet.balance = "0.00";
-      await HiveStorage().putObject('currentSelectWallet', wallet);
+      await HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
       debugPrint("❌ 更新余额失败: $e");
     }
   }

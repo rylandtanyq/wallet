@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:collection';
 
 import 'package:solana/dto.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
@@ -286,7 +287,7 @@ class _DAppPageState extends State<DAppPage> {
   // 获取当前选中的钱包信息
   void _getCurrentSelectedWalletInformation() async {
     _currentNetwork = await HiveStorage().getObject<Map>('currentNetwork');
-    final _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
+    final _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
     final mnemonic = await HiveStorage().getValue<String>('currentSelectWallet_mnemonic');
     debugPrint('---000${_wallet?.address}');
     debugPrint(_wallet?.mnemonic?.join(" "));

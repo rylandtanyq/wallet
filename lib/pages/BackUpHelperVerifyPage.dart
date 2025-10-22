@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
 import 'package:untitled1/entity/BackUpEntity.dart';
 import 'package:untitled1/hive/Wallet.dart';
@@ -243,7 +244,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
     } else {
       // final balance = await advWallet.getNativeBalanceByAddress(blockchain: network,address: address);
       // print('\nNative balance:${balance}');
-      List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
+      List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: 'boxWallet') ?? [];
       final name = _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length})';
       final walletEntity = Wallet(
         name: name,
@@ -255,11 +256,11 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
         mnemonic: orderlyMnemonics,
       );
       // debugPrint('新存入的钱包信息$walletEntity');
-      await HiveStorage().putObject('currentSelectWallet', walletEntity);
+      await HiveStorage().putObject<Wallet>('currentSelectWallet', walletEntity, boxName: boxWallet);
       await HiveStorage().putValue('selected_address', address);
 
       _wallets.add(walletEntity);
-      await HiveStorage().putList('wallets_data', _wallets);
+      await HiveStorage().putList<Wallet>('wallets_data', _wallets, boxName: boxWallet);
       // print('currentSelectWallet:${HiveStorage().getObject('currentSelectWallet').toString()}');
       dismissLoading();
       Get.offAll(() => MainPage(initialPageIndex: 4));

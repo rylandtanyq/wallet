@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 
 import '../../base/base_page.dart';
@@ -257,8 +258,8 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
   Future<void> deleteWallet() async {
     showLoadingDialog();
     // 1. 获取当前选中的地址和钱包列表
-    String? selectedAddress = await HiveStorage().getValue('selected_address');
-    List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
+    String? selectedAddress = await HiveStorage().getValue<String>('selected_address');
+    List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
     //判断是否是当前选中的钱包
     if (selectedAddress == _wallet.address) {
       // 如果地址相同，移除匹配的钱包对象
@@ -268,7 +269,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
       if (wallets.isNotEmpty) {
         selectedAddress = wallets.first.address;
         await HiveStorage().putValue('selected_address', selectedAddress);
-        await HiveStorage().putObject('currentSelectWallet', wallets.first);
+        await HiveStorage().putObject('currentSelectWallet', wallets.first, boxName: boxWallet);
         Get.offAll(() => MainPage(initialPageIndex: 4));
       } else {
         // 如果钱包列表为空，清空selected_address
@@ -284,7 +285,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
     }
 
     // 4. 更新钱包列表到Hive
-    await HiveStorage().putList('wallets_data', wallets);
+    await HiveStorage().putList('wallets_data', wallets, boxName: boxWallet);
   }
 
   @override

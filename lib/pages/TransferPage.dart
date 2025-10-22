@@ -5,7 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/constants/AppColors.dart';
-import 'package:untitled1/hive/Wallet.dart' as Mywallet;
+import 'package:untitled1/constants/hive_boxes.dart';
+import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/hive/transaction_record.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddressbookAndMywallet.dart';
@@ -57,7 +58,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
 
   // 获取当前选中的钱包信息
   Future<void> _getCurrentSelectedWalletInformation() async {
-    final wallet = await HiveStorage().getObject<Mywallet.Wallet>('currentSelectWallet');
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
     final mnemonic = await HiveStorage().getValue<String>('currentSelectWallet_mnemonic');
 
     _currentWalletMnemonic = wallet?.mnemonic?.join(" ") ?? mnemonic;
@@ -65,7 +66,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
     _currentWalletprivateKey = wallet?.privateKey;
 
     debugPrint('钱包地址: ${wallet?.address}');
-    debugPrint('助记词: ${wallet?.mnemonic?.join(" ")}');
+    debugPrint('助记词: ${wallet?.mnemonic?.join(" ")} -- $mnemonic');
     debugPrint('私钥: ${wallet?.privateKey}');
   }
 

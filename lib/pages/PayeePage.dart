@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/util/HiveStorage.dart';
@@ -32,7 +33,7 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
 
   // 获取当前钱包地址
   void _getCurrentSelectedWalletInformation() async {
-    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet');
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
     setState(() {
       _currentWalletAdderss = wallet?.address;
     });

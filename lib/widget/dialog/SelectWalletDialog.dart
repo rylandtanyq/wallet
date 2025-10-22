@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/util/HiveStorage.dart';
@@ -42,22 +43,22 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
     //     Wallet(name: "测试钱包", balance: "￥100.00", network: 'eth',address: 'egh',privateKey: "0X89A2...782B1C"),
     //   ]);
     // }
-    _wallets = await HiveStorage().getList<Wallet>('wallets_data') ?? [];
+    _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
     setState(() {
       _originalItems = List.from(_wallets);
     });
-    _selectedWalletAddress = await HiveStorage().getValue('selected_address') ?? '';
+    _selectedWalletAddress = await HiveStorage().getValue<String>('selected_address') ?? '';
   }
 
   void _selectWallet(Wallet wallet) {
     HiveStorage().putValue('selected_address', wallet.address);
-    HiveStorage().putObject('currentSelectWallet', wallet);
+    HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
     widget.onWalletSelected?.call();
   }
 
   Future<void> _saveWalletOrder() async {
     // 保存新的顺序到 Hive
-    HiveStorage().putList('wallets_data', _wallets);
+    HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);
     setState(() {
       _originalItems = List.from(_wallets);
     });

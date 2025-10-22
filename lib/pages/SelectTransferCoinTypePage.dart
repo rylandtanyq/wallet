@@ -131,7 +131,7 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
     return GestureDetector(
       onTap: () async {
         Navigator.pop(context);
-        await HiveStorage().ensureBoxReady();
+        // await HiveStorage().ensureBoxReady();
         Get.to(TransferPage(currency: currency!, tokenAddress: tokenAddress!, network: network!));
       },
       child: Container(

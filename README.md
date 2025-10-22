@@ -26,3 +26,11 @@ HiveStorage().putObject('currentSelectWallet', wallet);
 
 **currentNetwork  当前选择的网络**
 HiveStorage().putValue<String>('currentNetwork', currentSelectNetwork);
+
+
+
+final b = await HiveStorage().getBox(boxName: boxWallet);
+final raw = b is Box ? (b as Box).get('obj_currentSelectWallet') : await (b as LazyBox).get('obj_currentSelectWallet');
+debugPrint('👀 currentSelectWallet rawType = ${raw?.runtimeType}, box=${b.name}');
+final c = await HiveStorage().getBox(boxName: boxWallet);
+debugPrint('wallet box runtimeType = ${c.runtimeType}'); // 看到类似 Box or Box<dynamic> 即可

@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
+import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/hive/transaction_record.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/CreateWalletPage.dart';
@@ -26,7 +28,10 @@ void main() async {
   LocaleSettings.useDeviceLocale();
 
   final hiveStorage = HiveStorage();
-  await hiveStorage.init(adapters: [WalletAdapter(), TransactionRecordAdapter()]);
+  await hiveStorage.init(adapters: [WalletAdapter(), TransactionRecordAdapter(), TokensAdapter()]);
+  await HiveStorage().ensureOpen(boxWallet);
+  await HiveStorage().ensureOpen(boxTokens);
+  await HiveStorage().ensureOpen(boxTx, lazy: true);
   runApp(ProviderScope(child: TranslationProvider(child: MyApp())));
 }
 
