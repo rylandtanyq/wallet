@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/transaction_record.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -16,20 +17,50 @@ class TransactionHistory extends StatefulWidget {
 }
 
 class _TransactionHistoryState extends State<TransactionHistory> {
-  List<String> _transactions = [];
+  List<TransactionRecord> _transactions = [];
+  String _txListKey(String address) => 'tx_$address';
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _getTranscationRecord();
+    loadTranscationForAddress();
   }
 
-  void _getTranscationRecord() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _transactions = prefs.getStringList('transactions_data')!;
-    });
-    debugPrint('${_transactions}');
+  void loadTranscationForAddress() async {
+    try {
+      final address = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
+      if (address.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          _transactions = [];
+          _loading = false;
+        });
+        return;
+      }
+
+      final key = _txListKey(address);
+
+      // 强类型getList<TransactionRecord>报错，先使用弱类型getList<Map>
+      final raw = await HiveStorage().getList<Map>(key, boxName: boxTx) ?? const <Map>[];
+
+      // 逐个 Map 强转为 <String,dynamic> 再 fromJson
+      final list = raw.map((m) => TransactionRecord.fromJson(Map<String, dynamic>.from(m))).toList()
+        ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+      if (!mounted) return;
+      setState(() {
+        _transactions = list;
+        _loading = false;
+      });
+    } catch (e) {
+      debugPrint('获取交易记录失败: $e');
+      if (!mounted) return;
+      setState(() {
+        _transactions = [];
+        _loading = false;
+      });
+    }
   }
 
   @override
@@ -53,7 +84,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
       ),
 
       /// body
-      body: SafeArea(child: _transactions.isEmpty ? _noTransactionWidget() : _transactionList()),
+      body: SafeArea(child: _loading ? _noTransactionWidget() : _transactionList()),
     );
   }
 
@@ -78,16 +109,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
       itemCount: _transactions.length,
       separatorBuilder: (_, __) => SizedBox(height: 16.h),
       itemBuilder: (context, index) {
-        final jsonStr = _transactions[index];
-        String to = '';
-        String amount = '';
-        String symbol = '';
-        try {
-          final m = jsonDecode(jsonStr) as Map<String, dynamic>;
-          to = m['to']?.toString() ?? '';
-          amount = m['amount']?.toString() ?? '';
-          symbol = m['tokenSymbol']?.toString() ?? '';
-        } catch (_) {}
+        final item = _transactions[index];
         return Container(
           padding: EdgeInsets.only(right: 12.w),
           width: double.infinity,
@@ -95,7 +117,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
           decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10.r)),
           child: Row(
             children: [
-              showImageLogo(symbol),
+              showImageLogo(item.tokenSymbol),
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,11 +130,11 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                           t.home.transfer,
                           style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
-                        Text("to: ${shortAddr(to)}", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                        Text("to: ${shortAddr(item.to)}", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                       ],
                     ),
                     Text(
-                      amount,
+                      '${item.amount}',
                       style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
                     ),
                   ],

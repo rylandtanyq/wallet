@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
@@ -44,6 +45,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   String? _currentWalletprivateKey;
   double? balance;
   bool _isSubmitting = false;
+  String _txListKey(String address) => 'tx_$address';
 
   @override
   void initState() {
@@ -361,29 +363,35 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   }
 
   Future<void> saveTransaction(String txHash, String amount) async {
-    // 先把 TransactionRecord 转成可序列化的 Map
-    final recordMap = {
-      'txHash': txHash,
-      'from': _currentWalletAdderss ?? '',
-      'to': _diyWalletName ?? '',
-      'amount': amount.toString(),
-      'tokenSymbol': widget.currency,
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-      'status': 'success',
-    };
+    final fromAddr = _currentWalletAdderss ?? '';
+    final toAddr = _diyWalletName ?? '';
 
-    const key = 'transactions_data';
-    final prefs = await SharedPreferences.getInstance();
+    final record = TransactionRecord(
+      txHash: txHash,
+      from: fromAddr,
+      to: toAddr,
+      amount: amount,
+      tokenSymbol: widget.currency,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+      status: 'success',
+    );
 
-    // 读已有列表（可能为空）
-    final List<String> rawList = prefs.getStringList(key) ?? <String>[];
+    final recordMap = record.toJson(); //  存 Map，不是对象
 
-    // 新记录插到最前面
-    rawList.insert(0, jsonEncode(recordMap));
+    for (final addr in [fromAddr, toAddr]) {
+      if (addr.isEmpty) continue;
 
-    final ok = await prefs.setStringList(key, rawList);
-    if (!ok) {
-      debugPrint('保存转账记录失败');
+      final key = _txListKey(addr);
+      // 强类型getList<TransactionRecord>报错，先使用弱类型getList<Map>存储， 后续迁移只需要改为强类型即可
+      final list = await HiveStorage().getList<Map>(key, boxName: boxTx) ?? <Map>[];
+
+      final exists = list.any((m) => m['txHash'] == record.txHash);
+      if (!exists) list.insert(0, recordMap);
+
+      await HiveStorage().putList<Map>(key, list, boxName: boxTx);
+
+      final probe = await HiveStorage().getList<Map>(key, boxName: boxTx);
+      debugPrint('after put: col_$key -> len=${probe?.length}');
     }
   }
 

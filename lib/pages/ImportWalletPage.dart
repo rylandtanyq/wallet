@@ -178,7 +178,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       );
       // 保存回 Hive
       await HiveStorage().putObject('currentSelectWallet', newWallet, boxName: boxWallet);
-      await HiveStorage().putValue('selected_address', currentAddress);
+      await HiveStorage().putValue('selected_address', currentAddress, boxName: boxWallet);
       _wallets.add(newWallet);
       await HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);
       print('新钱包已添加: ${newWallet.address}');
@@ -210,7 +210,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       );
       // 保存回 Hive
       await HiveStorage().putObject('currentSelectWallet', newWallet, boxName: boxWallet);
-      await HiveStorage().putValue('selected_address', currentAddress);
+      await HiveStorage().putValue('selected_address', currentAddress, boxName: boxWallet);
       await HiveStorage().putValue('currentSelectWallet_mnemonic', mnemonic.join(" "));
       _wallets.add(newWallet);
       await HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);

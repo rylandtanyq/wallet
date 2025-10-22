@@ -257,7 +257,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
       );
       // debugPrint('新存入的钱包信息$walletEntity');
       await HiveStorage().putObject<Wallet>('currentSelectWallet', walletEntity, boxName: boxWallet);
-      await HiveStorage().putValue('selected_address', address);
+      await HiveStorage().putValue('selected_address', address, boxName: boxWallet);
 
       _wallets.add(walletEntity);
       await HiveStorage().putList<Wallet>('wallets_data', _wallets, boxName: boxWallet);

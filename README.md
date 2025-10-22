@@ -27,10 +27,24 @@ HiveStorage().putObject('currentSelectWallet', wallet);
 **currentNetwork  当前选择的网络**
 HiveStorage().putValue<String>('currentNetwork', currentSelectNetwork);
 
-
-
 final b = await HiveStorage().getBox(boxName: boxWallet);
 final raw = b is Box ? (b as Box).get('obj_currentSelectWallet') : await (b as LazyBox).get('obj_currentSelectWallet');
 debugPrint('👀 currentSelectWallet rawType = ${raw?.runtimeType}, box=${b.name}');
 final c = await HiveStorage().getBox(boxName: boxWallet);
 debugPrint('wallet box runtimeType = ${c.runtimeType}'); // 看到类似 Box or Box<dynamic> 即可
+
+
+====== 可删除box用于调式==========
+const oldTxBox = 'transactions_v2'; // 或者用你的 boxTxOld 常量
+  try {
+    final exists = await Hive.boxExists(oldTxBox);
+    if (exists) {
+      if (Hive.isBoxOpen(oldTxBox)) {
+        await Hive.box(oldTxBox).close(); // 先关再删
+      }
+      await Hive.deleteBoxFromDisk(oldTxBox);
+      debugPrint('🧹 deleted old box: $oldTxBox');
+    }
+  } catch (e) {
+    debugPrint('⚠️ delete $oldTxBox failed: $e');
+  }

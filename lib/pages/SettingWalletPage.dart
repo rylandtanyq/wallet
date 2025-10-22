@@ -258,7 +258,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
   Future<void> deleteWallet() async {
     showLoadingDialog();
     // 1. 获取当前选中的地址和钱包列表
-    String? selectedAddress = await HiveStorage().getValue<String>('selected_address');
+    String? selectedAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet);
     List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
     //判断是否是当前选中的钱包
     if (selectedAddress == _wallet.address) {
@@ -268,12 +268,12 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
       // 更新selected_address为移除后的第一个钱包地址（如果列表不为空）
       if (wallets.isNotEmpty) {
         selectedAddress = wallets.first.address;
-        await HiveStorage().putValue('selected_address', selectedAddress);
+        await HiveStorage().putValue('selected_address', selectedAddress, boxName: boxWallet);
         await HiveStorage().putObject('currentSelectWallet', wallets.first, boxName: boxWallet);
         Get.offAll(() => MainPage(initialPageIndex: 4));
       } else {
         // 如果钱包列表为空，清空selected_address
-        await HiveStorage().putValue('selected_address', '');
+        await HiveStorage().putValue('selected_address', '', boxName: boxWallet);
         dismissLoading();
         //TODO: 跳转到创建钱包页面
       }

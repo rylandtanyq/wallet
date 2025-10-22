@@ -47,11 +47,11 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
     setState(() {
       _originalItems = List.from(_wallets);
     });
-    _selectedWalletAddress = await HiveStorage().getValue<String>('selected_address') ?? '';
+    _selectedWalletAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
   }
 
   void _selectWallet(Wallet wallet) {
-    HiveStorage().putValue('selected_address', wallet.address);
+    HiveStorage().putValue('selected_address', wallet.address, boxName: boxWallet);
     HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
     widget.onWalletSelected?.call();
   }

@@ -16,7 +16,7 @@ class TransactionRecord extends HiveObject {
   final String to;
 
   @HiveField(3)
-  final double amount;
+  final String amount;
 
   @HiveField(4)
   final String tokenSymbol;
