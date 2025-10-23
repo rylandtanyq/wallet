@@ -245,6 +245,7 @@
         "balanceFetchFailed": "残高の取得に失敗しました。後でもう一度お試しください",
         "insufficientBalance": "残高不足",
         "transferSubmitted": "送金が提出されました",
+        "unknown_error_please_try_again_later": "不明なエラーが発生しました。しばらくしてからもう一度お試しください",
         "available": "利用可能",
         "selectNetwork": "ネットワークを選択",
         "receiveNetwork": "受取ネットワーク",

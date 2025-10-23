@@ -34,32 +34,32 @@ class HiveStorage {
   // ============== Box 管理 ==============
 
   /// 获取已打开的 Box；如未打开则自动以 Box<dynamic> 方式打开
-  // Future<BoxBase> _safeBox(String boxName, {bool lazy = false}) async {
-  //   final existed = _opened[boxName];
-  //   if (existed != null && existed.isOpen) return existed;
+  Future<BoxBase> _safeBox(String boxName, {bool lazy = false}) async {
+    final existed = _opened[boxName];
+    if (existed != null && existed.isOpen) return existed;
 
-  //   // 已有但已关闭，移除缓存
-  //   if (existed != null && !existed.isOpen) {
-  //     _opened.remove(boxName);
-  //   }
+    // 已有但已关闭，移除缓存
+    if (existed != null && !existed.isOpen) {
+      _opened.remove(boxName);
+    }
 
-  //   // 若外部已经以某种类型打开了（例如别处先 open），直接取用
-  //   if (Hive.isBoxOpen(boxName)) {
-  //     final b = Hive.box(boxName);
-  //     _opened[boxName] = b;
-  //     return b;
-  //   }
+    // 若外部已经以某种类型打开了（例如别处先 open），直接取用
+    if (Hive.isBoxOpen(boxName)) {
+      final b = Hive.box(boxName);
+      _opened[boxName] = b;
+      return b;
+    }
 
-  //   // 按需懒打开
-  //   BoxBase b;
-  //   if (lazy) {
-  //     b = await Hive.openLazyBox(boxName);
-  //   } else {
-  //     b = await Hive.openBox(boxName);
-  //   }
-  //   _opened[boxName] = b;
-  //   return b;
-  // }
+    // 按需懒打开
+    BoxBase b;
+    if (lazy) {
+      b = await Hive.openLazyBox(boxName);
+    } else {
+      b = await Hive.openBox(boxName);
+    }
+    _opened[boxName] = b;
+    return b;
+  }
 
   /// 主动打开一个 Box（可选），用于你计划存大表时指定 lazy
   Future<void> ensureOpen(String boxName, {bool lazy = false}) async {
@@ -85,15 +85,15 @@ class HiveStorage {
 
   // ============== 对象存储（带 obj_ 前缀） ==============
 
-  // Future<void> putObject<T>(String key, T? object, {String? boxName}) async {
-  //   final box = await _safeBox(boxName ?? _defaultBoxName);
-  //   final storeKey = _objectPrefix + key;
-  //   if (object == null) {
-  //     await box.delete(storeKey);
-  //   } else {
-  //     await box.put(storeKey, object);
-  //   }
-  // }
+  Future<void> putObject<T>(String key, T? object, {String? boxName}) async {
+    final box = await _safeBox(boxName ?? _defaultBoxName);
+    final storeKey = _objectPrefix + key;
+    if (object == null) {
+      await box.delete(storeKey);
+    } else {
+      await box.put(storeKey, object);
+    }
+  }
 
   Future<T?> getObject<T>(String key, {String? boxName}) async {
     final box = await _safeBox(boxName ?? _defaultBoxName);
@@ -109,22 +109,22 @@ class HiveStorage {
 
   // ============== 集合存储（带 col_ 前缀） ==============
 
-  // Future<void> putList<T>(String key, List<T> list, {String? boxName}) async {
-  //   final box = await _safeBox(boxName ?? _defaultBoxName);
-  //   final storeKey = _collectionPrefix + key;
-  //   if (list.isEmpty) {
-  //     await box.delete(storeKey);
-  //   } else {
-  //     await box.put(storeKey, list);
-  //   }
-  // }
+  Future<void> putList<T>(String key, List<T> list, {String? boxName}) async {
+    final box = await _safeBox(boxName ?? _defaultBoxName);
+    final storeKey = _collectionPrefix + key;
+    if (list.isEmpty) {
+      await box.delete(storeKey);
+    } else {
+      await box.put(storeKey, list);
+    }
+  }
 
-  // Future<List<T>?> getList<T>(String key, {String? boxName}) async {
-  //   final box = await _safeBox(boxName ?? _defaultBoxName);
-  //   final storeKey = _collectionPrefix + key;
-  //   final list = await _get(box, storeKey);
-  //   return list is List ? List<T>.from(list) : null;
-  // }
+  Future<List<T>?> getList<T>(String key, {String? boxName}) async {
+    final box = await _safeBox(boxName ?? _defaultBoxName);
+    final storeKey = _collectionPrefix + key;
+    final list = await _get(box, storeKey);
+    return list is List ? List<T>.from(list) : null;
+  }
 
   Future<void> putMap<K, V>(String key, Map<K, V> map, {String? boxName}) async {
     final box = await _safeBox(boxName ?? _defaultBoxName);
@@ -205,122 +205,122 @@ class HiveStorage {
   // =============调试错误使用================
 
   // HiveStorage 内：putObject
-  Future<void> putObject<T>(String key, T? object, {String? boxName}) async {
-    final box = await _safeBox(boxName ?? _defaultBoxName);
-    final storeKey = _objectPrefix + key;
+  // Future<void> putObject<T>(String key, T? object, {String? boxName}) async {
+  //   final box = await _safeBox(boxName ?? _defaultBoxName);
+  //   final storeKey = _objectPrefix + key;
 
-    // 诊断日志
-    debugPrint('PUT-OBJ box=${box.name} key=$storeKey T=$T valueType=${object?.runtimeType}\n${StackTrace.current}');
+  //   // 诊断日志
+  //   debugPrint('PUT-OBJ box=${box.name} key=$storeKey T=$T valueType=${object?.runtimeType}\n${StackTrace.current}');
 
-    // 防呆：wallet/currentSelectWallet 只能写 Wallet
-    if ((boxName ?? _defaultBoxName) == 'wallet' && key == 'currentSelectWallet') {
-      if (object != null && object is! Wallet) {
-        throw ArgumentError('currentSelectWallet 只能写 Wallet，传入的是 ${object.runtimeType}');
-      }
-    }
+  //   // 防呆：wallet/currentSelectWallet 只能写 Wallet
+  //   if ((boxName ?? _defaultBoxName) == 'wallet' && key == 'currentSelectWallet') {
+  //     if (object != null && object is! Wallet) {
+  //       throw ArgumentError('currentSelectWallet 只能写 Wallet，传入的是 ${object.runtimeType}');
+  //     }
+  //   }
 
-    if (object == null) {
-      await box.delete(storeKey);
-    } else {
-      await box.put(storeKey, object);
-    }
-  }
+  //   if (object == null) {
+  //     await box.delete(storeKey);
+  //   } else {
+  //     await box.put(storeKey, object);
+  //   }
+  // }
 
   // HiveStorage 内：putList
-  Future<void> putList<T>(String key, List<T> list, {String? boxName}) async {
-    final box = await _safeBox(boxName ?? _defaultBoxName);
-    final storeKey = _collectionPrefix + key;
+  // Future<void> putList<T>(String key, List<T> list, {String? boxName}) async {
+  //   final box = await _safeBox(boxName ?? _defaultBoxName);
+  //   final storeKey = _collectionPrefix + key;
 
-    // 诊断日志
-    final headType = list.isNotEmpty ? list.first.runtimeType : 'EMPTY';
-    debugPrint('PUT-LIST box=${box.name} key=$storeKey T=$T elemType=$headType size=${list.length}\n${StackTrace.current}');
+  //   // 诊断日志
+  //   final headType = list.isNotEmpty ? list.first.runtimeType : 'EMPTY';
+  //   debugPrint('PUT-LIST box=${box.name} key=$storeKey T=$T elemType=$headType size=${list.length}\n${StackTrace.current}');
 
-    if (list.isEmpty) {
-      await box.delete(storeKey);
-    } else {
-      await box.put(storeKey, list);
-    }
-  }
+  //   if (list.isEmpty) {
+  //     await box.delete(storeKey);
+  //   } else {
+  //     await box.put(storeKey, list);
+  //   }
+  // }
 
   // HiveStorage 内：getList
-  Future<List<T>?> getList<T>(String key, {String? boxName}) async {
-    final box = await _safeBox(boxName ?? _defaultBoxName);
-    final storeKey = _collectionPrefix + key;
-    final list = await _get(box, storeKey);
-    debugPrint('GET-LIST box=${box.name} storeKey=$storeKey -> $list');
-    if (list is List) {
-      // 元素类型校验，第一时间暴露“Wallet vs TransactionRecord”混放
-      if (list.isNotEmpty && list.first is! T) {
-        debugPrint('❌ TYPE MISMATCH getList<$T> from ${box.name}/$storeKey: elem0=${list.first.runtimeType}');
-        throw StateError('getList<$T> 类型不匹配，实际是 ${list.first.runtimeType}');
-      }
-      return List<T>.from(list);
-    }
-    return null;
-  }
+  // Future<List<T>?> getList<T>(String key, {String? boxName}) async {
+  //   final box = await _safeBox(boxName ?? _defaultBoxName);
+  //   final storeKey = _collectionPrefix + key;
+  //   final list = await _get(box, storeKey);
+  //   debugPrint('GET-LIST box=${box.name} storeKey=$storeKey -> $list');
+  //   if (list is List) {
+  //     // 元素类型校验，第一时间暴露“Wallet vs TransactionRecord”混放
+  //     if (list.isNotEmpty && list.first is! T) {
+  //       debugPrint('❌ TYPE MISMATCH getList<$T> from ${box.name}/$storeKey: elem0=${list.first.runtimeType}');
+  //       throw StateError('getList<$T> 类型不匹配，实际是 ${list.first.runtimeType}');
+  //     }
+  //     return List<T>.from(list);
+  //   }
+  //   return null;
+  // }
 
-  Future<BoxBase> _safeBox(String boxName, {bool lazy = false}) async {
-    // 若缓存中有且已开，优先复用
-    final existed = _opened[boxName];
-    if (existed != null && existed.isOpen) return existed;
+  // Future<BoxBase> _safeBox(String boxName, {bool lazy = false}) async {
+  //   // 若缓存中有且已开，优先复用
+  //   final existed = _opened[boxName];
+  //   if (existed != null && existed.isOpen) return existed;
 
-    if (existed != null && !existed.isOpen) {
-      _opened.remove(boxName);
-    }
+  //   if (existed != null && !existed.isOpen) {
+  //     _opened.remove(boxName);
+  //   }
 
-    // 如果外部已打开，先拿到实例
-    if (Hive.isBoxOpen(boxName)) {
-      final b = Hive.box(boxName);
-      // 👇 先做“探针写入”，看看这个实例是不是被锁成了某种泛型视图（比如 Box<Wallet>）
-      final polluted = await _isBoxPolluted(b);
-      if (polluted) {
-        // 自动自愈：关闭该实例，下面我们按“无泛型视图”重新打开
-        await b.close();
-      } else {
-        _opened[boxName] = b;
-        debugPrint('[_safeBox] reuse opened "$boxName" (${b.runtimeType})');
-        return b;
-      }
-    }
+  //   // 如果外部已打开，先拿到实例
+  //   if (Hive.isBoxOpen(boxName)) {
+  //     final b = Hive.box(boxName);
+  //     // 👇 先做“探针写入”，看看这个实例是不是被锁成了某种泛型视图（比如 Box<Wallet>）
+  //     final polluted = await _isBoxPolluted(b);
+  //     if (polluted) {
+  //       // 自动自愈：关闭该实例，下面我们按“无泛型视图”重新打开
+  //       await b.close();
+  //     } else {
+  //       _opened[boxName] = b;
+  //       debugPrint('[_safeBox] reuse opened "$boxName" (${b.runtimeType})');
+  //       return b;
+  //     }
+  //   }
 
-    // 统一用非泛型打开（transactions 建议 LazyBox）
-    final useLazy = boxName == boxTx || lazy;
+  //   // 统一用非泛型打开（transactions 建议 LazyBox）
+  //   final useLazy = boxName == boxTx || lazy;
 
-    BoxBase opened;
-    if (useLazy) {
-      opened = await Hive.openLazyBox(boxName);
-    } else {
-      opened = await Hive.openBox(boxName);
-    }
-    // 再探针一次，确保是干净的动态实例
-    final polluted = await _isBoxPolluted(opened);
-    if (polluted) {
-      // 到这里仍然污染，直接删磁盘重建（只对 tx 这种缓存箱这么干，谨慎！）
-      await opened.close();
-      await Hive.deleteBoxFromDisk(boxName);
-      opened = useLazy ? await Hive.openLazyBox(boxName) : await Hive.openBox(boxName);
-      final ok = await _isBoxPolluted(opened) == false;
-      debugPrint('[_safeBox] re-open "$boxName" after delete; clean=$ok');
-    }
+  //   BoxBase opened;
+  //   if (useLazy) {
+  //     opened = await Hive.openLazyBox(boxName);
+  //   } else {
+  //     opened = await Hive.openBox(boxName);
+  //   }
+  //   // 再探针一次，确保是干净的动态实例
+  //   final polluted = await _isBoxPolluted(opened);
+  //   if (polluted) {
+  //     // 到这里仍然污染，直接删磁盘重建（只对 tx 这种缓存箱这么干，谨慎！）
+  //     await opened.close();
+  //     await Hive.deleteBoxFromDisk(boxName);
+  //     opened = useLazy ? await Hive.openLazyBox(boxName) : await Hive.openBox(boxName);
+  //     final ok = await _isBoxPolluted(opened) == false;
+  //     debugPrint('[_safeBox] re-open "$boxName" after delete; clean=$ok');
+  //   }
 
-    _opened[boxName] = opened;
-    debugPrint('[_safeBox] opened "$boxName" as ${opened.runtimeType}');
-    return opened;
-  }
+  //   _opened[boxName] = opened;
+  //   debugPrint('[_safeBox] opened "$boxName" as ${opened.runtimeType}');
+  //   return opened;
+  // }
 
-  Future<bool> _isBoxPolluted(BoxBase b) async {
-    try {
-      if (b is Box) {
-        await b.put('__probe__', '__ok__');
-        await b.delete('__probe__');
-      } else if (b is LazyBox) {
-        await b.put('__probe__', '__ok__');
-        await b.delete('__probe__');
-      }
-      return false;
-    } catch (e, st) {
-      debugPrint('🚨 Box "${b.name}" polluted: $e\n$st');
-      return true;
-    }
-  }
+  // Future<bool> _isBoxPolluted(BoxBase b) async {
+  //   try {
+  //     if (b is Box) {
+  //       await b.put('__probe__', '__ok__');
+  //       await b.delete('__probe__');
+  //     } else if (b is LazyBox) {
+  //       await b.put('__probe__', '__ok__');
+  //       await b.delete('__probe__');
+  //     }
+  //     return false;
+  //   } catch (e, st) {
+  //     debugPrint('🚨 Box "${b.name}" polluted: $e\n$st');
+  //     return true;
+  //   }
+  // }
 }

@@ -245,6 +245,7 @@
         "balanceFetchFailed": "Balance fetch failed",
         "insufficientBalance": "Insufficient",
         "transferSubmitted": "Transfer Submitted",
+        "unknown_error_please_try_again_later": "Unknown error, please try again later",
         "available": "Available",
         "selectNetwork": "Select Net",
         "receiveNetwork": "Recv Net",

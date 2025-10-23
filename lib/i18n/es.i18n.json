@@ -245,6 +245,7 @@
         "balanceFetchFailed": "Error al obtener saldo",
         "insufficientBalance": "Saldo insuficiente",
         "transferSubmitted": "Envío realizado",
+        "unknown_error_please_try_again_later": "Error desconocido, inténtalo de nuevo más tarde",
         "available": "Disponible",
         "selectNetwork": "Red",
         "receiveNetwork": "Red rec",

@@ -245,6 +245,7 @@
         "balanceFetchFailed": "余额获取失败，请稍后重试",
         "insufficientBalance": "余额不够",
         "transferSubmitted": "转账已提交",
+        "unknown_error_please_try_again_later": "未知错误，请稍后重试",
         "available": "可用",
         "selectNetwork": "选择网络",
         "receiveNetwork": "收款网络",

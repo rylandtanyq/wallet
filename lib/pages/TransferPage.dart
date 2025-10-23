@@ -355,7 +355,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
       _showSnack(t.transfer_receive_payment.transferSubmitted);
     } catch (e) {
       debugPrint('转账错误: $e');
-      if (mounted) _showSnack(t.transfer_receive_payment.transferSubmitted);
+      if (mounted) _showSnack(t.transfer_receive_payment.unknown_error_please_try_again_later);
     } finally {
       _hideLoading();
       _isSubmitting = false;

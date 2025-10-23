@@ -245,6 +245,7 @@
         "balanceFetchFailed": "Ошибка баланса",
         "insufficientBalance": "Недостаточно",
         "transferSubmitted": "Перевод отправлен",
+        "unknown_error_please_try_again_later": "Неизвестная ошибка, повторите попытку позже",
         "available": "Доступно",
         "selectNetwork": "Сеть",
         "receiveNetwork": "Сеть получ",
