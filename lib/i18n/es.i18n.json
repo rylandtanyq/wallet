@@ -223,7 +223,18 @@
         "verifyMnemonic": "Verificar mnemónico",
         "verifyMnemonicTip": "Verifica las palabras mnemónicas en orden",
         "confirm": "Confirmar",
-        "verifyWordPosition": "Pal. $index"
+        "verifyWordPosition": "Pal. $index",
+        "add_token": "Agregar token",
+        "token_name_or_contract_address": "Nombre del token o dirección del contrato",
+        "token_added": "Token agregado",
+        "add": "Agregar",
+        "confirm_add_solana_token": "¿Confirmas agregar el token de $token?",
+        "delete": "Eliminar",
+        "confirm_delete_solana_token": "¿Confirmas eliminar el token de $token?",
+        "confirm_v2": "Confirmar",
+        "cancel": "Cancelar",
+        "token_name": "Nombre del token",
+        "no_token_added_yet": "Aún no se ha agregado ningún token"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Seleccionar moneda",

@@ -223,7 +223,18 @@
         "verifyMnemonic": "ニーモニックを確認",
         "verifyMnemonicTip": "順番にニーモニックを確認してください",
         "confirm": "確認",
-        "verifyWordPosition": "$index 番目"
+        "verifyWordPosition": "$index 番目",
+        "add_token": "トークンを追加",
+        "token_name_or_contract_address": "トークン名またはコントラクトアドレス",
+        "token_added": "トークンが追加されました",
+        "add": "追加",
+        "confirm_add_solana_token": "$token トークンを追加してもよろしいですか？",
+        "delete": "削除",
+        "confirm_delete_solana_token": "$token トークンを削除してもよろしいですか？",
+        "confirm_v2": "確認",
+        "cancel": "キャンセル",
+        "token_name": "トークン名",
+        "no_token_added_yet": "まだトークンが追加されていません"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "送金通貨を選択",

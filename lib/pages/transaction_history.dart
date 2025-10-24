@@ -94,7 +94,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.book, size: 100.w, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Image.asset('assets/images/no_transaction.png', width: 108, height: 92),
           SizedBox(height: 16.h),
           Text(t.home.no_transfer_records_yet, style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],

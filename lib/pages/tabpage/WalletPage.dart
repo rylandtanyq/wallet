@@ -10,6 +10,7 @@ import 'package:hive/hive.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
 import 'package:untitled1/hive/Wallet.dart';
+import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/CoinDetailPage.dart';
@@ -50,7 +51,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     Image.asset('assets/images/ic_wallet_transfer_record.png', width: 48.w, height: 48.w),
   ];
   late TabController _tabController;
-  late PageController _pageController;
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 0;
   final List<List<Token>> tokenLists = [
@@ -80,35 +80,35 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   final defaultNetwork = {"id": "Solana", "path": "assets/images/solana_logo.png"};
   late Map<String, String> _currentNetwork = {};
+  late List<Tokens> _tokenList = [];
+  late List<Tokens> _fillteredTokensList = [];
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _pageController = PageController();
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
-        _pageController.jumpToPage(_tabController.index);
+        setState(() {});
       }
     });
     _searchController.addListener(_filterItems);
     WidgetsBinding.instance.addObserver(this);
-    // _wallet = HiveStorage().getObject<Wallet>('currentSelectWallet') ?? Wallet.empty();
     _getCurrentSelectWalletfn();
     _updataWalletBalance();
     _initWalletAndNetwork();
+    _loadingTokens();
     debugPrint('新存的助记词${_wallet.mnemonic}');
   }
 
-  void _getCurrentSelectWalletfn() async {
-    _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
-    final currentNetworkResult = await HiveStorage().getObject<Map>("currentNetwork");
-    if (currentNetworkResult != null) {
-      _currentNetwork = Map<String, String>.from(currentNetworkResult);
-    } else {
-      _currentNetwork = Map<String, String>.from(defaultNetwork);
-      HiveStorage().putObject('currentNetwork', _currentNetwork);
-    }
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _refreshController.dispose();
+    _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -140,9 +140,41 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     }
   }
 
-  Future<void> _initWalletAndNetwork() async {
-    // // await HiveStorage().ensureBoxReady(); // ✅ 保证 Hive box 打开
+  Future<void> _loadingTokens() async {
+    final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
+    _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
+    _fillteredTokensList = List.from(_tokenList);
+    setState(() {});
+  }
 
+  void _onSearchChange(String value) {
+    if (_timer?.isActive ?? false) _timer?.cancel();
+    _timer = Timer(Duration(milliseconds: 300), () {
+      final query = value.trim().toLowerCase();
+      setState(() {
+        if (query.isEmpty) {
+          _fillteredTokensList = List.from(_tokenList);
+        } else {
+          _fillteredTokensList = _tokenList.where((token) {
+            return token.title.toLowerCase().contains(query) || token.subtitle.toLowerCase().contains(query);
+          }).toList();
+        }
+      });
+    });
+  }
+
+  void _getCurrentSelectWalletfn() async {
+    _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
+    final currentNetworkResult = await HiveStorage().getObject<Map>("currentNetwork");
+    if (currentNetworkResult != null) {
+      _currentNetwork = Map<String, String>.from(currentNetworkResult);
+    } else {
+      _currentNetwork = Map<String, String>.from(defaultNetwork);
+      HiveStorage().putObject('currentNetwork', _currentNetwork);
+    }
+  }
+
+  Future<void> _initWalletAndNetwork() async {
     final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
     final network = await HiveStorage().getObject<Map>('currentNetwork');
 
@@ -180,15 +212,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     } catch (e) {
       debugPrint("❌ 加载钱包数据失败: $e");
     }
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _pageController.dispose();
-    _refreshController.dispose();
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   // 获取实时钱包余额
@@ -353,7 +376,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         controller: _refreshController,
         header: const ClassicHeader(),
         onRefresh: _onRefresh,
-        child: _buildPageContent(titles, categories),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: _buildPageContent(titles, categories),
+        ),
       ),
     );
   }
@@ -598,7 +625,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
               dividerColor: Colors.transparent,
               labelStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
               unselectedLabelStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.normal),
-
               indicator: UnderlineTabIndicator(
                 borderSide: BorderSide(width: 1.5.h, color: Theme.of(context).colorScheme.onBackground),
               ),
@@ -608,13 +634,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
             ),
           ),
         ),
-        SliverFillRemaining(
-          child: PageView(
-            controller: _pageController,
-            physics: NeverScrollableScrollPhysics(),
-            onPageChanged: (index) => setState(() => _tabController.animateTo(index)),
-            children: [_buildHomePage(), _buildDeFiPage(), _buildNFTPage(), _buildBankCardPage()],
-          ),
+        SliverToBoxAdapter(
+          child: IndexedStack(index: _tabController.index, children: [_buildHomePage(), _buildDeFiPage(), _buildNFTPage(), _buildBankCardPage()]),
         ),
       ],
     );
@@ -635,7 +656,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
             child: TextField(
               controller: _textEditingController,
               decoration: InputDecoration(
-                hintText: "代币名称",
+                hintText: t.wallet.token_name,
                 hintStyle: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surface,
@@ -643,19 +664,18 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                 border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(25.r)),
                 prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
               ),
-              onChanged: (e) {
-                setState(() {
-                  tokensSearchContent = _textEditingController.text;
-                });
-              },
+              onChanged: (e) => _onSearchChange(e),
             ),
           ),
           SizedBox(width: 15),
           Icon(Icons.update_sharp, color: Theme.of(context).colorScheme.onBackground),
           SizedBox(width: 15),
           GestureDetector(
-            onTap: () {
-              Get.to(AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+            onTap: () async {
+              final added = await Get.to(AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+              if (added == true) {
+                _loadingTokens();
+              }
             },
             child: Icon(Icons.add_circle_outline_sharp),
           ),
@@ -666,81 +686,85 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   // 代币
   Widget _buildHomePage() {
-    return CustomScrollView(
-      physics: NeverScrollableScrollPhysics(),
-      slivers: [
-        // SliverList(
-        //   delegate: SliverChildBuilderDelegate(
-        //         (_, index) => _buildTokenItem(index),
-        //     childCount: 6,
-        //   ),
-        // ),
-        SliverToBoxAdapter(child: _filterAddWidget()),
-        SliverToBoxAdapter(
-          child: SingleChildScrollView(
-            physics: NeverScrollableScrollPhysics(),
-            child: Column(children: List.generate(6, (index) => _buildTokenItem(index))),
-          ),
+    if (_fillteredTokensList.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: 60),
+            Image.asset('assets/images/no_transaction.png', width: 108, height: 92),
+            SizedBox(height: 8),
+            Text(t.wallet.no_token_added_yet, style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+          ],
         ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.color_2B6D16, // 背景色 #286713
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(21.5.r), // 圆角21.5dp
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 11),
-                ),
-                onPressed: () {
-                  // 按钮点击事件
-                },
-                child: Text(
-                  t.common.manageToken,
-                  style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-                ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _filterAddWidget(),
+          const SizedBox(height: 12),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (BuildContext context, int index) {
+              return _buildTokenItem(index);
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return SizedBox(height: 10);
+            },
+            itemCount: _fillteredTokensList.length,
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.color_2B6D16,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21.5.r)),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 11),
+              ),
+              onPressed: () {},
+              child: Text(
+                t.common.manageToken,
+                style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
               ),
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 40),
+        ],
+      ),
     );
   }
 
   // DeFi
   Widget _buildDeFiPage() {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Column(
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Row(
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '热门理财',
-                        style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                    ),
-                    Image.asset('assets/images/ic_arrows_right.png', width: 7, height: 12),
-                  ],
+              Expanded(
+                child: Text(
+                  '热门理财',
+                  style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
                 ),
               ),
-              SizedBox(
-                height: 115.h,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(onTap: () => {}, child: _buildHotCoinItemView());
-                  },
-                ),
-              ),
+              Image.asset('assets/images/ic_arrows_right.png', width: 7, height: 12),
             ],
+          ),
+        ),
+        SizedBox(
+          height: 115.h,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              return GestureDetector(onTap: () => {}, child: _buildHotCoinItemView());
+            },
           ),
         ),
       ],
@@ -758,6 +782,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Widget _buildTokenItem(int index) {
+    final item = _fillteredTokensList[index];
     return GestureDetector(
       onTap: () => {Get.to(CoinDetailPage())},
       child: Container(
@@ -792,9 +817,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   Row(
                     children: [
                       Text(
-                        'USDT',
+                        // 'USDT',
+                        item.title,
                         style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
                       ),
+                      SizedBox(width: 6),
                       if (index < 3)
                         Container(
                           decoration: BoxDecoration(color: AppColors.color_B5DE5B, borderRadius: BorderRadius.circular(19.r)),
@@ -820,6 +847,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                         '¥69$index,603.5',
                         style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
                       ),
+                      SizedBox(width: 6),
                       Text(
                         '-0.${index}5%',
                         style: TextStyle(fontSize: 14.sp, color: AppColors.color_F3607B, fontWeight: FontWeight.bold),

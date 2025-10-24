@@ -223,7 +223,18 @@
         "verifyMnemonic": "Проверить мнемонику",
         "verifyMnemonicTip": "Проверьте слова мнемоники по порядку",
         "confirm": "Подтвердить",
-        "verifyWordPosition": "$index-е слово"
+        "verifyWordPosition": "$index-е слово",
+        "add_token": "Добавить токен",
+        "token_name_or_contract_address": "Название токена или адрес контракта",
+        "token_added": "Токен добавлен",
+        "add": "Добавить",
+        "confirm_add_solana_token": "Вы уверены, что хотите добавить токен $token?",
+        "delete": "Удалить",
+        "confirm_delete_solana_token": "Вы уверены, что хотите удалить токен $token?",
+        "confirm_v2": "Подтвердить",
+        "cancel": "Отмена",
+        "token_name": "Название токена",
+        "no_token_added_yet": "Пока не добавлено ни одного токена"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Выбрать монету",

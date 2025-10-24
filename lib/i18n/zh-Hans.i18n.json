@@ -223,7 +223,18 @@
         "verifyMnemonic": "验证助记词",
         "verifyMnemonicTip": "请按顺序验证助记词",
         "confirm": "确认",
-        "verifyWordPosition": "第 $index 个"
+        "verifyWordPosition": "第 $index 个",
+        "add_token": "添加代币",
+        "token_name_or_contract_address": "代币名称或者合约地址",
+        "token_added": "已添加代币",
+        "add": "添加",
+        "confirm_add_solana_token": "确定添加 $token 代币吗？",
+        "delete": "删除",
+        "confirm_delete_solana_token": "确定删除 $token 代币吗？",
+        "confirm_v2": "确定",
+        "cancel": "取消",
+        "token_name": "代币名称",
+        "no_token_added_yet": "暂未添加任何代币"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "选择转账币种",
