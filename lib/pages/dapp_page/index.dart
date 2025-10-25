@@ -17,7 +17,8 @@ import 'package:convert/convert.dart';
 import 'package:untitled1/util/HiveStorage.dart';
 
 class DAppPage extends StatefulWidget {
-  const DAppPage({super.key});
+  final String dappUrl;
+  const DAppPage({super.key, required this.dappUrl});
 
   @override
   State<DAppPage> createState() => _DAppPageState();
@@ -282,6 +283,7 @@ class _DAppPageState extends State<DAppPage> {
   void initState() {
     super.initState();
     _getCurrentSelectedWalletInformation();
+    debugPrint('000000${widget.dappUrl}');
   }
 
   // 获取当前选中的钱包信息
@@ -333,7 +335,7 @@ class _DAppPageState extends State<DAppPage> {
             backgroundColor: Colors.black,
             appBar: AppBar(title: const Text("dapp")),
             body: InAppWebView(
-              initialUrlRequest: URLRequest(url: WebUri("https://wpos.pro/")),
+              initialUrlRequest: URLRequest(url: WebUri("wpos.pro")),
               initialSettings: InAppWebViewSettings(
                 javaScriptEnabled: true,
                 javaScriptCanOpenWindowsAutomatically: true,

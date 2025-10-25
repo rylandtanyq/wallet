@@ -37,7 +37,11 @@
         "tipFillAddress": "送金時に追加したアドレスを直接入力できます",
         "addNewAddress": "+新しいアドレスを追加",
         "scanQRCode": "QRコードをスキャン",
-        "scanTip": "スキャンして受取アドレスを認識、DAppに接続または店舗に支払い"
+        "scanTip": "スキャンして受取アドレスを認識、DAppに接続または店舗に支払い",
+        "all": "すべて",
+        "open_link_below": "以下のリンクを開く",
+        "search_history": "検索履歴",
+        "no_matching_results": "一致する結果がありません"
     },
     "Mysettings": {
         "go_backup": "バックアップへ",

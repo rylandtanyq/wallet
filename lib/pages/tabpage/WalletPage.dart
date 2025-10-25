@@ -482,7 +482,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       setState(() {
         _wallet = resultWallet;
       });
-
       await _updataWalletBalance();
     }
   }

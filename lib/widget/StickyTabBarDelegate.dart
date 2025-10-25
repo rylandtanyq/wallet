@@ -8,7 +8,10 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Material(color: Theme.of(context).colorScheme.background, child: child);
+    return Material(
+      color: Theme.of(context).colorScheme.background,
+      child: Container(color: Theme.of(context).colorScheme.background, height: child.preferredSize.height, child: child),
+    );
   }
 
   @override

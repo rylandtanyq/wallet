@@ -37,7 +37,11 @@
         "tipFillAddress": "轉帳時可直接填入添加的地址",
         "addNewAddress": "+添加新地址",
         "scanQRCode": "掃描二維碼",
-        "scanTip": "掃一掃識別收款地址，連接 DApp 或向商戶付款"
+        "scanTip": "掃一掃識別收款地址，連接 DApp 或向商戶付款",
+        "all": "全部",
+        "open_link_below": "打開以下連結",
+        "search_history": "搜尋歷史",
+        "no_matching_results": "無匹配結果"
     },
     "Mysettings": {
         "go_backup": "去備份",

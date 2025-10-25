@@ -37,7 +37,11 @@
         "tipFillAddress": "Fill in added address when sending",
         "addNewAddress": "+Add Addr",
         "scanQRCode": "Scan QR",
-        "scanTip": "Scan to detect address, connect DApp or pay merchant"
+        "scanTip": "Scan to detect address, connect DApp or pay merchant",
+        "all": "All",
+        "open_link_below": "Open the link below",
+        "search_history": "Search History",
+        "no_matching_results": "No matching results"
     },
     "Mysettings": {
         "go_backup": "Go Backup",

@@ -1,11 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/dapp_page/index.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:untitled1/widget/StickyTabBarDelegate.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -15,9 +16,14 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
+  final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  late TabController _tabController;
+  TabController? _tabController;
+  List<String> _search_history = [];
   Timer? _debounce;
+  bool _showSuffixIcon = false;
+  bool _showHintOpenDappLink = false;
+  bool _showSearchHistoryWidget = false;
 
   @override
   void initState() {
@@ -26,17 +32,36 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
+    _tabController?.addListener(() {
+      if (_tabController!.indexIsChanging) {
+        setState(() {});
+      }
+    });
+    _getSearchHistoryList();
   }
 
   @override
   void dispose() {
     super.dispose();
-    _tabController.dispose();
+    _tabController?.dispose();
     _debounce?.cancel();
+  }
+
+  void _ensureControllerWithLength(int newLen) {
+    if (_tabController != null && _tabController!.length == newLen) return;
+    final oldIndex = _tabController?.index ?? 0;
+    _tabController?.dispose();
+    final initIndex = newLen == 0 ? 0 : oldIndex.clamp(0, newLen - 1);
+    _tabController = TabController(length: newLen, vsync: this, initialIndex: initIndex);
   }
 
   @override
   Widget build(BuildContext context) {
+    final hasText = _textEditingController.text.trim().isNotEmpty;
+
+    final tabs = <Widget>[if (hasText) Tab(text: t.common.all), Tab(text: t.search.token), Tab(text: t.search.contract), Tab(text: t.search.dapp)];
+    final views = <Widget>[if (hasText) _buildSearchAllWidget(context), _buildCurrencyWidget(), _buildContractWidget(context), _buildDAppWidget()];
+    _ensureControllerWithLength(tabs.length);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -47,6 +72,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
             SizedBox(width: 10.w),
             Expanded(
               child: TextField(
+                controller: _textEditingController,
                 focusNode: _focusNode,
                 decoration: InputDecoration(
                   hintText: t.search.placeholder,
@@ -56,12 +82,16 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                   contentPadding: EdgeInsets.only(right: 14),
                   border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(25.r)),
                   prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
+                  suffixIcon: _showSuffixIcon ? _suffixIconWidget() : null,
                 ),
                 onChanged: (e) => _onSearchChange(e),
               ),
             ),
             SizedBox(width: 13.w),
-            Text(t.search.search, style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+            GestureDetector(
+              onTap: () => _addSearchHistoryList(),
+              child: Text(t.search.search, style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+            ),
           ],
         ),
       ),
@@ -70,45 +100,46 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: Padding(
-            padding: EdgeInsetsGeometry.only(right: 12.w, left: 12.w, top: 8.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  t.search.hotSearch,
-                  style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w500),
-                ),
-                SizedBox(height: 12.w),
-                Theme(
-                  data: Theme.of(context).copyWith(splashFactory: NoSplash.splashFactory, highlightColor: Colors.transparent),
-                  child: IntrinsicWidth(
-                    child: TabBar(
-                      controller: _tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      indicatorColor: Theme.of(context).colorScheme.onBackground,
-                      indicatorPadding: EdgeInsets.only(bottom: -6),
-                      indicatorSize: TabBarIndicatorSize.label,
-                      unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
-                      labelColor: Theme.of(context).colorScheme.onBackground,
-                      padding: EdgeInsets.zero,
-                      labelPadding: EdgeInsets.only(right: 22.w),
-                      labelStyle: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600),
-                      unselectedLabelStyle: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600),
-                      dividerColor: Colors.transparent,
-                      overlayColor: MaterialStateProperty.all(Colors.transparent),
-                      tabs: [Text(t.search.token), Text(t.search.contract), Text(t.search.dapp)],
+            padding: EdgeInsets.only(right: 12.w, left: 12.w, top: 8.w),
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverToBoxAdapter(child: SizedBox(height: 10)),
+                  if (!_showSearchHistoryWidget && _search_history.isNotEmpty) SliverToBoxAdapter(child: _searchHistoryWidget()),
+                  if (_showHintOpenDappLink) SliverToBoxAdapter(child: _hintOpenDappLink()),
+                  SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  SliverToBoxAdapter(
+                    child: Text(
+                      t.search.hotSearch,
+                      style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w500),
                     ),
                   ),
-                ),
-                SizedBox(height: 20.h),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [_buildCurrencyWidget(), _buildContractWidget(context), _buildDAppWidget()],
+                  SliverToBoxAdapter(child: SizedBox(height: 12.w)),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: StickyTabBarDelegate(
+                      child: TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        indicatorColor: Theme.of(context).colorScheme.onBackground,
+                        // indicatorPadding: EdgeInsets.only(bottom: -6),
+                        indicatorSize: TabBarIndicatorSize.label,
+                        unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
+                        labelColor: Theme.of(context).colorScheme.onBackground,
+                        padding: EdgeInsets.zero,
+                        labelPadding: EdgeInsets.only(right: 22.w),
+                        labelStyle: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600),
+                        unselectedLabelStyle: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600),
+                        dividerColor: Colors.transparent,
+                        overlayColor: MaterialStateProperty.all(Colors.transparent),
+                        tabs: tabs,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ];
+              },
+              body: TabBarView(controller: _tabController, children: views),
             ),
           ),
         ),
@@ -116,11 +147,182 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
-  void _onSearchChange(e) {
-    if (_debounce?.isActive ?? false) return _debounce?.cancel();
-    _debounce = Timer(Duration(milliseconds: 300), () {
-      debugPrint(e);
+  void _onSearchChange(String e) {
+    // 每次输入都先取消上一次防抖定时器
+    _debounce?.cancel();
+
+    final text = e.trim();
+
+    if (text.isEmpty) {
+      setState(() {
+        _showSuffixIcon = false;
+      });
+      return;
+    }
+    final isUrl = _isPotentialUrl(text);
+    if (!isUrl) {
+      setState(() {
+        // _showSuffixIcon = false;
+        _showHintOpenDappLink = false;
+        _showSearchHistoryWidget = false;
+      });
+      return;
+    }
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _textEditingController.text = text;
+        _showSuffixIcon = true;
+        _showSearchHistoryWidget = false;
+      });
     });
+  }
+
+  bool _isPotentialUrl(String input) {
+    if (input.isEmpty) return false;
+
+    final containsChinese = RegExp(r'[\u4e00-\u9fa5]').hasMatch(input);
+    if (containsChinese) return false;
+
+    if (input.contains(' ')) return false;
+
+    final urlPattern = RegExp(r'^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$', caseSensitive: false);
+
+    return urlPattern.hasMatch(input);
+  }
+
+  void _getSearchHistoryList() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _search_history = prefs.getStringList('search_history') ?? <String>[];
+    });
+  }
+
+  void _addSearchHistoryList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final content = _textEditingController.text?.trim();
+
+    if (content == null || content.isEmpty) return;
+
+    setState(() {
+      if (!_search_history.contains(content)) {
+        _search_history.add(content);
+        prefs.setStringList('search_history', _search_history);
+        _textEditingController.clear();
+      }
+    });
+  }
+
+  void _selectedSearchHistory(String item) {
+    setState(() {
+      final isUrl = _isPotentialUrl(item);
+      if (isUrl) {
+        _showSuffixIcon = true;
+        _textEditingController.text = item;
+        _showHintOpenDappLink = true;
+        _showSearchHistoryWidget = true;
+      } else {
+        _showSuffixIcon = true;
+        _textEditingController.text = item;
+        _showHintOpenDappLink = false;
+        _showSearchHistoryWidget = true;
+      }
+    });
+  }
+
+  void _removeSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _search_history.clear();
+      prefs.remove('search_history');
+    });
+  }
+
+  Widget _suffixIconWidget() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _textEditingController.clear();
+          _showSuffixIcon = false;
+          _showSearchHistoryWidget = false;
+          _showHintOpenDappLink = false;
+        });
+      },
+      child: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
+    );
+  }
+
+  Widget _searchHistoryWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              t.common.search_history,
+              style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w500),
+            ),
+            GestureDetector(onTap: () => _removeSearchHistory(), child: Icon(Icons.delete, size: 20)),
+          ],
+        ),
+        SizedBox(height: 12),
+        Wrap(
+          children: List.generate(_search_history.length, (index) {
+            String item = _search_history[index];
+            return GestureDetector(
+              onTap: () => _selectedSearchHistory(item),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                margin: EdgeInsets.only(right: 8, bottom: 8),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10.r)),
+                child: Text(item, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _hintOpenDappLink() {
+    return GestureDetector(
+      onTap: () {
+        Get.to(
+          DAppPage(dappUrl: _textEditingController.text),
+          transition: Transition.rightToLeft,
+          duration: const Duration(milliseconds: 300),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        width: double.infinity,
+        height: 55.h,
+        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.public, size: 16, color: Theme.of(context).colorScheme.primary),
+                    SizedBox(width: 4),
+                    Text(t.common.open_link_below, style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                  ],
+                ),
+                Text(_textEditingController.text, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.primary)),
+              ],
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -150,9 +352,23 @@ Widget? _handleAssetImage(int index) {
   }
 }
 
+/// 所有
+Widget _buildSearchAllWidget(BuildContext context) {
+  return Column(
+    children: [
+      SizedBox(height: 30),
+      Icon(Icons.search_off_sharp, size: 130, color: Theme.of(context).colorScheme.onSurface),
+      SizedBox(height: 20),
+      Text(t.common.no_matching_results, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+    ],
+  );
+}
+
 /// 币种
 Widget _buildCurrencyWidget() {
   return ListView.separated(
+    shrinkWrap: true,
+    physics: NeverScrollableScrollPhysics(),
     itemBuilder: (BuildContext context, int index) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -209,174 +425,17 @@ Widget _buildCurrencyWidget() {
 
 /// 合约
 Widget _buildContractWidget(BuildContext context) {
-  return GestureDetector(
-    onTap: () async {
-      return showModalBottomSheet(
-        context: context,
-        isScrollControlled: true, // 👈 必须加这个，允许内容超出默认高度
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return SafeArea(
-                child: Material(
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(12.r), topRight: Radius.circular(12.r)),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
-                          child: Stack(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [Text("签名信息", style: AppTextStyles.headline3.copyWith(color: Theme.of(context).colorScheme.onBackground))],
-                              ),
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                                child: GestureDetector(
-                                  onTap: () => Navigator.of(context).pop(),
-                                  child: Icon(Icons.close, size: 28, color: Theme.of(context).colorScheme.onBackground),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Divider(color: const Color(0xFFE7E7E7), height: .5.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('请求签名', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                              SizedBox(height: 8.w),
-
-                              Text.rich(
-                                TextSpan(
-                                  text: "来自 ",
-                                  style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                                  children: [
-                                    TextSpan(
-                                      text: "wpos.pro",
-                                      style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground),
-                                    ),
-                                    TextSpan(
-                                      text: " 的请求",
-                                      style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 16.w),
-                              Container(
-                                width: double.infinity,
-                                height: 200,
-                                padding: EdgeInsetsDirectional.all(16),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  "Verify address authority",
-                                  style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                                ),
-                              ),
-                              SizedBox(height: 16.w),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Wallet", style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                                  Row(
-                                    children: [
-                                      Image.asset('assets/images/ic_clip_photo.png', width: 20, height: 20),
-                                      SizedBox(width: 8.w),
-                                      Text("我的钱包", style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 16.w),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Network", style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                                  Row(
-                                    children: [
-                                      Image.asset('assets/images/solana_logo.png', width: 20, height: 20),
-                                      SizedBox(width: 8.w),
-                                      Text("Solana", style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 20.w),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => Navigator.of(context).pop(),
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 60,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(width: 1, color: Theme.of(context).colorScheme.onBackground),
-                                          borderRadius: BorderRadius.circular(50.r),
-                                        ),
-                                        child: Text("取消", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 30.w),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 60,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.primary,
-                                          // border: Border.all(width: 1, color: Theme.of(context).colorScheme.onBackground),
-                                          borderRadius: BorderRadius.circular(50.r),
-                                        ),
-                                        child: Text("签名", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      );
-    },
-    child: Text("aasds"),
-  );
+  return Text('合约');
 }
 
 /// DApp
 Widget _buildDAppWidget() {
   return ListView.separated(
+    shrinkWrap: true,
+    physics: NeverScrollableScrollPhysics(),
     itemBuilder: (BuildContext context, int index) {
       return GestureDetector(
-        onTap: () {
-          Get.to(DAppPage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
-        },
+        onTap: () {},
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,

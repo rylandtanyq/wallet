@@ -37,7 +37,11 @@
         "tipFillAddress": "Rellene la dirección al enviar",
         "addNewAddress": "+Añadir Dir",
         "scanQRCode": "Escanear QR",
-        "scanTip": "Escanee para identificar dirección, conectar DApp o pagar comerciante"
+        "scanTip": "Escanee para identificar dirección, conectar DApp o pagar comerciante",
+        "all": "Todo",
+        "open_link_below": "Abrir el enlace a continuación",
+        "search_history": "Historial de búsqueda",
+        "no_matching_results": "No hay resultados coincidentes"
     },
     "Mysettings": {
         "go_backup": "Ir a copia de seguridad",
