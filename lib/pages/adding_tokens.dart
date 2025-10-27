@@ -46,14 +46,14 @@ class _AddingTokensState extends State<AddingTokens> {
       if (_textEditingController.text.trim().isEmpty) return;
       final confirm = await _showDialogWidget(
         title: t.wallet.add,
-        content: t.wallet.confirm_add_solana_token(token: _textEditingController.text.trim()),
+        content: t.wallet.confirm_add_solana_token(token: _textEditingController.text.trim().toUpperCase()),
       );
       if (!confirm) return;
       try {
         final tokensResult = Tokens(
           image: '',
-          title: _textEditingController.text.trim(),
-          subtitle: _textEditingController.text.trim(),
+          title: _textEditingController.text.trim().toUpperCase(),
+          subtitle: _textEditingController.text.trim().toUpperCase(),
           price: '0.00',
           number: '0.00',
           toadd: true,

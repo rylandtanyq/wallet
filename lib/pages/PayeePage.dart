@@ -190,15 +190,12 @@ class _PayeePageState extends State<PayeePage> with BasePage<PayeePage>, Automat
                         ),
                       ),
                     ),
-                    // 添加底部间距，避免内容被按钮遮挡
-                    SizedBox(height: 10.h),
                   ],
                 ),
               ),
             ),
             Container(
               padding: EdgeInsets.all(15.w),
-              margin: EdgeInsets.only(bottom: 15.h),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.background,
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: Offset(0, -5))],

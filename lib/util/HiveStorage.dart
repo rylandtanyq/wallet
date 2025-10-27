@@ -147,9 +147,7 @@ class HiveStorage {
 
   Future<void> delete(String key, {String? boxName}) async {
     final box = await _safeBox(boxName ?? _defaultBoxName);
-    await box.delete(key);
-    await box.delete(_collectionPrefix + key);
-    await box.delete(_objectPrefix + key);
+    await box.deleteAll([key, _collectionPrefix + key, _objectPrefix + key]);
   }
 
   Future<void> clear({String? boxName}) async {

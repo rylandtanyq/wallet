@@ -15,7 +15,9 @@ import 'BackUpHelperVerifyPage.dart';
  * 备份助记词
  */
 class BackUpHelperOnePage extends StatefulWidget {
-  const BackUpHelperOnePage({super.key});
+  final String? title;
+  final bool? prohibit;
+  const BackUpHelperOnePage({super.key, this.title, this.prohibit = true});
 
   @override
   State<StatefulWidget> createState() => _BackUpHelperOnePageState();
@@ -33,6 +35,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
   void initState() {
     super.initState();
     final newWallet = Get.arguments;
+    debugPrint('999$newWallet');
     String mnemonic = newWallet['mnemonic'];
     mnemonics = mnemonic.split(' ');
   }
@@ -42,141 +45,147 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
     super.build(context);
     return Scaffold(
       appBar: CustomAppBar(title: ''),
-      body: Container(
-        color: Theme.of(context).colorScheme.background,
-        padding: EdgeInsets.only(bottom: 20.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 顶部说明区域（非模糊部分）
-            Container(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    t.wallet.rememberBeforeBackupExclaim,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
-                  ),
-                  SizedBox(height: 10),
-                  Wrap(
-                    children: [
-                      _buildTipItem(t.wallet.handwriteRecommended, true),
-                      SizedBox(width: 20),
-                      _buildTipItem(t.wallet.doNotCopy, false),
-                      SizedBox(width: 20),
-                      _buildTipItem(t.wallet.doNotScreenshot, false),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                ],
+      body: SafeArea(
+        child: Container(
+          color: Theme.of(context).colorScheme.background,
+          padding: EdgeInsets.only(bottom: 20.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 顶部说明区域（非模糊部分）
+              Container(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title ?? t.wallet.rememberBeforeBackupExclaim,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
+                    ),
+                    SizedBox(height: 10),
+                    Wrap(
+                      children: [
+                        _buildTipItem(t.wallet.handwriteRecommended, true),
+                        SizedBox(width: 20),
+                        _buildTipItem(t.wallet.doNotCopy, false),
+                        SizedBox(width: 20),
+                        _buildTipItem(t.wallet.doNotScreenshot, false),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                ),
               ),
-            ),
 
-            // 动态高度的GridView + 模糊层
-            Expanded(
-              // 用Expanded让GridView自适应高度
-              child: Stack(
-                children: [
-                  // 底层GridView
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      // 计算每个item高度（文本高度+padding），如40
-                      double itemHeight = 40.w;
-                      int rowCount = (mnemonics.length / 2).ceil();
-                      double gridHeight = itemHeight * rowCount - 10; // 额外padding
-                      bool needScroll = gridHeight > constraints.maxHeight;
-                      return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12.w),
-                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.all(Radius.circular(12))),
-                        margin: EdgeInsets.symmetric(horizontal: 20),
-                        height: needScroll ? null : gridHeight,
-                        child: GridView.builder(
-                          physics: needScroll ? ScrollPhysics() : NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          padding: EdgeInsets.all(15.w),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            childAspectRatio: 5,
+              // 动态高度的GridView + 模糊层
+              Expanded(
+                // 用Expanded让GridView自适应高度
+                child: Stack(
+                  children: [
+                    // 底层GridView
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        // 计算每个item高度（文本高度+padding），如40
+                        double itemHeight = 40.w;
+                        int rowCount = (mnemonics.length / 2).ceil();
+                        double gridHeight = itemHeight * rowCount - 10; // 额外padding
+                        bool needScroll = gridHeight > constraints.maxHeight;
+                        return Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.all(Radius.circular(12)),
                           ),
-                          itemCount: mnemonics.length,
-                          itemBuilder: (context, index) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${index + 1}',
-                                  style: TextStyle(fontSize: 14.sp, color: AppColors.color_909090),
-                                ),
-                                SizedBox(width: 15.w),
-                                Text(mnemonics[index], style: TextStyle(fontSize: 14.sp)),
-                              ],
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-
-                  // 高斯模糊层
-                  if (_showBlur) ...[
-                    Positioned.fill(
-                      child: ClipRect(
-                        // 确保模糊不溢出GridView
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                          child: Container(
-                            color: Colors.black.withOpacity(0.3),
-                            alignment: Alignment.center,
-                            child: GestureDetector(
-                              onTap: () => setState(() => _showBlur = false),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                          margin: EdgeInsets.symmetric(horizontal: 20),
+                          height: needScroll ? null : gridHeight,
+                          child: GridView.builder(
+                            physics: needScroll ? ScrollPhysics() : NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            padding: EdgeInsets.all(15.w),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 5,
+                            ),
+                            itemCount: mnemonics.length,
+                            itemBuilder: (context, index) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  // Image.asset('assets/images/ic_wallet_un_eye.png', width: 42.w, height: 34.h),
-                                  ColorFiltered(
-                                    colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-                                    child: Image.asset('assets/images/ic_wallet_un_eye.png', width: 42.w, height: 34.h),
-                                  ),
-                                  SizedBox(height: 8),
                                   Text(
-                                    t.wallet.clickToViewMnemonic,
-                                    style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                                    '${index + 1}',
+                                    style: TextStyle(fontSize: 14.sp, color: AppColors.color_909090),
                                   ),
+                                  SizedBox(width: 15.w),
+                                  Text(mnemonics[index], style: TextStyle(fontSize: 14.sp)),
                                 ],
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+
+                    // 高斯模糊层
+                    if (_showBlur) ...[
+                      Positioned.fill(
+                        child: ClipRect(
+                          // 确保模糊不溢出GridView
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                            child: Container(
+                              color: Colors.black.withOpacity(0.3),
+                              alignment: Alignment.center,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _showBlur = false),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Image.asset('assets/images/ic_wallet_un_eye.png', width: 42.w, height: 34.h),
+                                    ColorFiltered(
+                                      colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                                      child: Image.asset('assets/images/ic_wallet_un_eye.png', width: 42.w, height: 34.h),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      t.wallet.clickToViewMnemonic,
+                                      style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
-              ),
-            ),
-
-            Padding(
-              padding: EdgeInsets.all(15.w),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.background,
-                  minimumSize: Size(double.infinity, 42.h),
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                  textStyle: TextStyle(fontSize: 18.sp),
-                ),
-                onPressed: () => {Get.to(BackUpHelperVerifyPage(), arguments: Get.arguments)},
-                child: Text(
-                  t.wallet.backupMnemonic,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
-          ],
+              widget.prohibit!
+                  ? Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 0),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.background,
+                          minimumSize: Size(double.infinity, 42.h),
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                          textStyle: TextStyle(fontSize: 18.sp),
+                        ),
+                        onPressed: () => {Get.to(BackUpHelperVerifyPage(), arguments: Get.arguments)},
+                        child: Text(
+                          t.wallet.backupMnemonic,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
+            ],
+          ),
         ),
       ),
     );

@@ -238,7 +238,8 @@
         "confirm_v2": "确定",
         "cancel": "取消",
         "token_name": "代币名称",
-        "no_token_added_yet": "暂未添加任何代币"
+        "no_token_added_yet": "暂未添加任何代币",
+        "please_remember": "请谨记"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "选择转账币种",

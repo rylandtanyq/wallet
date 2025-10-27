@@ -236,7 +236,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
     if (widget.currency == "SOL") {
       getSolBalance(
             rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
-            ownerAddress: _currentWalletAdderss!,
+            ownerAddress: _currentWalletAdderss ?? '',
           )
           .then((e) {
             setState(() {
@@ -249,7 +249,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
     } else {
       getSplTokenBalanceRpc(
             rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
-            ownerAddress: _currentWalletAdderss!,
+            ownerAddress: _currentWalletAdderss ?? '',
             mintAddress: widget.tokenAddress,
           )
           .then((e) {

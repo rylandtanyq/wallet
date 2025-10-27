@@ -38,25 +38,35 @@ class _LinkedwalletdappState extends ConsumerState<Linkedwalletdapp> {
             Container(
               width: 176.w,
               height: 40.h,
-              padding: EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(color: AppColors.color_286713, borderRadius: BorderRadius.circular(25.r)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  Image.asset('assets/images/scan_white.png', width: 17.w, height: 17.h),
-                  SizedBox(width: 9.w),
-                  Expanded(
+                  Padding(
+                    padding: EdgeInsets.only(left: 17.w + 9.w),
                     child: Text(
                       t.common.scan_to_connect,
                       style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onPrimary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset('assets/images/scan_white.png', width: 17.w, height: 17.h),
+                        SizedBox(width: 9.w),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
+
             Spacer(flex: 3),
           ],
         ),

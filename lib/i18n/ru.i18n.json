@@ -238,7 +238,8 @@
         "confirm_v2": "Подтвердить",
         "cancel": "Отмена",
         "token_name": "Название токена",
-        "no_token_added_yet": "Пока не добавлено ни одного токена"
+        "no_token_added_yet": "Пока не добавлено ни одного токена",
+        "please_remember": "Пожалуйста, запомните"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Выбрать монету",

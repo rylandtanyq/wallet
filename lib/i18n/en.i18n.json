@@ -238,7 +238,8 @@
         "confirm_v2": "Confirm",
         "cancel": "Cancel",
         "token_name": "Token Name",
-        "no_token_added_yet": "No tokens added yet"
+        "no_token_added_yet": "No tokens added yet",
+        "please_remember": "Please remember"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Select Coin",

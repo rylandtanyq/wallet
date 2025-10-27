@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/pages/BackUpHelperOnePage.dart';
 import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:untitled1/util/calcTotalBalanceReadable.dart';
 import '../../pages/AddWalletPage.dart';
 
 /*
@@ -28,6 +29,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
   List<Wallet> _wallets = [];
   List<Wallet> _originalItems = [];
   String? _selectedWalletAddress;
+  String _calcTotalAdderessBalance = '0.00';
 
   @override
   void initState() {
@@ -36,18 +38,12 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
   }
 
   Future<void> _initHive() async {
-    // 初始化钱包数据（仅第一次运行）
-    // if (walletBox.isEmpty) {
-    //   await walletBox.addAll([
-    //     Wallet(name: "我的钱包", balance: "￥0.00", network: 'eth',address: 'egh',privateKey: "0X01F0...459F39"),
-    //     Wallet(name: "测试钱包", balance: "￥100.00", network: 'eth',address: 'egh',privateKey: "0X89A2...782B1C"),
-    //   ]);
-    // }
     _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
     setState(() {
       _originalItems = List.from(_wallets);
     });
     _selectedWalletAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
+    _calcTotalAdderessBalance = await calcTotalBalanceReadable();
   }
 
   void _selectWallet(Wallet wallet) {
@@ -66,56 +62,58 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: BoxDecoration(
-        // color: _isEditMode ? Theme.of(context).colorScheme.background : Theme.of(context).colorScheme.background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          // 标题栏
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.close, size: 30, color: Theme.of(context).colorScheme.onBackground),
-                  onPressed: () => Navigator.pop(context),
-                ),
+    return SafeArea(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: BoxDecoration(
+          // color: _isEditMode ? Theme.of(context).colorScheme.background : Theme.of(context).colorScheme.background,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // 标题栏
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.close, size: 30, color: Theme.of(context).colorScheme.onBackground),
+                    onPressed: () => Navigator.pop(context),
+                  ),
 
-                Expanded(
-                  child: Center(
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        _isEditMode ? t.wallet.editWallet : t.wallet.selectWallet,
+                        style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                      ),
+                    ),
+                  ),
+                  TextButton(
                     child: Text(
-                      _isEditMode ? t.wallet.editWallet : t.wallet.selectWallet,
-                      style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                      _isEditMode ? t.wallet.save : t.wallet.manage,
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        color: _isEditMode ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onBackground,
+                      ),
                     ),
+                    onPressed: () {
+                      setState(() {
+                        if (_isEditMode) {
+                          // 保存逻辑
+                          _originalItems = List.from(_wallets); // 更新备份
+                        }
+                        _isEditMode = !_isEditMode;
+                      });
+                    },
                   ),
-                ),
-                TextButton(
-                  child: Text(
-                    _isEditMode ? t.wallet.save : t.wallet.manage,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      color: _isEditMode ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      if (_isEditMode) {
-                        // 保存逻辑
-                        _originalItems = List.from(_wallets); // 更新备份
-                      }
-                      _isEditMode = !_isEditMode;
-                    });
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // 内容区域
-          Expanded(child: _isEditMode ? _buildDraggableList() : _buildNormalList()),
-        ],
+            // 内容区域
+            Expanded(child: _isEditMode ? _buildDraggableList() : _buildNormalList()),
+          ],
+        ),
       ),
     );
   }
@@ -137,7 +135,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                 onPressed: () => Navigator.pop(context),
               ),
               Spacer(),
-              Text('¥0.00', style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+              Text(_calcTotalAdderessBalance, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
             ],
           ),
         ),
@@ -166,7 +164,6 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
             child: Text('+${t.wallet.addWallet}', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
           ),
         ),
-        SizedBox(height: 20.h),
       ],
     );
   }
@@ -248,6 +245,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
       onTap: () {
         setState(() {
           _selectWallet(wallet);
+          debugPrint('${wallet.mnemonic}');
           Navigator.pop(context, wallet);
         });
       },
@@ -280,48 +278,51 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                         ],
                       ),
                       Spacer(),
-                      if (wallet.isBackUp)
-                        SizedBox(
-                          width: 70.w,
-                          child: Material(
-                            borderRadius: BorderRadius.circular(20.r),
-                            clipBehavior: Clip.antiAlias,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                                Get.to(() => BackUpHelperPage());
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
-                                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.3), width: 0.5),
-                                  borderRadius: BorderRadius.circular(20.r),
-                                ),
-                                padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ClipOval(
-                                      child: ColorFiltered(
-                                        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-                                        child: Image.asset('assets/images/ic_wallet_reminder.png', width: 12.w, height: 12.w),
-                                      ),
+                      // if (wallet.isBackUp)
+                      SizedBox(
+                        width: 70.w,
+                        child: Material(
+                          borderRadius: BorderRadius.circular(20.r),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Get.to(
+                                BackUpHelperOnePage(title: t.wallet.please_remember, prohibit: false),
+                                arguments: {"mnemonic": wallet.mnemonic?.join(" ")},
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
+                                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.3), width: 0.5),
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ClipOval(
+                                    child: ColorFiltered(
+                                      colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                                      child: Image.asset('assets/images/ic_wallet_reminder.png', width: 12.w, height: 12.w),
                                     ),
-                                    SizedBox(width: 1.w),
-                                    Expanded(
-                                      child: Text(
-                                        t.Mysettings.go_backup,
-                                        style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onBackground),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                  ),
+                                  SizedBox(width: 1.w),
+                                  Expanded(
+                                    child: Text(
+                                      t.Mysettings.go_backup,
+                                      style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onBackground),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 20.h),

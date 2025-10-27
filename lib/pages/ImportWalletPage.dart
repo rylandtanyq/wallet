@@ -148,11 +148,11 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
     await _advWallet.initialize();
     if (CryptoInputValidator.isMnemonic(input)) {
       print('importWallet --- 助记词导入');
-      importWalletByMnemonic(input);
+      await importWalletByMnemonic(input);
       debugPrint('input: $input');
     } else if (CryptoInputValidator.isPrivateKey(input)) {
       print('importWallet --- 私钥导入');
-      importWalletByPrivateKey();
+      await importWalletByPrivateKey();
     }
     dismissLoading();
     Get.offAll(() => MainPage(initialPageIndex: 4));
@@ -207,6 +207,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
         address: currentAddress ?? '',
         privateKey: wallet['privateKey'] ?? '',
         isBackUp: true,
+        mnemonic: mnemonic,
       );
       // 保存回 Hive
       await HiveStorage().putObject('currentSelectWallet', newWallet, boxName: boxWallet);
@@ -214,11 +215,11 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       await HiveStorage().putValue('currentSelectWallet_mnemonic', mnemonic.join(" "));
       _wallets.add(newWallet);
       await HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);
-      print('新钱包已添加: ${newWallet.address}');
+      debugPrint('新钱包已添加: ${newWallet.address}');
     } else {
       // 钱包已存在，不添加
       Fluttertoast.showToast(msg: '钱包已存在，未添加: $currentAddress');
-      print('钱包已存在，未添加: $currentAddress');
+      debugPrint('钱包已存在，未添加: $currentAddress');
     }
   }
 

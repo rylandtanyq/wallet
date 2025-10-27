@@ -20,6 +20,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
   List<TransactionRecord> _transactions = [];
   String _txListKey(String address) => 'tx_$address';
   bool _loading = true;
+  String _currentSelectedAddress = '';
 
   @override
   void initState() {
@@ -30,6 +31,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
   void loadTranscationForAddress() async {
     try {
       final address = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
+      _currentSelectedAddress = address;
       if (address.isEmpty) {
         if (!mounted) return;
         setState(() {
@@ -50,8 +52,12 @@ class _TransactionHistoryState extends State<TransactionHistory> {
 
       if (!mounted) return;
       setState(() {
-        _transactions = list;
-        _loading = false;
+        if (list.isEmpty) {
+          _loading = true;
+        } else {
+          _transactions = list;
+          _loading = false;
+        }
       });
     } catch (e) {
       debugPrint('获取交易记录失败: $e');
@@ -127,14 +133,14 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          t.home.transfer,
+                          item.to == _currentSelectedAddress ? t.home.receive : t.home.transfer,
                           style: AppTextStyles.size19.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                         ),
                         Text("to: ${shortAddr(item.to)}", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                       ],
                     ),
                     Text(
-                      '${item.amount}',
+                      item.amount,
                       style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -160,7 +166,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
       case 'USDT':
         return Image.asset('assets/images/USDT.png', width: 70, height: 70);
       default:
-        return SizedBox();
+        return Image.asset('assets/images/USDT.png', width: 70, height: 70);
     }
   }
 }

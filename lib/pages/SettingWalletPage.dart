@@ -274,6 +274,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
       } else {
         // 如果钱包列表为空，清空selected_address
         await HiveStorage().putValue('selected_address', '', boxName: boxWallet);
+        await HiveStorage().delete('currentSelectWallet', boxName: boxWallet);
         dismissLoading();
         //TODO: 跳转到创建钱包页面
       }

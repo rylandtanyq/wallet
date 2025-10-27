@@ -238,7 +238,8 @@
         "confirm_v2": "確認",
         "cancel": "キャンセル",
         "token_name": "トークン名",
-        "no_token_added_yet": "まだトークンが追加されていません"
+        "no_token_added_yet": "まだトークンが追加されていません",
+        "please_remember": "忘れないでください"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "送金通貨を選択",

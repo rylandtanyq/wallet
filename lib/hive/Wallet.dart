@@ -48,6 +48,7 @@ class Wallet extends HiveObject {
     privateKey: '',
     isExpanded: false,
     isBackUp: false,
+    mnemonic: <String>[],
   );
 
   factory Wallet.fromJson(Map<String, dynamic> json) => _$WalletFromJson(json);

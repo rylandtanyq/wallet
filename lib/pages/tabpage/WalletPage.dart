@@ -12,6 +12,7 @@ import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/pages/BackUpHelperOnePage.dart';
 import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/CoinDetailPage.dart';
 import 'package:untitled1/pages/SelectedPayeePage.dart';
@@ -179,11 +180,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     final network = await HiveStorage().getObject<Map>('currentNetwork');
 
     if (wallet != null) {
-      debugPrint("✅ 读取钱包地址: ${wallet.address}");
+      debugPrint("读取钱包地址: ${wallet.address}");
       setState(() => _wallet = wallet);
-      await _updataWalletBalance(); // ✅ 延后更新余额
+      await _updataWalletBalance();
     } else {
-      debugPrint("⚠️ 未找到钱包，使用默认 Wallet.empty()");
+      debugPrint("未找到钱包，使用默认 Wallet.empty()");
       _wallet = Wallet.empty();
     }
 
@@ -194,33 +195,30 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       await HiveStorage().putObject('currentNetwork', _currentNetwork);
     }
 
-    debugPrint("✅ 当前网络: ${_currentNetwork['id']}");
-    debugPrint("✅ 助记词: ${_wallet.mnemonic}");
+    debugPrint("当前网络: ${_currentNetwork['id']}");
+    debugPrint("助记词: ${_wallet.mnemonic}");
   }
 
   Future<void> _loadWalletData() async {
-    // await HiveStorage().ensureBoxReady();
     try {
       final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
       if (wallet != null) {
-        debugPrint("✅ 刷新钱包数据: ${wallet.address}");
+        debugPrint("刷新钱包数据: ${wallet.address}");
         setState(() => _wallet = wallet);
         await _updataWalletBalance();
       } else {
-        debugPrint("⚠️ 未找到 currentSelectWallet");
+        debugPrint("未找到 currentSelectWallet");
       }
     } catch (e) {
-      debugPrint("❌ 加载钱包数据失败: $e");
+      debugPrint("加载钱包数据失败: $e");
     }
   }
 
   // 获取实时钱包余额
   Future<void> _updataWalletBalance() async {
     final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
-    // await HiveStorage().ensureBoxReady();
 
     if (wallet.address.isEmpty || wallet.address.startsWith('0x000')) {
-      debugPrint("⚠️ 无效钱包地址，跳过余额更新");
       return;
     }
 
@@ -229,8 +227,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
         ownerAddress: wallet.address,
       );
-      debugPrint("✅ Sol balance:- $solBalance");
-      debugPrint("✅ 钱包地址:- ${wallet.address}");
 
       wallet.balance = solBalance.toString();
       await HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
@@ -242,7 +238,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       if (!mounted) return;
       wallet.balance = "0.00";
       await HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
-      debugPrint("❌ 更新余额失败: $e");
+      debugPrint("更新余额失败: $e");
     }
   }
 
@@ -325,7 +321,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                 ),
               ),
               SizedBox(
-                width: 120.w,
+                width: 100.w,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.background,
@@ -340,6 +336,10 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                     final currentSelectNetwork = await showAnimatedFullScreenDialog(context, items);
                     if (currentSelectNetwork != null) {
                       await HiveStorage().putObject('currentNetwork', currentSelectNetwork);
+                      setState(() {
+                        _currentNetwork = currentSelectNetwork;
+                        _wallet.network = currentSelectNetwork['id']!;
+                      });
                     }
                   },
                   child: Row(
@@ -517,7 +517,12 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                         borderRadius: BorderRadius.circular(_borderRadius.r),
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
-                          onTap: () => {Get.to(BackUpHelperPage())},
+                          onTap: () => {
+                            Get.to(
+                              BackUpHelperOnePage(title: t.wallet.please_remember, prohibit: false),
+                              arguments: {"mnemonic": _wallet.mnemonic?.join(" ")},
+                            ),
+                          },
                           child: Container(
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.background,
