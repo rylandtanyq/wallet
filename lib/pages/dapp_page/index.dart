@@ -7,14 +7,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:collection';
 
 import 'package:solana/dto.dart';
+import 'package:solana/solana.dart' as sol;
+import 'package:solana_web3/solana_web3.dart' as bs58;
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
-import 'package:cryptography/cryptography.dart';
+// import 'package:cryptography/cryptography.dart';
 import 'package:bs58/bs58.dart';
 import 'package:convert/convert.dart';
 import 'package:untitled1/util/HiveStorage.dart';
+import 'package:cryptography/cryptography.dart' show Signature, SimpleKeyPair, Ed25519; // 为了识别类型
 
 class DAppPage extends StatefulWidget {
   final String dappUrl;
@@ -276,58 +279,126 @@ class _DAppPageState extends State<DAppPage> {
 
   // 模拟当前公钥，真实项目从你的 WalletService/状态管理取
   String? _currentPubkey;
-  late Wallet _wallet;
-  late Map<dynamic, dynamic>? _currentNetwork;
+  Wallet? _wallet;
+  Map<dynamic, dynamic>? _currentNetwork;
+
+  // 缓存派生出来的密钥对（避免每次都算）
+  sol.Ed25519HDKeyPair? _hdKeypair;
+  String? _derivedAddress; // base58
 
   @override
   void initState() {
     super.initState();
-    _getCurrentSelectedWalletInformation();
-    debugPrint('000000${widget.dappUrl}');
+    _ensureWalletReady();
   }
 
   // 获取当前选中的钱包信息
-  void _getCurrentSelectedWalletInformation() async {
-    _currentNetwork = await HiveStorage().getObject<Map>('currentNetwork');
-    final _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
-    final mnemonic = await HiveStorage().getValue<String>('currentSelectWallet_mnemonic');
-    debugPrint('---000${_wallet?.address}');
-    debugPrint(_wallet?.mnemonic?.join(" "));
-    debugPrint(_wallet?.privateKey);
-    debugPrint(mnemonic);
-  }
 
-  /// 双 Base64 签名函数
-  Future<String> signMessageBase64Double(String privateKeyHex, Uint8List messageBytes) async {
-    final algorithm = Ed25519();
-    final seed = Uint8List.fromList(_hexToBytes(privateKeyHex));
-    final keyPair = await algorithm.newKeyPairFromSeed(seed);
+  Future<void> _ensureWalletReady() async {
+    final rawNet = await HiveStorage().getObject<Map>('currentNetwork');
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
 
-    // 签名
-    final signature = await algorithm.sign(messageBytes, keyPair: keyPair);
+    _wallet = wallet;
+    _currentNetwork = (rawNet == null) ? {'id': 'Solana', 'path': 'assets/images/solana.png'} : Map<String, dynamic>.from(rawNet);
 
-    // 1️⃣ 将签名 bytes 转为 Base64
-    final base64Sig = base64.encode(signature.bytes);
-
-    // 2️⃣ JS 的 btoa 相当于 ascii -> Base64
-    final asciiBytes = base64Sig.codeUnits;
-    final doubleBase64 = base64.encode(asciiBytes);
-
-    return doubleBase64;
-  }
-
-  /// Hex 字符串转 Uint8List
-  Uint8List _hexToBytes(String hexStr) {
-    final cleaned = hexStr.replaceAll(RegExp(r'[^0-9a-fA-F]'), '');
-    final result = Uint8List(cleaned.length ~/ 2);
-    for (var i = 0; i < cleaned.length; i += 2) {
-      result[i ~/ 2] = int.parse(cleaned.substring(i, i + 2), radix: 16);
+    // **关键：用助记词派生密钥对与地址**
+    if (wallet?.mnemonic != null && wallet!.mnemonic!.isNotEmpty) {
+      final mnemonic = wallet.mnemonic!.join(' ');
+      _hdKeypair = await sol.Ed25519HDKeyPair.fromMnemonic(
+        mnemonic,
+        account: 0,
+        change: 0, // m/44'/501'/0'/0'
+      );
+      _derivedAddress = _hdKeypair!.address; // base58
     }
-    return result;
+
+    // 连接时用哪把地址？
+    // 以“助记词派生地址”为准，避免‘地址和私钥不匹配’的问题
+    _currentPubkey = _derivedAddress ?? wallet?.address;
+
+    if (mounted) setState(() {});
   }
+
+  List<int> _signatureToBytes(dynamic sigAny) {
+    if (sigAny is Signature) return sigAny.bytes; // cryptography.Ed25519().sign(...)
+    if (sigAny is Uint8List) return sigAny; // solana.Ed25519HDKeyPair.sign(...) 通常是这个
+    if (sigAny is List<int>) return sigAny;
+    try {
+      // 兜底：某些类型可能也有 bytes 字段
+      final bytes = (sigAny as dynamic).bytes as List<int>;
+      return bytes;
+    } catch (_) {
+      throw ArgumentError('unsupported_signature_type: ${sigAny.runtimeType}');
+    }
+  }
+
+  String normalizeUrl(String input) {
+    final s = input.trim();
+    if (s.isEmpty) return '';
+
+    // 已经是完整 URL
+    if (s.startsWith('http://') || s.startsWith('https://')) return s;
+
+    // 以 // 开头的协议相对地址
+    if (s.startsWith('//')) return 'https:$s';
+
+    // 看起来像域名或路径（不含空格且包含点）
+    final domainLike = RegExp(r'^[\w-]+(\.[\w-]+)+([/\?#].*)?$').hasMatch(s);
+    if (domainLike) return 'https://$s';
+
+    // 其他当作搜索词
+    return 'https://www.google.com/search?q=${Uri.encodeComponent(s)}';
+  }
+
+  // 尝试把钱包转成 Ed25519 密钥对，并返回 (keyPair, publicKeyBase58)
+  // Future<(SimpleKeyPair, String)> _resolveEd25519Keypair(Wallet w) async {
+  //   final algo = Ed25519();
+
+  //   // 1) 若你存的是 32 字节 HEX（seed），长度一般是 64 个 hex 字符
+  //   if (w.privateKey.isNotEmpty && w.privateKey.length == 64 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(w.privateKey)) {
+  //     final seed = Uint8List.fromList(hex.decode(w.privateKey));
+  //     final keyPair = await algo.newKeyPairFromSeed(seed); // 32-byte seed
+  //     final pub = await keyPair.extractPublicKey();
+  //     final pub58 = bs58.base58Encode(Uint8List.fromList(pub.bytes));
+  //     return (keyPair, pub58);
+  //   }
+
+  //   // 2) 若你存的是 base58 的 64 字节 secretKey（很多 SDK 这么存）
+  //   //    base58 解出来应为 64 字节: [32-byte secret(seed) || 32-byte publicKey]
+  //   try {
+  //     final sec = bs58.base58Decode(w.privateKey);
+  //     if (sec.length == 64) {
+  //       final seed32 = sec.sublist(0, 32);
+  //       final keyPair = await algo.newKeyPairFromSeed(seed32);
+  //       final pub = await keyPair.extractPublicKey();
+  //       final pub58 = bs58.base58Encode(Uint8List.fromList(pub.bytes));
+  //       return (keyPair, pub58);
+  //     }
+  //   } catch (_) {
+  //     // ignore
+  //   }
+
+  //   // 3) 若你存的是 128 hex（64 字节 secretKey 的 hex）
+  //   if (w.privateKey.length == 128 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(w.privateKey)) {
+  //     final sec = Uint8List.fromList(hex.decode(w.privateKey));
+  //     if (sec.length == 64) {
+  //       final seed32 = sec.sublist(0, 32);
+  //       final keyPair = await algo.newKeyPairFromSeed(seed32);
+  //       final pub = await keyPair.extractPublicKey();
+  //       final pub58 = bs58.base58Encode(Uint8List.fromList(pub.bytes));
+  //       return (keyPair, pub58);
+  //     }
+  //   }
+
+  //   // 4) 若你有助记词，建议**优先**从助记词按 Solana 路径派生 (m/44'/501'/0'/0')
+  //   //    需要你项目里接入 ed25519 slip-0010 派生库；示例略（可按你现有方案实现）
+  //   //    —— 如果你用 solana 库，可以用 Ed25519HDKeyPair.fromMnemonic 派生，然后取 secret/public。
+  //   throw StateError('Unsupported privateKey format for Ed25519/ Solana.');
+  // }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(widget.dappUrl);
     return SafeArea(
       child: Stack(
         children: [
@@ -335,7 +406,7 @@ class _DAppPageState extends State<DAppPage> {
             backgroundColor: Colors.black,
             appBar: AppBar(title: const Text("dapp")),
             body: InAppWebView(
-              initialUrlRequest: URLRequest(url: WebUri("wpos.pro")),
+              initialUrlRequest: URLRequest(url: WebUri(normalizeUrl(widget.dappUrl))),
               initialSettings: InAppWebViewSettings(
                 javaScriptEnabled: true,
                 javaScriptCanOpenWindowsAutomatically: true,
@@ -377,21 +448,15 @@ class _DAppPageState extends State<DAppPage> {
                   ),
                 );
 
-                // 注入 JS provider
-                // controller.addUserScript(
-                //   userScript: UserScript(
-                //     source: _solanaProviderJs, // 你合并后的 JS
-                //     injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
-                //   ),
-                // );
-
                 // connect
                 controller.addJavaScriptHandler(
                   handlerName: 'solana_connect',
                   callback: (args) async {
-                    debugPrint('solana_connect args: $args');
-
-                    return {'publicKey': _wallet.address};
+                    // 兜底：如果 initState 的异步还没完成，这里再确保一次
+                    if (_wallet == null || _currentPubkey == null) await _ensureWalletReady();
+                    final pk = _currentPubkey ?? '';
+                    if (pk.isEmpty) return {'code': 4100, 'message': 'no_wallet_connected'};
+                    return pk; // 只返回字符串，JS 会包成 { publicKey }
                   },
                 );
 
@@ -399,23 +464,53 @@ class _DAppPageState extends State<DAppPage> {
                 controller.addJavaScriptHandler(
                   handlerName: 'solana_signMessage',
                   callback: (args) async {
-                    final allow = await _solanaConnectShowModalBottomSheetWidget(_wallet, _currentNetwork!, 'DApp 请求签名消息');
-                    if (allow != true) throw 'user_rejected';
+                    try {
+                      if (_wallet == null || _currentPubkey == null) await _ensureWalletReady();
+                      if (_hdKeypair == null || _currentPubkey == null) {
+                        return {'code': 4100, 'message': 'no_wallet_connected_or_no_mnemonic'};
+                      }
 
-                    final payload = args.isNotEmpty ? args[0] : null;
-                    final msg = payload is Map && payload['message'] != null ? payload['message'] as List<dynamic> : null;
-                    if (msg == null) throw 'invalid_message';
+                      final payload = (args.isNotEmpty ? args[0] : null) as Map?;
+                      final msgList = (payload?['message'] as List?)?.cast<int>() ?? const <int>[];
+                      final messageBytes = Uint8List.fromList(msgList);
 
-                    final Uint8List messageBytes = Uint8List.fromList(msg.cast<int>());
-                    final privateKeyHex = _wallet.privateKey;
+                      final approved = await _solanaConnectShowModalBottomSheetWidget(_wallet!, _currentNetwork ?? {}, 'DApp 请求签名消息');
+                      if (approved != true) {
+                        return {'code': 4001, 'message': 'User rejected the request.'};
+                      }
 
-                    final algorithm = Ed25519();
-                    final seed = Uint8List.fromList(_hexToBytes(privateKeyHex));
-                    final keyPair = await algorithm.newKeyPairFromSeed(seed);
-                    final signature = await algorithm.sign(messageBytes, keyPair: keyPair);
+                      // （可选）一致性校验
+                      if (_hdKeypair!.address != _currentPubkey) {
+                        return {'code': 4000, 'message': 'public_key_mismatch_with_mnemonic'};
+                      }
 
-                    // ✅ 返回原始字节数组（Phantom 返回的也是 Uint8Array）
-                    return {"signature": signature.bytes};
+                      // === 关键：把签名结果转成 List<int> 再返回 ===
+                      final sigAny = await _hdKeypair!.sign(messageBytes);
+                      late final List<int> sigBytes;
+
+                      if (sigAny is Uint8List) {
+                        sigBytes = _signatureToBytes(sigAny); // Uint8List 本质也能当 List<int>，但为保险可 toList()
+                      } else if (sigAny is List<int>) {
+                        sigBytes = _signatureToBytes(sigAny);
+                      } else if (sigAny is Signature) {
+                        // cryptography.Ed25519().sign(...) 的返回类型
+                        sigBytes = sigAny.bytes;
+                      } else {
+                        // 兜底：尽可能转 List<int>
+                        try {
+                          final u8 = (sigAny as dynamic).bytes as List<int>;
+                          sigBytes = u8;
+                        } catch (_) {
+                          return {'code': 4000, 'message': 'unsupported_signature_type'};
+                        }
+                      }
+
+                      // 返回给 DApp：必须是 “字节数组”
+                      return {'signature': sigBytes};
+                    } catch (e, st) {
+                      debugPrint('signMessage error: $e\n$st');
+                      return {'code': 4000, 'message': 'internal_error'};
+                    }
                   },
                 );
 
@@ -703,7 +798,7 @@ class _DAppPageState extends State<DAppPage> {
                                   children: [
                                     Image.asset('assets/images/ic_clip_photo.png', width: 20, height: 20),
                                     SizedBox(width: 8.w),
-                                    Text(_wallet.name, style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                                    Text(_wallet!.name, style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                                   ],
                                 ),
                               ],
@@ -715,7 +810,7 @@ class _DAppPageState extends State<DAppPage> {
                                 Text("Network", style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                                 Row(
                                   children: [
-                                    Image.asset(network["path"], width: 20, height: 20),
+                                    Image.asset(network["image"], width: 20, height: 20),
                                     SizedBox(width: 8.w),
                                     Text(network["id"], style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                                   ],
@@ -755,7 +850,7 @@ class _DAppPageState extends State<DAppPage> {
                                         // border: Border.all(width: 1, color: Theme.of(context).colorScheme.onBackground),
                                         borderRadius: BorderRadius.circular(50.r),
                                       ),
-                                      child: Text("签名", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                                      child: Text("签名", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
                                     ),
                                   ),
                                 ),

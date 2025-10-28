@@ -362,12 +362,16 @@ Widget? _handleAssetImage(int index) {
 
 /// 所有
 Widget _buildSearchAllWidget(BuildContext context) {
-  return Column(
+  return ListView(
     children: [
       SizedBox(height: 30),
       Icon(Icons.search_off_sharp, size: 130, color: Theme.of(context).colorScheme.onSurface),
       SizedBox(height: 20),
-      Text(t.common.no_matching_results, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+      Text(
+        t.common.no_matching_results,
+        style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
+        textAlign: TextAlign.center,
+      ),
     ],
   );
 }
