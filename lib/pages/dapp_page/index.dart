@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
 import 'dart:collection';
 
 import 'package:solana/dto.dart';
@@ -32,6 +33,7 @@ class _DAppPageState extends State<DAppPage> {
   bool _isLoading = true;
   double _progress = 0.0;
   bool _firstLoadCompleted = false;
+  Map<String, dynamic> _err(int code, String msg, [dynamic details]) => {'code': code, 'message': msg, if (details != null) 'details': details};
 
   final String _solanaProviderJs = r'''
     (function() {
@@ -133,35 +135,156 @@ class _DAppPageState extends State<DAppPage> {
         },
 
         // Signing APIs - permissive about returned formats
-        signTransaction: function(tx) {
-          // tx can be base64, object, etc - pass as-is
-          return _callFlutter('solana_signTransaction', tx).then((res) => {
-            // If Flutter returns signed tx directly, pass through
-            return res;
+        // === REPLACE: signTransaction ===
+        signTransaction: async function (tx) {
+          // 1) 拿到要签名的 message 字节
+          let messageBytes, setSignatureBack;
+          try {
+            // v0 VersionedTransaction: tx.message.serialize()
+            if (tx && tx.message && typeof tx.message.serialize === 'function' && typeof tx.serialize === 'function') {
+              messageBytes = tx.message.serialize(); // Uint8Array
+              // 写回签名（首签：feePayer）
+              setSignatureBack = (sigBytes /* List<int> */, _pubkeyBase58) => {
+                // v0 结构：signatures 是 Uint8Array[]
+                // Anchor 会按 header.signerKeys 对齐，通常 index 0 是 feePayer
+                tx.signatures = tx.signatures || [];
+                tx.signatures[0] = Uint8Array.from(sigBytes);
+              };
+            }
+            // legacy Transaction: tx.serializeMessage()
+            else if (tx && typeof tx.serializeMessage === 'function') {
+              messageBytes = tx.serializeMessage(); // Uint8Array
+              setSignatureBack = (sigBytes /* List<int> */, pubkeyBase58) => {
+                // 尝试直接写回第 0 个签名位
+                if (tx.signatures && tx.signatures.length > 0 && tx.signatures[0] && 'publicKey' in tx.signatures[0]) {
+                  // 大多数情况下 signatures[0].publicKey 已经是 feePayer
+                  tx.signatures[0].signature = Uint8Array.from(sigBytes);
+                } else if (typeof tx.addSignature === 'function') {
+                  // 兜底：用 feePayer（已是 PublicKey 实例）来 addSignature
+                  // 注：legacy 里 addSignature 需要 (PublicKey, Buffer)
+                  const toBuf = (arr) => {
+                    if (typeof Buffer !== 'undefined') return Buffer.from(arr);
+                    return new Uint8Array(arr); // 没有 Buffer 也能被大多数实现接受
+                  };
+                  tx.addSignature(tx.feePayer, toBuf(sigBytes));
+                } else {
+                  throw new Error('cannot set legacy signature back');
+                }
+              };
+            } else {
+              throw new Error('Unsupported transaction object');
+            }
+          } catch (e) {
+            return Promise.reject({ code: 4000, message: 'serialize_failed' });
+          }
+
+          // 2) 发给 Flutter 要求“只签 message”
+          const res = await _callFlutter('solana_signTransaction', {
+            messageBase64: btoa(String.fromCharCode(...messageBytes))
           });
+
+          // 3) 规范返回并写回签名
+          if (!res || !res.signature || !res.publicKey) {
+            return Promise.reject({ code: 4000, message: 'signTransaction_failed' });
+          }
+          // 把签名填回 tx 对象（很关键，Anchor 需要拿这个已签名 tx 去广播）
+          setSignatureBack(res.signature, res.publicKey);
+
+          // 4) 返回“已签名”的 tx 对象给 DApp/Anchor
+          return tx;
         },
 
-        signAllTransactions: function(txs) {
-          return _callFlutter('solana_signAllTransactions', txs).then((res) => res);
+        // === REPLACE: signAllTransactions ===
+        signAllTransactions: async function (txs) {
+          const out = [];
+          for (const tx of txs || []) {
+            out.push(await this.signTransaction(tx));
+          }
+          return out;
         },
 
-        signAndSendTransaction: function(tx, opts) {
-          return _callFlutter('solana_signAndSendTransaction', { tx: tx, opts: opts }).then((res) => {
-            // expect { signature: '...' } per your Flutter handler
-            return res;
-          });
+
+        signAndSendTransaction: function (tx, opts) {
+          let messageBytes, txBytes;
+
+          try {
+            // VersionedTransaction v0
+            if (tx.serialize && tx.message && tx.message.serialize) {
+              messageBytes = tx.message.serialize();            // Uint8Array (message)
+              txBytes = tx.serialize();                         // Uint8Array (full signed or unsigned)
+            } else if (tx.serializeMessage) {
+              // legacy Transaction
+              messageBytes = tx.serializeMessage();             // Uint8Array
+              txBytes = tx.serialize({requireAllSignatures:false, verifySignatures:false});
+            } else {
+              throw new Error('Unsupported tx object');
+            }
+          } catch (e) {
+            return Promise.reject({ code: 4000, message: 'serialize_failed' });
+          }
+
+          const payload = {
+            messageBase64: btoa(String.fromCharCode(...messageBytes)),
+            txBase64: btoa(String.fromCharCode(...txBytes)),
+            opts: opts || {}
+          };
+          return _callFlutter('solana_signAndSendTransaction', payload);
         },
 
         signAndSendAllTransactions: function(txs, opts) {
           return _callFlutter('solana_signAndSendAllTransactions', { txs: txs, opts: opts }).then((res) => res);
         },
 
-        sendTransaction: function(tx, opts) {
-          return _callFlutter('solana_sendTransaction', { tx: tx, opts: opts }).then((res) => {
-            // your Flutter returns { txSignature: '...' } — return as-is
-            return res;
+        sendTransaction: async function(tx, opts) {
+          // 1) 拿 message
+          let messageBytes;
+          if (tx && tx.message && typeof tx.message.serialize === 'function') {
+            // v0
+            messageBytes = tx.message.serialize();
+          } else if (tx && typeof tx.serializeMessage === 'function') {
+            // legacy
+            messageBytes = tx.serializeMessage();
+          } else {
+            throw new Error('Unsupported tx object');
+          }
+
+          // 2) 让 Flutter 只签 message
+          const { signature, publicKey } = await _callFlutter('solana_signTransaction', {
+            messageBase64: btoa(String.fromCharCode(...messageBytes))
           });
+          if (!signature) throw new Error('sign failed');
+
+          // 3) 把签名写回 tx
+          if (tx && tx.message && typeof tx.message.serialize === 'function') {
+            // v0：首签
+            tx.signatures = tx.signatures || [];
+            tx.signatures[0] = Uint8Array.from(signature);
+          } else if (typeof tx.serializeMessage === 'function') {
+            if (tx.signatures && tx.signatures[0]) {
+              tx.signatures[0].signature = Uint8Array.from(signature);
+            } else if (typeof tx.addSignature === 'function') {
+              const toBuf = (arr)=> (typeof Buffer!=='undefined'? Buffer.from(arr) : new Uint8Array(arr));
+              tx.addSignature(tx.feePayer, toBuf(signature));
+            }
+          }
+
+          // 4) 序列化“已签名交易”→ base64
+          let signedBytes;
+          if (tx.serialize) {
+            signedBytes = tx.serialize(); // v0/legacy 都有
+          } else {
+            throw new Error('serialize signed tx failed');
+          }
+          const signedTxBase64 = btoa(String.fromCharCode(...signedBytes));
+
+          // 5) 让 Flutter 广播（RPC sendTransaction）
+          const res = await _callFlutter('solana_sendTransaction', {
+            signedTxBase64,
+            opts: opts || {}
+          });
+          return res; // 期望 { signature: '<txid base58>' }
         },
+
 
         // signMessage: accept string | Uint8Array | array | object. Flutter returns { signature: '...' } in your demo.
         signMessage: function(message, encoding) {
@@ -350,52 +473,6 @@ class _DAppPageState extends State<DAppPage> {
     return 'https://www.google.com/search?q=${Uri.encodeComponent(s)}';
   }
 
-  // 尝试把钱包转成 Ed25519 密钥对，并返回 (keyPair, publicKeyBase58)
-  // Future<(SimpleKeyPair, String)> _resolveEd25519Keypair(Wallet w) async {
-  //   final algo = Ed25519();
-
-  //   // 1) 若你存的是 32 字节 HEX（seed），长度一般是 64 个 hex 字符
-  //   if (w.privateKey.isNotEmpty && w.privateKey.length == 64 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(w.privateKey)) {
-  //     final seed = Uint8List.fromList(hex.decode(w.privateKey));
-  //     final keyPair = await algo.newKeyPairFromSeed(seed); // 32-byte seed
-  //     final pub = await keyPair.extractPublicKey();
-  //     final pub58 = bs58.base58Encode(Uint8List.fromList(pub.bytes));
-  //     return (keyPair, pub58);
-  //   }
-
-  //   // 2) 若你存的是 base58 的 64 字节 secretKey（很多 SDK 这么存）
-  //   //    base58 解出来应为 64 字节: [32-byte secret(seed) || 32-byte publicKey]
-  //   try {
-  //     final sec = bs58.base58Decode(w.privateKey);
-  //     if (sec.length == 64) {
-  //       final seed32 = sec.sublist(0, 32);
-  //       final keyPair = await algo.newKeyPairFromSeed(seed32);
-  //       final pub = await keyPair.extractPublicKey();
-  //       final pub58 = bs58.base58Encode(Uint8List.fromList(pub.bytes));
-  //       return (keyPair, pub58);
-  //     }
-  //   } catch (_) {
-  //     // ignore
-  //   }
-
-  //   // 3) 若你存的是 128 hex（64 字节 secretKey 的 hex）
-  //   if (w.privateKey.length == 128 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(w.privateKey)) {
-  //     final sec = Uint8List.fromList(hex.decode(w.privateKey));
-  //     if (sec.length == 64) {
-  //       final seed32 = sec.sublist(0, 32);
-  //       final keyPair = await algo.newKeyPairFromSeed(seed32);
-  //       final pub = await keyPair.extractPublicKey();
-  //       final pub58 = bs58.base58Encode(Uint8List.fromList(pub.bytes));
-  //       return (keyPair, pub58);
-  //     }
-  //   }
-
-  //   // 4) 若你有助记词，建议**优先**从助记词按 Solana 路径派生 (m/44'/501'/0'/0')
-  //   //    需要你项目里接入 ed25519 slip-0010 派生库；示例略（可按你现有方案实现）
-  //   //    —— 如果你用 solana 库，可以用 Ed25519HDKeyPair.fromMnemonic 派生，然后取 secret/public。
-  //   throw StateError('Unsupported privateKey format for Ed25519/ Solana.');
-  // }
-
   @override
   Widget build(BuildContext context) {
     debugPrint(widget.dappUrl);
@@ -514,6 +591,128 @@ class _DAppPageState extends State<DAppPage> {
                   },
                 );
 
+                // signAndSendTransaction
+                controller.addJavaScriptHandler(
+                  handlerName: 'solana_signAndSendTransaction',
+                  callback: (args) async {
+                    try {
+                      // 1) 会话/钱包就绪
+                      if (_wallet == null || _currentPubkey == null || _hdKeypair == null) {
+                        await _ensureWalletReady();
+                      }
+                      if (_hdKeypair == null || _currentPubkey == null) {
+                        return _err(4100, 'no_wallet_connected');
+                      }
+
+                      // 2) 解析 payload
+                      final body = (args.isNotEmpty ? args[0] : {}) as Map;
+                      final messageBase64 = body['messageBase64'] as String?;
+                      if (messageBase64 == null || messageBase64.isEmpty) {
+                        return _err(4000, 'missing_message_base64');
+                      }
+                      final msg = base64Decode(messageBase64);
+
+                      // 3) 交易预览（这里先最小化；后续可解析更多信息展示）
+                      final approved = await _solanaConnectShowModalBottomSheetWidget(
+                        _wallet!,
+                        _currentNetwork ?? {'id': 'Solana', 'path': 'assets/images/solana.png'},
+                        'DApp 请求发送交易',
+                      );
+                      if (approved != true) return _err(4001, 'User rejected the request.');
+
+                      // 4) 签名 message（Ed25519）
+                      final sigBytes = await _hdKeypair!.sign(msg); // Uint8List(64)
+
+                      // 5) 返回给 DApp：它来把签名塞回交易并广播
+                      return {
+                        'publicKey': _currentPubkey, // base58
+                        'signature': sigBytes, // List<int>
+                      };
+                    } catch (e, st) {
+                      debugPrint('signAndSendTransaction error: $e\n$st');
+                      return _err(4000, 'internal_error');
+                    }
+                  },
+                );
+
+                // signTransaction
+                controller.addJavaScriptHandler(
+                  handlerName: 'solana_signTransaction',
+                  callback: (args) async {
+                    try {
+                      await _ensureWalletReady();
+                      if (_hdKeypair == null || _currentPubkey == null) {
+                        return {'code': 4100, 'message': 'no_wallet_connected'};
+                      }
+
+                      final body = (args.isNotEmpty ? args[0] : {}) as Map;
+                      final messageBase64 = body['messageBase64'] as String?;
+                      if (messageBase64 == null || messageBase64.isEmpty) {
+                        return {'code': 4000, 'message': 'missing_message_base64'};
+                      }
+                      final msg = base64Decode(messageBase64);
+
+                      // （可选）弹确认弹窗，展示 program/金额等
+                      final ok = await _solanaConnectShowModalBottomSheetWidget(
+                        _wallet!,
+                        _currentNetwork ?? {'id': 'Solana', 'path': 'assets/images/solana.png'},
+                        'DApp 请求签名交易',
+                      );
+                      if (ok != true) return {'code': 4001, 'message': 'User rejected the request.'};
+
+                      // （可选）校验助记词派生地址与 connect 地址一致
+                      if (_hdKeypair!.address != _currentPubkey) {
+                        return {'code': 4000, 'message': 'public_key_mismatch'};
+                      }
+
+                      final sig = await _hdKeypair!.sign(msg); // Uint8List(64) -> 可直接作为 List<int> 返回
+                      return {'publicKey': _currentPubkey, 'signature': sig};
+                    } catch (e) {
+                      return {'code': 4000, 'message': 'internal_error'};
+                    }
+                  },
+                );
+
+                // sendTransaction
+                controller.addJavaScriptHandler(
+                  handlerName: 'solana_sendTransaction',
+                  callback: (args) async {
+                    try {
+                      final body = (args.isNotEmpty ? args[0] : {}) as Map;
+                      final signedTxBase64 = body['signedTxBase64'] as String?;
+                      final opts = (body['opts'] as Map?) ?? {};
+                      if (signedTxBase64 == null || signedTxBase64.isEmpty) {
+                        return {'code': 4000, 'message': 'missing_signed_tx_base64'};
+                      }
+
+                      final rpcUrl = 'https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/';
+                      final payload = {
+                        'jsonrpc': '2.0',
+                        'id': 1,
+                        'method': 'sendTransaction',
+                        'params': [
+                          signedTxBase64,
+                          {
+                            'encoding': 'base64',
+                            'preflightCommitment': opts['preflightCommitment'] ?? 'processed',
+                            'skipPreflight': opts['skipPreflight'] ?? false,
+                            'maxRetries': opts['maxRetries'] ?? 5,
+                          },
+                        ],
+                      };
+
+                      final resp = await http.post(Uri.parse(rpcUrl), headers: {'content-type': 'application/json'}, body: jsonEncode(payload));
+                      final data = jsonDecode(resp.body);
+                      if (data['error'] != null) {
+                        return {'code': 4000, 'message': 'rpc_error', 'details': data['error']};
+                      }
+                      return {'signature': data['result'] as String};
+                    } catch (e) {
+                      return {'code': 4000, 'message': 'internal_error'};
+                    }
+                  },
+                );
+
                 // disconnect
                 controller.addJavaScriptHandler(
                   handlerName: 'solana_disconnect',
@@ -540,21 +739,6 @@ class _DAppPageState extends State<DAppPage> {
                   },
                 );
 
-                // signTransaction
-                controller.addJavaScriptHandler(
-                  handlerName: 'solana_signTransaction',
-                  callback: (args) async {
-                    debugPrint('solana_signTransaction args: $args');
-                    if (_currentPubkey == null) throw 'no_wallet_connected';
-
-                    final tx = args.isNotEmpty ? args[0] : null;
-                    if (tx == null) throw 'invalid_tx';
-
-                    // TODO: 弹出确认并签名 tx
-                    return tx; // demo 返回原 tx
-                  },
-                );
-
                 // signAllTransactions
                 controller.addJavaScriptHandler(
                   handlerName: 'solana_signAllTransactions',
@@ -570,19 +754,6 @@ class _DAppPageState extends State<DAppPage> {
                   },
                 );
 
-                // signAndSendTransaction
-                controller.addJavaScriptHandler(
-                  handlerName: 'solana_signAndSendTransaction',
-                  callback: (args) async {
-                    debugPrint('solana_signAndSendTransaction args: $args');
-                    if (_currentPubkey == null) throw 'no_wallet_connected';
-
-                    final body = args.isNotEmpty ? args[0] : null;
-                    // TODO: 签名并发送 tx
-                    return {'signature': 'demo_signature_123'};
-                  },
-                );
-
                 // signAndSendAllTransactions
                 controller.addJavaScriptHandler(
                   handlerName: 'solana_signAndSendAllTransactions',
@@ -593,18 +764,6 @@ class _DAppPageState extends State<DAppPage> {
                     final body = args.isNotEmpty ? args[0] : null;
                     // TODO: 批量签名并广播
                     return {'signatures': []};
-                  },
-                );
-
-                // sendTransaction
-                controller.addJavaScriptHandler(
-                  handlerName: 'solana_sendTransaction',
-                  callback: (args) async {
-                    debugPrint('solana_sendTransaction args: $args');
-                    final body = args.isNotEmpty ? args[0] : null;
-
-                    // TODO: 签名并发送 tx 到 RPC
-                    return {'txSignature': '5YcExampleTxSignatureMocked12345'};
                   },
                 );
 
