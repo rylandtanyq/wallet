@@ -239,7 +239,9 @@
         "cancel": "Отмена",
         "token_name": "Название токена",
         "no_token_added_yet": "Пока не добавлено ни одного токена",
-        "please_remember": "Пожалуйста, запомните"
+        "please_remember": "Пожалуйста, запомните",
+        "solana_token_added": "Токен $tokenName добавлен",
+        "solana_token_deleted": "Токен $tokenName удалён"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Выбрать монету",

@@ -239,7 +239,9 @@
         "cancel": "取消",
         "token_name": "代幣名稱",
         "no_token_added_yet": "暫未添加任何代幣",
-        "please_remember": "請謹記"
+        "please_remember": "請謹記",
+        "solana_token_added": "$tokenName 代幣已添加",
+        "solana_token_deleted": "$tokenName 代幣已刪除"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "選擇轉帳幣種",

@@ -145,6 +145,22 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
     _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
     _fillteredTokensList = List.from(_tokenList);
+    final existsSolana = _tokenList.any((token) => token.title.toUpperCase() == 'SOL' || token.title.toUpperCase() == 'SOLANA');
+    if (!existsSolana) {
+      final solanaToken = Tokens(
+        image: 'assets/images/solana_logo.png',
+        title: 'SOL',
+        subtitle: 'Solana',
+        price: '0.00',
+        number: '0.00',
+        toadd: true,
+      );
+      _tokenList.add(solanaToken);
+      _fillteredTokensList = List.from(_tokenList);
+
+      final list = _tokenList.map((t) => t.toJson()).toList();
+      await HiveStorage().putList<Map>('tokens', list, boxName: boxTokens);
+    }
     setState(() {});
   }
 

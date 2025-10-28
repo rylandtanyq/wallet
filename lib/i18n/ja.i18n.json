@@ -239,7 +239,9 @@
         "cancel": "キャンセル",
         "token_name": "トークン名",
         "no_token_added_yet": "まだトークンが追加されていません",
-        "please_remember": "忘れないでください"
+        "please_remember": "忘れないでください",
+        "solana_token_added": "$tokenName トークンが追加されました",
+        "solana_token_deleted": "$tokenName トークンが削除されました"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "送金通貨を選択",

@@ -239,7 +239,9 @@
         "cancel": "Cancel",
         "token_name": "Token Name",
         "no_token_added_yet": "No tokens added yet",
-        "please_remember": "Please remember"
+        "please_remember": "Please remember",
+        "solana_token_added": "$tokenName token added",
+        "solana_token_deleted": "$tokenName token deleted"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Select Coin",
