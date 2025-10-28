@@ -64,7 +64,16 @@ class _AddingTokensState extends State<AddingTokens> {
         // 防止重复添加
         final exists = list.any((e) => e.title == tokensResult.title);
         if (exists) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${tokensResult.title} 代币已添加')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(t.wallet.solana_token_added(tokenName: tokensResult.title)),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              duration: Duration(seconds: 2),
+            ),
+          );
           return;
         }
         list.add(tokensResult);
@@ -86,7 +95,16 @@ class _AddingTokensState extends State<AddingTokens> {
       final listAsMap = _tokenList.map((t) => t.toJson()).toList();
       await HiveStorage().putList('tokens', listAsMap, boxName: boxTokens);
       setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${removed.title} 已删除')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t.wallet.solana_token_deleted(tokenName: removed.title)),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          duration: Duration(seconds: 2),
+        ),
+      );
     } catch (e) {
       debugPrint('代币删除失败：$e');
     }

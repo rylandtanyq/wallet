@@ -271,8 +271,8 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: 1,
-      backgroundColor: Theme.of(context).colorScheme.background,
-      textColor: Theme.of(context).colorScheme.onBackground,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      textColor: Theme.of(context).colorScheme.onPrimary,
       fontSize: 16.0,
     );
   }
