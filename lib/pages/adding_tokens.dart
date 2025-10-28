@@ -198,12 +198,12 @@ class _AddingTokensState extends State<AddingTokens> {
     );
   }
 
-  Widget _tokensListWidget(List<Tokens> _tokenList) {
+  Widget _tokensListWidget(List<Tokens> tokenList) {
     return ListView.separated(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
-        final item = _tokenList[index];
+        final item = tokenList[index];
         return Container(
           margin: EdgeInsets.only(top: index == 0 ? 30 : 0),
           width: double.infinity,
@@ -263,7 +263,7 @@ class _AddingTokensState extends State<AddingTokens> {
       separatorBuilder: (BuildContext context, int index) {
         return SizedBox(height: 20);
       },
-      itemCount: _tokenList.length,
+      itemCount: tokenList.length,
     );
   }
 

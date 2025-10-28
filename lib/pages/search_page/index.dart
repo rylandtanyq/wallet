@@ -179,16 +179,25 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   }
 
   bool _isPotentialUrl(String input) {
-    if (input.isEmpty) return false;
+    final s = input.trim();
+    if (s.isEmpty) return false;
 
-    final containsChinese = RegExp(r'[\u4e00-\u9fa5]').hasMatch(input);
-    if (containsChinese) return false;
+    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(s)) return false;
 
-    if (input.contains(' ')) return false;
+    if (RegExp(r'\s').hasMatch(s)) return false;
 
-    final urlPattern = RegExp(r'^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$', caseSensitive: false);
+    final urlPattern = RegExp(
+      r'^(https?:\/\/)?'
+      r'(?:www\.)?'
+      r'(?:[a-zA-Z0-9-]+\.)+'
+      r'(?:[a-zA-Z]{2,}|xn--[a-zA-Z0-9]{2,})'
+      r'(?:\:\d{1,5})?'
+      r'(?:\/[^\s]*)?'
+      r'$',
+      caseSensitive: false,
+    );
 
-    return urlPattern.hasMatch(input);
+    return urlPattern.hasMatch(s);
   }
 
   void _getSearchHistoryList() async {
@@ -208,7 +217,6 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
       if (!_search_history.contains(content)) {
         _search_history.add(content);
         prefs.setStringList('search_history', _search_history);
-        _textEditingController.clear();
       }
     });
   }
