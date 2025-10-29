@@ -94,7 +94,7 @@ dependencies:
   #加密工具
   crypto: ^3.0.3
   hex: ^0.2.0
-  ed25519_hd_key: ^2.0.0
+  ed25519_hd_key: ^2.3.0
   #solana支持
   solana: ^0.31.0+1
   #比特币支持

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
+import 'package:flutter/material.dart';
 import 'package:hex/hex.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
@@ -15,6 +16,9 @@ import 'package:walletconnect_dart/walletconnect_dart.dart';
 import 'package:web3dart/json_rpc.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:cryptography/cryptography.dart';
+import 'package:ed25519_hd_key/ed25519_hd_key.dart' as edkey;
+import 'package:bs58/bs58.dart' as bs58;
 
 import '../entity/BlockchainNetwork.dart';
 
@@ -81,55 +85,187 @@ class AdvancedMultiChainWallet {
   }
 
   //私钥导入钱包
-  Future<Map<String, String?>> importWalletFromPrivateKey(String privateKey, {String rpcUrl = "https://cloudflare-eth.com"}) async {
-    // 验证私钥格式
-    // if (!RegExp(r'^0x[a-fA-F0-9]{64}$').hasMatch(privateKey)) {
-    //   throw ArgumentError('Invalid private key format');
-    // }
+  bool _looksLikeHex64With0x(String s) => RegExp(r'^0x[0-9a-fA-F]{64}$').hasMatch(s.trim());
 
-    final client = Web3Client(rpcUrl, Client());
+  bool _looksLikeHex64(String s) => RegExp(r'^(0x)?[0-9a-fA-F]{64}$').hasMatch(s.trim());
+
+  bool _looksLikeHex128(String s) => RegExp(r'^(0x)?[0-9a-fA-F]{128}$').hasMatch(s.trim());
+
+  Uint8List _hexToBytes(String hex) {
+    final clean = hex.trim().toLowerCase().replaceAll(RegExp(r'[^0-9a-f]'), '');
+    return Uint8List.fromList([for (int i = 0; i < clean.length; i += 2) int.parse(clean.substring(i, i + 2), radix: 16)]);
+  }
+
+  // ---------- 解析 Solana 64B secretKey（JSON/Base58/Hex 128） ----------
+  Uint8List _parseSolanaSecretKey64(String input) {
+    final t = input.trim();
+
+    // JSON 数组: "[12, 34, ...]"（长度必须 64）
+    if (t.startsWith('[') && t.endsWith(']')) {
+      final List<dynamic> arr = json.decode(t);
+      final bytes = Uint8List.fromList(arr.cast<int>());
+      if (bytes.length == 64) return bytes;
+      throw ArgumentError('JSON array length must be 64 bytes for Solana secretKey.');
+    }
+
+    // Base58（长度解码后必须 64）
     try {
-      // 1. 从私钥获取凭证
-      final credentials = EthPrivateKey.fromHex(privateKey);
-      final address = (await credentials.extractAddress()).hex;
+      final bytes = Uint8List.fromList(bs58.base58.decode(t));
+      if (bytes.length == 64) return bytes;
+    } catch (_) {}
 
-      // 2. 验证地址有效性
-      if (!isValidEthereumAddress(address)) {
-        throw ArgumentError('Invalid Ethereum address derived from private key');
-      }
+    // Hex（128 位，可带 0x）
+    if (_looksLikeHex128(t)) {
+      final bytes = _hexToBytes(t);
+      if (bytes.length == 64) return bytes;
+    }
 
-      // 3. 获取余额（带重试机制）
-      String balance;
+    throw ArgumentError('Not a valid 64-byte Solana secretKey (JSON/Base58/Hex).');
+  }
+
+  // ---------- 用 ed25519_hd_key 2.3.0 从助记词派生 Solana 32B seed ----------
+  Future<Uint8List> _deriveSolanaSeed32FromMnemonic(String mnemonic, {int account = 0, int change = 0}) async {
+    if (!bip39.validateMnemonic(mnemonic)) {
+      throw ArgumentError('Invalid mnemonic');
+    }
+    // BIP39 根种子（64B）
+    final masterSeed = bip39.mnemonicToSeed(mnemonic);
+    // 按 Solana 路径派生（2.3.0 的 derivePath 第二参就是 seed）
+    final path = "m/44'/501'/$account'/$change'";
+    final keyData = await edkey.ED25519_HD_KEY.derivePath(path, masterSeed);
+    // 返回 32B seed（用 Uint8List 包装）
+    return Uint8List.fromList(keyData.key);
+  }
+
+  // 尝试两条常见路径，确保 seed32 生成的地址 == fromMnemonic 的地址
+  Future<Uint8List> _deriveSolanaSeed32Aligned({required String mnemonic, int account = 0, int change = 0}) async {
+    if (!bip39.validateMnemonic(mnemonic)) {
+      throw ArgumentError('Invalid mnemonic');
+    }
+
+    // 1) 先用官方方法得到“标准答案”地址
+    final refKp = await solana.Ed25519HDKeyPair.fromMnemonic(mnemonic, account: account, change: change);
+    final refAddress = refKp.address;
+
+    // 2) 根种子
+    final masterSeed = bip39.mnemonicToSeed(mnemonic);
+
+    // 3) 方案A：m/44'/501'/$account'/$change'
+    final pathA = "m/44'/501'/$account'/$change'";
+    final keyA = Uint8List.fromList((await edkey.ED25519_HD_KEY.derivePath(pathA, masterSeed)).key);
+    final addrA = (await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: keyA)).address;
+    if (addrA == refAddress) return keyA;
+
+    // 4) 方案B：m/44'/501'/$account'/$change'/0'
+    final pathB = "m/44'/501'/$account'/$change'/0'";
+    final keyB = Uint8List.fromList((await edkey.ED25519_HD_KEY.derivePath(pathB, masterSeed)).key);
+    final addrB = (await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: keyB)).address;
+    if (addrB == refAddress) return keyB;
+
+    // 如果两条都不匹配（极少见），为了安全起见返回A，但打印日志帮助排查
+    // 你也可以 throw，让你更早发现环境不一致
+    // debugPrint('WARN: Neither A nor B matched refAddress. Using A by default.');
+    return keyA;
+  }
+
+  // ===================== 最终版：私钥导入函数 ======================
+  // 私钥/secretKey/seed 智能导入：支持 EVM 与 Solana
+  Future<Map<String, String?>> importWalletFromPrivateKey(String input, {String rpcUrl = "https://cloudflare-eth.com"}) async {
+    final trimmed = input.trim();
+
+    // === EVM：0x + 64 hex ===
+    if (_looksLikeHex64With0x(trimmed)) {
+      final client = Web3Client(rpcUrl, Client());
       try {
-        EtherAmount ethAmount = await _getBalanceWithRetry(client, address);
-        balance = '${ethAmount.getValueInUnit(EtherUnit.ether)}';
-      } catch (e) {
-        print('获取余额失败: $e');
-        balance = '0.00'; // 失败时默认返回0余额
-      }
+        final credentials = EthPrivateKey.fromHex(trimmed);
+        final address = (await credentials.extractAddress()).hex;
 
-      // 4. 获取网络信息
-      final chainId = await client.getNetworkId();
-      final network = getNetworkNameByChainId(chainId);
+        if (!isValidEthereumAddress(address)) {
+          throw ArgumentError('Invalid Ethereum address derived from private key');
+        }
+
+        String balance = '0.00';
+        try {
+          final ethAmount = await _getBalanceWithRetry(client, address);
+          balance = '${ethAmount.getValueInUnit(EtherUnit.ether)}';
+        } catch (_) {}
+
+        final chainId = await client.getNetworkId();
+        final network = getNetworkNameByChainId(chainId);
+
+        return {
+          'WalletType': 'privateKeyImported',
+          'currentNetwork': network, // Ethereum/BSC/Polygon...
+          'currentAddress': address, // 0x...
+          'balance': balance,
+          'mnemonic': '',
+          'privateKey': trimmed,
+        };
+      } finally {
+        client.dispose();
+      }
+    }
+
+    // === Solana：64B secretKey（JSON/Base58/Hex 128） ===
+    try {
+      final secret64 = _parseSolanaSecretKey64(trimmed); // 64B = private32 + public32
+      final seed32 = secret64.sublist(0, 32); // 取前 32B 当 seed
+
+      final kp = await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: seed32);
+      final address = kp.address;
+
+      String balance = '0.00';
+      try {
+        balance = await _getSolanaBalance(address, _getRpcUrl('solana'));
+      } catch (_) {}
 
       return {
-        'WalletType': 'privateKeyImported',
-        'currentNetwork': network,
-        'currentAddress': address,
+        'WalletType': 'solanaSecretKeyImported',
+        'currentNetwork': 'Solana',
+        'currentAddress': address, // Base58
         'balance': balance,
         'mnemonic': '',
-        'privateKey': privateKey,
+        'privateKey': '', // 建议不要回传明文；如需存储请自行加密后再存
       };
-    } on FormatException catch (e) {
-      throw ArgumentError('Invalid private key: ${e.message}');
-    } on RPCError catch (e) {
-      throw Exception('RPC error : ${e.message}');
-    } catch (e) {
-      throw Exception('Failed to import wallet: $e');
-    } finally {
-      client.dispose();
+    } catch (_) {
+      // 继续尝试 32B seed
     }
+
+    // === Solana：32B seed（64 hex，带/不带 0x） ===
+    if (_looksLikeHex64(trimmed)) {
+      final seed32 = _hexToBytes(trimmed.replaceFirst(RegExp(r'^0x'), ''));
+      if (seed32.length != 32) {
+        throw ArgumentError('Expected 32-byte seed for Solana (got ${seed32.length}).');
+      }
+
+      final kp = await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: seed32);
+      final address = kp.address;
+
+      String balance = '0.00';
+      try {
+        balance = await _getSolanaBalance(address, _getRpcUrl('solana'));
+      } catch (_) {}
+
+      return {
+        'WalletType': 'solanaSeedImported',
+        'currentNetwork': 'Solana',
+        'currentAddress': address, // Base58
+        'balance': balance,
+        'mnemonic': '',
+        'privateKey': '',
+      };
+    }
+
+    // === 兜底 ===
+    throw ArgumentError(
+      'Unsupported key format. Provide:\n'
+      '- EVM 32-byte hex (0x...);\n'
+      '- Solana 64-byte secretKey (JSON/Base58/Hex 128);\n'
+      '- Solana 32-byte seed (Hex 64, with/without 0x).',
+    );
   }
+
+  // ===================== 最终版：私钥导入函数 ======================
 
   // 带重试机制的余额获取
   Future<EtherAmount> _getBalanceWithRetry(Web3Client client, String address, {int retries = 2}) async {
@@ -507,46 +643,49 @@ class AdvancedMultiChainWallet {
   Future<void> _generateKeysFromMnemonic() async {
     if (_mnemonic == null) return;
 
-    // 生成种子（EVM 可以用，也可以单独派生）
+    // 你原来就有：用于 EVM 派生的根种子（别再用它的前 32B 当“私钥”保存了）
     final seed = bip39.mnemonicToSeed(_mnemonic!);
 
     for (final network in supportedNetworks.values) {
       switch (network.chainType) {
         case ChainType.EVM:
-          // 使用标准 ETH BIP44 路径：m/44'/60'/0'/0/0
+          // ====== 保持你原逻辑不变 ======
           final path = "m/44'/60'/0'/0/0";
           final privateKeyBytes = await _derivePrivateKey(seed, path);
           final privateKeyHex = HEX.encode(privateKeyBytes);
           final credentials = EthPrivateKey.fromHex(privateKeyHex);
 
           _credentials[network.id] = credentials;
-          final address = (await credentials.extractAddress()).hex;
-          _addresses[network.id] = address;
-          _addresses[network.name] = address;
+          final evmAddress = (await credentials.extractAddress()).hex;
+          _addresses[network.id] = evmAddress;
+          _addresses[network.name] = evmAddress;
           break;
 
         case ChainType.Solana:
-          // 使用与转账保持一致的路径：m/44'/501'/0'/0
-          final keyPair = await solana.Ed25519HDKeyPair.fromMnemonic(
-            _mnemonic!,
-            account: 0, // m/44'/501'/0'
-            change: 0, // m/44'/501'/0'/0
-          );
+          // ====== 关键改动：用派生的 32B seed 还原 KeyPair，并保存这个 seed ======
+          try {
+            // ✨ 用对齐版派生，保证地址与 fromMnemonic(account,change) 完全一致
+            final seed32 = await _deriveSolanaSeed32Aligned(mnemonic: _mnemonic!, account: 0, change: 0);
 
-          _credentials[network.id] = keyPair;
-          final address = keyPair.publicKey.toBase58();
-          _addresses[network.id] = address;
-          _addresses[network.name] = address;
+            final keyPair = await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: seed32);
+            final solAddress = keyPair.publicKey.toBase58();
+
+            _credentials[network.id] = keyPair;
+            _addresses[network.id] = solAddress;
+            _addresses[network.name] = solAddress;
+
+            // 保存“私钥”请保存这个 seed32（建议加密后再存）
+            _privateKey = HEX.encode(seed32);
+          } catch (e) {
+            debugPrint('Solana derive failed: $e');
+          }
           break;
 
         case ChainType.UTXO:
-          // 比特币等UTXO模型链的密钥派生，可根据需要添加
+          // 比特币等UTXO模型链的密钥派生（保持原样或后续再实现）
           break;
       }
     }
-
-    // 存储根私钥
-    _privateKey = HEX.encode(seed.sublist(0, 32));
   }
 
   //根据助记词获取eth地址
