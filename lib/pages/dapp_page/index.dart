@@ -526,16 +526,16 @@ class _DAppPageState extends State<DAppPage> {
                 );
 
                 // connect
-                controller.addJavaScriptHandler(
-                  handlerName: 'solana_connect',
-                  callback: (args) async {
-                    // 兜底：如果 initState 的异步还没完成，这里再确保一次
-                    if (_wallet == null || _currentPubkey == null) await _ensureWalletReady();
-                    final pk = _currentPubkey ?? '';
-                    if (pk.isEmpty) return {'code': 4100, 'message': 'no_wallet_connected'};
-                    return pk; // 只返回字符串，JS 会包成 { publicKey }
-                  },
-                );
+                // controller.addJavaScriptHandler(
+                //   handlerName: 'solana_connect',
+                //   callback: (args) async {
+                //     // 兜底：如果 initState 的异步还没完成，这里再确保一次
+                //     if (_wallet == null || _currentPubkey == null) await _ensureWalletReady();
+                //     final pk = _currentPubkey ?? '';
+                //     if (pk.isEmpty) return {'code': 4100, 'message': 'no_wallet_connected'};
+                //     return pk; // 只返回字符串，JS 会包成 { publicKey }
+                //   },
+                // );
 
                 // signMessage
                 controller.addJavaScriptHandler(
