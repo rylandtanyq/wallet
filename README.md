@@ -48,3 +48,6 @@ const oldTxBox = 'transactions_v2'; // 或者用你的 boxTxOld 常量
   } catch (e) {
     debugPrint('⚠️ delete $oldTxBox failed: $e');
   }
+
+
+dart run flutter_launcher_icons   生成app logo图标
