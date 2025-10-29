@@ -362,7 +362,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                     children: [
                       ClipOval(
                         child: Image.asset(
-                          _currentNetwork['image'] ?? items[_selectedNetWorkIndex]["path"]!,
+                          _currentNetwork['path'] ?? items[_selectedNetWorkIndex]["path"]!,
                           width: 25.w,
                           height: 25.w,
                           fit: BoxFit.cover,
@@ -459,7 +459,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                             _selectedNetWorkIndex = index;
                           });
                           _wallet.network = itemCurrent['id']!;
-                          Navigator.pop(context, {"id": "${itemCurrent['id']}", "image": "${itemCurrent['path']}"});
+                          Navigator.pop(context, {"id": "${itemCurrent['id']}", "path": "${itemCurrent['path']}"});
                         },
                       );
                     },

@@ -173,7 +173,8 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
       setState(() {
         _textEditingController.text = text;
         _showSuffixIcon = true;
-        _showSearchHistoryWidget = false;
+        _showSearchHistoryWidget = true;
+        _showHintOpenDappLink = true;
       });
     });
   }
@@ -209,9 +210,9 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
   void _addSearchHistoryList() async {
     final prefs = await SharedPreferences.getInstance();
-    final content = _textEditingController.text?.trim();
+    final content = _textEditingController.text.trim();
 
-    if (content == null || content.isEmpty) return;
+    if (content.isEmpty) return;
 
     setState(() {
       if (!_search_history.contains(content)) {
@@ -296,6 +297,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   Widget _hintOpenDappLink() {
     return GestureDetector(
       onTap: () {
+        _addSearchHistoryList();
         Get.to(
           DAppPage(dappUrl: _textEditingController.text),
           transition: Transition.rightToLeft,

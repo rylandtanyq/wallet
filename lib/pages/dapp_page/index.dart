@@ -969,7 +969,7 @@ class _DAppPageState extends State<DAppPage> {
                                 Text("Network", style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                                 Row(
                                   children: [
-                                    Image.asset(network["image"], width: 20, height: 20),
+                                    Image.asset(network["path"], width: 20, height: 20),
                                     SizedBox(width: 8.w),
                                     Text(network["id"], style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                                   ],
