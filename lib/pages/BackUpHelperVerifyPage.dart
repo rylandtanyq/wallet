@@ -254,7 +254,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
         network: network,
         address: address,
         privateKey: privateKey,
-        isBackUp: true,
+        isBackUp: false,
         mnemonic: orderlyMnemonics,
       );
       await HiveStorage().putObject<Wallet>('currentSelectWallet', walletEntity, boxName: boxWallet);

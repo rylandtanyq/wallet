@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
@@ -241,6 +242,8 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
 
   Widget _buildWalletItem(Wallet wallet, int index) {
     final isSelected = _selectedWalletAddress == wallet.address;
+    final hasMnemonic = wallet.mnemonic?.isNotEmpty ?? false;
+    final needsBackup = !wallet.isBackUp && hasMnemonic;
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -279,58 +282,76 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                       ),
                       Spacer(),
                       // if (wallet.isBackUp)
-                      SizedBox(
-                        width: 70.w,
-                        child: Material(
-                          borderRadius: BorderRadius.circular(20.r),
-                          clipBehavior: Clip.antiAlias,
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                              Get.to(
-                                BackUpHelperOnePage(title: t.wallet.please_remember, prohibit: false),
-                                arguments: {"mnemonic": wallet.mnemonic?.join(" ")},
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
-                                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.3), width: 0.5),
+                      needsBackup
+                          ? SizedBox(
+                              width: 70.w,
+                              child: Material(
                                 borderRadius: BorderRadius.circular(20.r),
-                              ),
-                              padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ClipOval(
-                                    child: ColorFiltered(
-                                      colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-                                      child: Image.asset('assets/images/ic_wallet_reminder.png', width: 12.w, height: 12.w),
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    Get.to(
+                                      BackUpHelperOnePage(
+                                        title: t.wallet.please_remember,
+                                        prohibit: false,
+                                        backupAddress: wallet.address,
+                                        isBackUp: wallet.isBackUp,
+                                      ),
+                                      arguments: {"mnemonic": wallet.mnemonic?.join(" ")},
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
+                                      border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.3), width: 0.5),
+                                      borderRadius: BorderRadius.circular(20.r),
+                                    ),
+                                    padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        ClipOval(
+                                          child: ColorFiltered(
+                                            colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                                            child: Image.asset('assets/images/ic_wallet_reminder.png', width: 12.w, height: 12.w),
+                                          ),
+                                        ),
+                                        SizedBox(width: 1.w),
+                                        Expanded(
+                                          child: Text(
+                                            t.Mysettings.go_backup,
+                                            style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onBackground),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(width: 1.w),
-                                  Expanded(
-                                    child: Text(
-                                      t.Mysettings.go_backup,
-                                      style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onBackground),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-                      ),
+                            )
+                          : SizedBox(),
                     ],
                   ),
                   SizedBox(height: 20.h),
-                  Text(
-                    wallet.address.length > 12
-                        ? '${wallet.network}:${wallet.address.substring(0, 6)}...${wallet.address.substring(wallet.address.length - 6)}'
-                        : '${wallet.network}:${wallet.address}',
-                    style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                  Row(
+                    children: [
+                      Text(
+                        wallet.address.length > 12
+                            ? '${wallet.network}:${wallet.address.substring(0, 6)}...${wallet.address.substring(wallet.address.length - 6)}'
+                            : '${wallet.network}:${wallet.address}',
+                        style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                      SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: wallet.address));
+                        },
+                        child: Icon(Icons.copy_outlined, size: 16, color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                    ],
                   ),
                 ],
               ),

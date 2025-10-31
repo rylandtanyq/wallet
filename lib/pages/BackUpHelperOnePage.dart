@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
+import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/pages/tabpage/WalletPage.dart';
+import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
@@ -17,7 +21,9 @@ import 'BackUpHelperVerifyPage.dart';
 class BackUpHelperOnePage extends StatefulWidget {
   final String? title;
   final bool? prohibit;
-  const BackUpHelperOnePage({super.key, this.title, this.prohibit = true});
+  final String? backupAddress;
+  final bool? isBackUp;
+  const BackUpHelperOnePage({super.key, this.title, this.prohibit = true, this.backupAddress, this.isBackUp});
 
   @override
   State<StatefulWidget> createState() => _BackUpHelperOnePageState();
@@ -31,13 +37,72 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
   // 模拟数据, 接受上一个页面传递的助记词、私钥、钱包地址、当前的网络(例如Eth)
   late List<String> mnemonics;
 
+  List<Wallet> _wallets = [];
+
   @override
   void initState() {
     super.initState();
     final newWallet = Get.arguments;
-    debugPrint('999$newWallet');
     String mnemonic = newWallet['mnemonic'];
     mnemonics = mnemonic.split(' ');
+  }
+
+  Future<void> oneClickBackup() async {
+    if (widget.prohibit == false) {
+      final addrRaw = widget.backupAddress ?? '';
+      final addr = addrRaw.trim();
+      if (addr.isEmpty) {
+        Get.snackbar('提示', '未获取到需备份的钱包地址');
+        return;
+      }
+
+      // 读取列表
+      final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
+
+      // 先忽略大小写找（适合 EVM），找不到再精确匹配（兼容 Solana）
+      int idx = wallets.indexWhere((e) => e.address.toLowerCase() == addr.toLowerCase());
+      if (idx == -1) {
+        idx = wallets.indexWhere((e) => e.address == addr);
+      }
+
+      if (idx == -1) {
+        debugPrint('backupAddress not found: $addr');
+        Get.snackbar('提示', '本地未找到该钱包地址，无法标记备份');
+        return;
+      }
+
+      // 标记列表
+      if (!wallets[idx].isBackUp) {
+        wallets[idx].isBackUp = true;
+        await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
+      }
+
+      // 同步 currentSelectWallet
+      final current = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
+      if (current != null) {
+        final same = current.address.toLowerCase() == addr.toLowerCase() || current.address == addr;
+        if (same && !current.isBackUp) {
+          current.isBackUp = true;
+          await HiveStorage().putObject<Wallet>('currentSelectWallet', current, boxName: boxWallet);
+        }
+      }
+
+      Get.closeAllSnackbars();
+      Get.snackbar('成功', '已标记为已备份');
+
+      debugPrint('已备份1');
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (Get.key.currentState?.canPop() ?? false) {
+          Get.back(result: true);
+        } else {
+          // 如果不是 Get.to 进来的，没有上一页可返回
+          Get.offAll(() => WalletPage());
+        }
+      });
+    } else {
+      // 去助记词验证页
+      final _ = await Get.to(() => BackUpHelperVerifyPage(), arguments: Get.arguments);
+    }
   }
 
   @override
@@ -163,27 +228,25 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
                   ],
                 ),
               ),
-              widget.prohibit!
-                  ? Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor: Theme.of(context).colorScheme.background,
-                          minimumSize: Size(double.infinity, 42.h),
-                          elevation: 0,
-                          shadowColor: Colors.transparent,
-                          textStyle: TextStyle(fontSize: 18.sp),
-                        ),
-                        onPressed: () => {Get.to(BackUpHelperVerifyPage(), arguments: Get.arguments)},
-                        child: Text(
-                          t.wallet.backupMnemonic,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                  : SizedBox(),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.background,
+                    minimumSize: Size(double.infinity, 42.h),
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
+                    textStyle: TextStyle(fontSize: 18.sp),
+                  ),
+                  onPressed: () => oneClickBackup(),
+                  child: Text(
+                    widget.prohibit! == false ? '一键备份' : t.wallet.backupMnemonic,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

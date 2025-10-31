@@ -206,7 +206,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
         network: wallet['network'] ?? 'Ethereum',
         address: currentAddress ?? '',
         privateKey: wallet['privateKey'] ?? '',
-        isBackUp: true,
+        isBackUp: false,
         mnemonic: mnemonic,
       );
       // 保存回 Hive

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -74,7 +75,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   int _selectedWalletIndex = 0;
 
-  late Wallet _wallet = Wallet.empty();
+  Wallet _wallet = Wallet.empty();
 
   static const double _borderRadius = 20;
   static const double _borderWidth = 1.0;
@@ -84,6 +85,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   late List<Tokens> _tokenList = [];
   late List<Tokens> _fillteredTokensList = [];
   Timer? _timer;
+  bool? _hasMnemonic;
 
   @override
   void initState() {
@@ -96,10 +98,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     });
     _searchController.addListener(_filterItems);
     WidgetsBinding.instance.addObserver(this);
-    _getCurrentSelectWalletfn();
-    _updataWalletBalance();
-    _initWalletAndNetwork();
-    _loadingTokens();
+    _getCurrentSelectWalletfn().then((_) {
+      _updataWalletBalance();
+      _initWalletAndNetwork();
+      _loadingTokens();
+    });
     debugPrint('新存的助记词${_wallet.mnemonic}');
   }
 
@@ -180,8 +183,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     });
   }
 
-  void _getCurrentSelectWalletfn() async {
-    _wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
+  Future<void> _getCurrentSelectWalletfn() async {
+    final w = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
     final currentNetworkResult = await HiveStorage().getObject<Map>("currentNetwork");
     if (currentNetworkResult != null) {
       _currentNetwork = Map<String, String>.from(currentNetworkResult);
@@ -189,6 +192,10 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       _currentNetwork = Map<String, String>.from(defaultNetwork);
       HiveStorage().putObject('currentNetwork', _currentNetwork);
     }
+    if (!mounted) return;
+    setState(() {
+      _wallet = w;
+    });
   }
 
   Future<void> _initWalletAndNetwork() async {
@@ -296,15 +303,15 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     final languageNetName = _getCommonName(id);
     final List<String> titles = [t.home.transfer, t.home.receive, t.home.finance, t.home.getGas, t.home.transaction_history];
     final List<Map<String, String>> items = [
-      {"id": "allNetworks", "path": "assets/images/all_network.png", "netName": t.common.allNetworks},
+      // {"id": "allNetworks", "path": "assets/images/all_network.png", "netName": t.common.allNetworks},
       {"id": "Solana", "path": "assets/images/solana_logo.png", "netName": t.common.Solana},
-      {"id": "BNB", "path": "assets/images/BTC.png", "netName": t.common.BNB},
-      {"id": "Bitcoin", "path": "assets/images/BTC.png", "netName": t.common.Bitcoin},
-      {"id": "Base", "path": "assets/images/BTC.png", "netName": t.common.Base},
-      {"id": "Ethereum", "path": "assets/images/BTC.png", "netName": t.common.Ethereum},
-      {"id": "Polygon", "path": "assets/images/BTC.png", "netName": t.common.Polygon},
-      {"id": "Arbitrum", "path": "assets/images/BTC.png", "netName": t.common.Arbitrum},
-      {"id": "Sui", "path": "assets/images/BTC.png", "netName": t.common.Sui},
+      // {"id": "BNB", "path": "assets/images/BTC.png", "netName": t.common.BNB},
+      // {"id": "Bitcoin", "path": "assets/images/BTC.png", "netName": t.common.Bitcoin},
+      // {"id": "Base", "path": "assets/images/BTC.png", "netName": t.common.Base},
+      // {"id": "Ethereum", "path": "assets/images/BTC.png", "netName": t.common.Ethereum},
+      // {"id": "Polygon", "path": "assets/images/BTC.png", "netName": t.common.Polygon},
+      // {"id": "Arbitrum", "path": "assets/images/BTC.png", "netName": t.common.Arbitrum},
+      // {"id": "Sui", "path": "assets/images/BTC.png", "netName": t.common.Sui},
     ];
 
     return Scaffold(
@@ -336,54 +343,70 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   ),
                 ),
               ),
-              SizedBox(
-                width: 100.w,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.background,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-                    padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.h),
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 1.0, // 边框宽度
-                    ),
-                  ),
-                  onPressed: () async {
-                    final currentSelectNetwork = await showAnimatedFullScreenDialog(context, items);
-                    if (currentSelectNetwork != null) {
-                      await HiveStorage().putObject('currentNetwork', currentSelectNetwork);
-                      setState(() {
-                        _currentNetwork = currentSelectNetwork;
-                        _wallet.network = currentSelectNetwork['id']!;
-                      });
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      ClipOval(
-                        child: Image.asset(
-                          _currentNetwork['path'] ?? items[_selectedNetWorkIndex]["path"]!,
-                          width: 25.w,
-                          height: 25.w,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(width: 5.w),
-                      Expanded(
-                        child: Text(
-                          languageNetName,
-                          style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Image.asset('assets/images/ic_arrows_right.png', width: 12.w, height: 12.w),
-                    ],
-                  ),
+              GestureDetector(
+                onTap: () async {
+                  final currentSelectNetwork = await showAnimatedFullScreenDialog(context, items);
+                  if (currentSelectNetwork != null) {
+                    await HiveStorage().putObject('currentNetwork', currentSelectNetwork);
+                    setState(() {
+                      _currentNetwork = currentSelectNetwork;
+                      _wallet.network = currentSelectNetwork['id']!;
+                    });
+                  }
+                },
+                child: ClipOval(
+                  child: Image.asset(_currentNetwork['path'] ?? items[_selectedNetWorkIndex]["path"]!, width: 25.w, height: 25.w, fit: BoxFit.cover),
                 ),
               ),
+              // SizedBox(
+              //   width: 100.w,
+              //   child: ElevatedButton(
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: Theme.of(context).colorScheme.background,
+              //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+              //       padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.h),
+              //       side: BorderSide(
+              //         color: Theme.of(context).colorScheme.onSurface,
+              //         width: 1.0, // 边框宽度
+              //       ),
+              //     ),
+              //     onPressed: () async {
+              //       final currentSelectNetwork = await showAnimatedFullScreenDialog(context, items);
+              //       if (currentSelectNetwork != null) {
+              //         await HiveStorage().putObject('currentNetwork', currentSelectNetwork);
+              //         setState(() {
+              //           _currentNetwork = currentSelectNetwork;
+              //           _wallet.network = currentSelectNetwork['id']!;
+              //         });
+              //       }
+              //     },
+              //     child:
+              //     Row(
+              //       children: [
+              //         ClipOval(
+              //           child: Image.asset(
+              //             _currentNetwork['path'] ?? items[_selectedNetWorkIndex]["path"]!,
+              //             width: 25.w,
+              //             height: 25.w,
+              //             fit: BoxFit.cover,
+              //           ),
+              //         ),
+              //         SizedBox(width: 5.w),
+              //         Expanded(
+              //           child: Text(
+              //             languageNetName,
+              //             style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+              //             maxLines: 1,
+              //             overflow: TextOverflow.ellipsis,
+              //             textAlign: TextAlign.center,
+              //           ),
+              //         ),
+              //         SizedBox(width: 8.w),
+              //         Image.asset('assets/images/ic_arrows_right.png', width: 12.w, height: 12.w),
+              //       ],
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -503,6 +526,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Widget _buildTopView(List<String> titles) {
+    final hasMnemonic = _wallet.mnemonic?.isNotEmpty ?? false;
+    final showBackupCTA = !_wallet.isBackUp && hasMnemonic;
     return Container(
       padding: EdgeInsets.only(top: 10.h),
       child: Column(
@@ -514,11 +539,22 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _wallet.address.length > 12
-                      ? '${_wallet.network}:${_wallet.address.substring(0, 6)}...${_wallet.address.substring(_wallet.address.length - 6)}'
-                      : '${_wallet.network}:${_wallet.address}',
-                  style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.onSurface),
+                Row(
+                  children: [
+                    Text(
+                      _wallet.address.length > 12
+                          ? '${_wallet.network}:${_wallet.address.substring(0, 6)}...${_wallet.address.substring(_wallet.address.length - 6)}'
+                          : '${_wallet.network}:${_wallet.address}',
+                      style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: _wallet.address));
+                      },
+                      child: Icon(Icons.copy_outlined, size: 16, color: Theme.of(context).colorScheme.onBackground),
+                    ),
+                  ],
                 ),
                 Row(
                   children: [
@@ -528,56 +564,63 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                         style: TextStyle(fontSize: 40.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    SizedBox(
-                      child: Material(
-                        borderRadius: BorderRadius.circular(_borderRadius.r),
-                        clipBehavior: Clip.antiAlias,
-                        child: InkWell(
-                          onTap: () => {
-                            Get.to(
-                              BackUpHelperOnePage(title: t.wallet.please_remember, prohibit: false),
-                              arguments: {"mnemonic": _wallet.mnemonic?.join(" ")},
-                            ),
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.background,
-                              border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: _borderWidth),
+                    showBackupCTA
+                        ? SizedBox(
+                            child: Material(
                               borderRadius: BorderRadius.circular(_borderRadius.r),
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
+                                onTap: () async {
+                                  final result = await Get.to(
+                                    BackUpHelperOnePage(title: t.wallet.please_remember, prohibit: false, backupAddress: _wallet.address),
+                                    arguments: {"mnemonic": _wallet.mnemonic?.join(" ")},
+                                  );
+                                  debugPrint('已备份2');
+                                  if (result == true) {
+                                    await _getCurrentSelectWalletfn();
+                                    setState(() {});
+                                  }
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.background,
+                                    border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: _borderWidth),
+                                    borderRadius: BorderRadius.circular(_borderRadius.r),
+                                  ),
+                                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 15.w),
+                                  child: _buildButtonContent(),
+                                ),
+                              ),
                             ),
-                            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 15.w),
-                            child: _buildButtonContent(),
-                          ),
-                        ),
-                      ),
-                    ),
+                          )
+                        : SizedBox(),
                   ],
                 ),
-                SizedBox(height: 10.h),
-                Row(
-                  children: [
-                    Text(
-                      '¥10.00 (0.00%)',
-                      style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.background,
-                        borderRadius: BorderRadius.circular(10.r),
-                        border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: 1.h),
-                      ),
-                      child: Center(
-                        child: Row(
-                          children: [
-                            Text(t.common.today, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                // SizedBox(height: 10.h),
+                // Row(
+                //   children: [
+                //     Text(
+                //       '¥10.00 (0.00%)',
+                //       style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+                //     ),
+                //     Container(
+                //       padding: EdgeInsets.symmetric(horizontal: 10.w),
+                //       margin: EdgeInsets.symmetric(horizontal: 5),
+                //       decoration: BoxDecoration(
+                //         color: Theme.of(context).colorScheme.background,
+                //         borderRadius: BorderRadius.circular(10.r),
+                //         border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: 1.h),
+                //       ),
+                //       child: Center(
+                //         child: Row(
+                //           children: [
+                //             Text(t.common.today, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
