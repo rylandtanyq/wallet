@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/entity/AddWalletEntity.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/LinkHardwareWalletPage.dart';
@@ -10,6 +10,7 @@ import 'package:untitled1/widget/dialog/CreateWalletDialog.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../base/base_page.dart';
 import 'ObserveWalletPage.dart';
@@ -26,10 +27,30 @@ class AddWalletPage extends ConsumerStatefulWidget {
 }
 
 class _AddWalletPageState extends ConsumerState<AddWalletPage> with BasePage<AddWalletPage>, AutomaticKeepAliveClientMixin {
+  DateTime? _lastBack;
   final List<AddWallet> _wallets = [
     AddWallet(name: "我的钱包", balance: "￥0.00", address: "EVM: 0X01F0...459F39", infoDetails: "超长的文本---------", isExpanded: false),
     AddWallet(name: "测试钱包", balance: "￥100.00", address: "EVM: 0X89A2...782B1C", infoDetails: "超长的文本---------", isExpanded: false),
   ];
+
+  Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    if (_lastBack == null || now.difference(_lastBack!) > const Duration(seconds: 2)) {
+      _lastBack = now;
+      Fluttertoast.showToast(
+        msg: '再按一次返回退出应用',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        textColor: Theme.of(context).colorScheme.onPrimary,
+        fontSize: 16.0,
+      );
+      return false;
+    }
+    SystemNavigator.pop();
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +94,7 @@ class _AddWalletPageState extends ConsumerState<AddWalletPage> with BasePage<Add
             onPressed: () => {setState(() {})},
           ),
         ],
+        onBackPressed: () => _onWillPop(),
       ),
       body: Container(
         color: Theme.of(context).colorScheme.background,

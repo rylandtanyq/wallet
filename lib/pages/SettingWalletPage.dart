@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
+import 'package:untitled1/pages/AddWalletPage.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 
 import '../../base/base_page.dart';
@@ -257,36 +258,48 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
 
   Future<void> deleteWallet() async {
     showLoadingDialog();
-    // 1. 获取当前选中的地址和钱包列表
-    String? selectedAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet);
-    List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
-    //判断是否是当前选中的钱包
-    if (selectedAddress == _wallet.address) {
-      // 如果地址相同，移除匹配的钱包对象
-      wallets.removeWhere((wallet) => wallet.address == _wallet.address);
+    try {
+      // 取当前选中地址 & 列表
+      String selectedAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
+      List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
 
-      // 更新selected_address为移除后的第一个钱包地址（如果列表不为空）
+      // 移除目标钱包
+      wallets.removeWhere((w) => w.address == _wallet.address);
+
+      // 如果找不到也直接返回
+      // if (removedCount == 0) { /* 给个提示 */ }
+
+      // 计算新的选中钱包 & 同步写回
       if (wallets.isNotEmpty) {
-        selectedAddress = wallets.first.address;
-        await HiveStorage().putValue('selected_address', selectedAddress, boxName: boxWallet);
-        await HiveStorage().putObject('currentSelectWallet', wallets.first, boxName: boxWallet);
+        // 如果删的是当前选中，就把第一个设为选中；否则保持原选中
+        final nextSelected = (selectedAddress == _wallet.address) ? wallets.first.address : selectedAddress;
+
+        await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
+        await HiveStorage().putValue('selected_address', nextSelected, boxName: boxWallet);
+
+        final nextWallet = wallets.firstWhere((w) => w.address == nextSelected, orElse: () => wallets.first);
+        await HiveStorage().putObject<Wallet>('currentSelectWallet', nextWallet, boxName: boxWallet);
+
+        // 4) 关闭 loading 再导航（保留主框架，回到钱包Tab）
+        dismissLoading();
         Get.offAll(() => MainPage(initialPageIndex: 4));
       } else {
-        // 如果钱包列表为空，清空selected_address
+        // 清空所有与“当前选中钱包”相关的键
+        await HiveStorage().putList<Wallet>('wallets_data', <Wallet>[], boxName: boxWallet);
         await HiveStorage().putValue('selected_address', '', boxName: boxWallet);
         await HiveStorage().delete('currentSelectWallet', boxName: boxWallet);
-        dismissLoading();
-        //TODO: 跳转到创建钱包页面
-      }
-    } else {
-      // 如果地址不相同，直接移除匹配的钱包对象
-      wallets.removeWhere((wallet) => wallet.address == _wallet.address);
-      dismissLoading();
-      Get.offAll(() => MainPage(initialPageIndex: 4));
-    }
 
-    // 4. 更新钱包列表到Hive
-    await HiveStorage().putList('wallets_data', wallets, boxName: boxWallet);
+        // 清除此钱包相关的 tokens / transactions 等本地缓存
+        // await HiveStorage().clearBox(boxTokens);
+        // await HiveStorage().clearBox(boxTx);
+
+        dismissLoading();
+        Get.offAll(() => AddWalletPage());
+      }
+    } catch (e) {
+      dismissLoading();
+      Get.snackbar('错误', '删除失败：$e');
+    }
   }
 
   @override

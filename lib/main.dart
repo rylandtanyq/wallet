@@ -4,13 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/hive/transaction_record.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/CreateWalletPage.dart';
-import 'package:untitled1/pages/SplashPage.dart';
+import 'package:untitled1/pages/AddWalletPage.dart';
 import 'package:untitled1/pages/tabpage/DiscoveryPage.dart';
 import 'package:untitled1/pages/tabpage/HomePage.dart';
 import 'package:untitled1/pages/tabpage/SituationPage.dart';
@@ -32,18 +30,24 @@ void main() async {
   await HiveStorage().ensureOpen(boxWallet);
   await HiveStorage().ensureOpen(boxTokens);
   await HiveStorage().ensureOpen(boxTx, lazy: true);
-  runApp(ProviderScope(child: TranslationProvider(child: MyApp())));
+  final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet);
+  final bool hasWallets = wallets != null && wallets.isNotEmpty;
+  runApp(
+    ProviderScope(
+      child: TranslationProvider(child: MyApp(hasWallets: hasWallets)),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+  final bool hasWallets;
+  const MyApp({super.key, required this.hasWallets});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
-    // final solana_wallet = CreateSolanaWallet.empty();
     return ScreenUtilInit(
       designSize: Size(375, 667),
       minTextAdapt: true,
@@ -59,8 +63,7 @@ class MyApp extends ConsumerWidget {
           builder: FToastBuilder(),
           debugShowCheckedModeBanner: false,
           title: 'Wallet App',
-          // home: solana_wallet.address.isEmpty ? Createwalletpage() : HomePage(),
-          home: MainPage(),
+          home: hasWallets ? MainPage() : AddWalletPage(),
           initialRoute: '/',
         );
       },
