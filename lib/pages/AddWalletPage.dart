@@ -26,14 +26,41 @@ class AddWalletPage extends ConsumerStatefulWidget {
   ConsumerState<AddWalletPage> createState() => _AddWalletPageState();
 }
 
-class _AddWalletPageState extends ConsumerState<AddWalletPage> with BasePage<AddWalletPage>, AutomaticKeepAliveClientMixin {
+class _AddWalletPageState extends ConsumerState<AddWalletPage> with BasePage<AddWalletPage>, AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   DateTime? _lastBack;
   final List<AddWallet> _wallets = [
     AddWallet(name: "我的钱包", balance: "￥0.00", address: "EVM: 0X01F0...459F39", infoDetails: "超长的文本---------", isExpanded: false),
     AddWallet(name: "测试钱包", balance: "￥100.00", address: "EVM: 0X89A2...782B1C", infoDetails: "超长的文本---------", isExpanded: false),
   ];
 
-  Future<bool> _onWillPop() async {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _lastBack = null;
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _lastBack = null;
+    }
+  }
+
+  void _onWillPop() {
+    final canPop = Navigator.of(context).canPop();
+
+    if (canPop) {
+      Navigator.of(context).pop();
+      return;
+    }
+
     final now = DateTime.now();
     if (_lastBack == null || now.difference(_lastBack!) > const Duration(seconds: 2)) {
       _lastBack = now;
@@ -46,10 +73,9 @@ class _AddWalletPageState extends ConsumerState<AddWalletPage> with BasePage<Add
         textColor: Theme.of(context).colorScheme.onPrimary,
         fontSize: 16.0,
       );
-      return false;
+    } else {
+      SystemNavigator.pop();
     }
-    SystemNavigator.pop();
-    return false;
   }
 
   @override
