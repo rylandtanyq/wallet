@@ -505,7 +505,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     );
   }
 
-  void showSelectWalletDialog() async {
+  Future<void> showSelectWalletDialog() async {
     final resultWallet = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -516,8 +516,9 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       ),
     );
 
-    if (resultWallet != null) {
-      // 将选择的钱包返回给hive
+    if (resultWallet == true) {
+      _initWalletAndNetwork();
+    } else if (resultWallet != null) {
       setState(() {
         _wallet = resultWallet;
       });

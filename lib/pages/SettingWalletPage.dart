@@ -107,8 +107,11 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
                       mainTitle: t.wallet.edit_wallet_name,
                       subTitle: _wallet.name,
                       isVerify: false,
-                      onTap: () {
-                        showUpdateWalletDialog();
+                      onTap: () async {
+                        final result = await showModalBottomSheet(context: context, isScrollControlled: true, builder: (ctx) => UpdateWalletDialog());
+                        if (result != null) {
+                          Navigator.of(context).pop(true);
+                        }
                       },
                     ),
                     _buildListItem(icon: '', mainTitle: t.wallet.change_avatar, subTitle: "", isVerify: false, onTap: () {}),
@@ -239,9 +242,9 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
     );
   }
 
-  void showUpdateWalletDialog() {
-    showModalBottomSheet(context: context, isScrollControlled: true, builder: (ctx) => UpdateWalletDialog());
-  }
+  // Future<void> showUpdateWalletDialog() {
+  //   showModalBottomSheet(context: context, isScrollControlled: true, builder: (ctx) => UpdateWalletDialog());
+  // }
 
   Future<void> deleteWallet() async {
     showLoadingDialog();
@@ -252,9 +255,6 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
 
       // 移除目标钱包
       wallets.removeWhere((w) => w.address == _wallet.address);
-
-      // 如果找不到也直接返回
-      // if (removedCount == 0) { /* 给个提示 */ }
 
       // 计算新的选中钱包 & 同步写回
       if (wallets.isNotEmpty) {
@@ -267,7 +267,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
         final nextWallet = wallets.firstWhere((w) => w.address == nextSelected, orElse: () => wallets.first);
         await HiveStorage().putObject<Wallet>('currentSelectWallet', nextWallet, boxName: boxWallet);
 
-        // 4) 关闭 loading 再导航（保留主框架，回到钱包Tab）
+        // 关闭 loading 再导航（保留主框架，回到钱包Tab）
         dismissLoading();
         Get.offAll(() => MainPage(initialPageIndex: 4));
       } else {

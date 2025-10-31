@@ -6,7 +6,7 @@ part 'Wallet.g.dart';
 @HiveType(typeId: 1)
 class Wallet extends HiveObject {
   @HiveField(0)
-  final String name; // 钱包名称
+  late String name; // 钱包名称
 
   @HiveField(1)
   late String balance; // 余额

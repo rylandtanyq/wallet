@@ -3,8 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
+import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
+import 'package:untitled1/util/HiveStorage.dart';
 
 import '../../pages/AddWalletPage.dart';
 import '../CustomTextField.dart';
@@ -137,9 +140,7 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
                         shadowColor: Colors.transparent,
                         textStyle: TextStyle(fontSize: 18.sp),
                       ),
-                      onPressed: () {
-                        // 确认逻辑
-                      },
+                      onPressed: () => _comfirmChangeWalletName(),
                       child: Text(t.wallet.confirm),
                     ),
                   ),
@@ -216,5 +217,45 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
         ),
       ),
     );
+  }
+
+  Future<void> _comfirmChangeWalletName() async {
+    final newName = _textController.text.trim();
+    if (newName.isEmpty) {
+      Get.snackbar('提示', '钱包名称不能为空');
+      return;
+    }
+
+    // 读列表 & 当前选中
+    final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
+    final current = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
+
+    if (current == null || wallets.isEmpty) {
+      Navigator.of(context).pop(false);
+      return;
+    }
+
+    // 找到当前钱包在列表中的位置
+    int idx = wallets.indexWhere((e) => e.address.toLowerCase() == current.address.toLowerCase());
+    if (idx == -1) {
+      idx = wallets.indexWhere((e) => e.address == current.address);
+    }
+    if (idx == -1) {
+      Get.snackbar('提示', '未在本地列表中找到当前钱包');
+      Navigator.of(context).pop(false);
+      return;
+    }
+
+    wallets[idx].name = newName;
+
+    // 同步 currentSelectWallet
+    current.name = newName;
+
+    // 先写列表，再写当前选中
+    await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
+    await HiveStorage().putObject<Wallet>('currentSelectWallet', current, boxName: boxWallet);
+
+    // 关闭弹窗并通知刷新
+    Navigator.of(context).pop(true);
   }
 }
