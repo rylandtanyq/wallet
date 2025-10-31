@@ -52,7 +52,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
       final addrRaw = widget.backupAddress ?? '';
       final addr = addrRaw.trim();
       if (addr.isEmpty) {
-        Get.snackbar('提示', '未获取到需备份的钱包地址');
+        Get.snackbar(t.wallet.tip, t.wallet.no_wallet_address_to_backup);
         return;
       }
 
@@ -66,8 +66,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
       }
 
       if (idx == -1) {
-        debugPrint('backupAddress not found: $addr');
-        Get.snackbar('提示', '本地未找到该钱包地址，无法标记备份');
+        Get.snackbar(t.wallet.tip, t.wallet.wallet_address_not_found_local);
         return;
       }
 
@@ -88,9 +87,8 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
       }
 
       Get.closeAllSnackbars();
-      Get.snackbar('成功', '已标记为已备份');
+      Get.snackbar(t.wallet.success, t.wallet.marked_as_backed_up);
 
-      debugPrint('已备份1');
       Future.delayed(const Duration(milliseconds: 300), () {
         if (Get.key.currentState?.canPop() ?? false) {
           Get.back(result: true);
@@ -241,7 +239,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
                   ),
                   onPressed: () => oneClickBackup(),
                   child: Text(
-                    widget.prohibit! == false ? '一键备份' : t.wallet.backupMnemonic,
+                    widget.prohibit! == false ? t.wallet.one_click_backup : t.wallet.backupMnemonic,
                     style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                     textAlign: TextAlign.center,
                   ),
