@@ -1,6 +1,7 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled1/request/request.api.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
@@ -22,6 +23,33 @@ class DiscoveryPage extends StatefulWidget {
 class _DiscoveryPageState extends State<DiscoveryPage> with BasePage<DiscoveryPage>, AutomaticKeepAliveClientMixin {
   int _selectedIndex = 0;
   final List<Widget> _pages = [DiscoveryDAppPage(), DiscoveryMakingCoinCenterPage(), DiscoveryHotListPage()];
+
+  @override
+  void initState() {
+    super.initState();
+    // request();
+    request2();
+  }
+
+  Future<void> request() async {
+    try {
+      final asd = await WalletApi.walletTokensDataFetch('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB');
+      debugPrint('00900--- $asd');
+    } catch (e) {
+      debugPrint('wqe: $e');
+    }
+  }
+
+  Future<void> request2() async {
+    try {
+      final asd = await WalletApi.listWalletTokenDataFetch({
+        "addresses": ['jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL', 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263'],
+      });
+      debugPrint("list 头像数据: $asd");
+    } catch (e) {
+      debugPrint('wqe2: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

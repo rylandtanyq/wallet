@@ -1,7 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
-import 'package:untitled1/hive/Wallet.dart';
 
 class HiveStorage {
   static final HiveStorage _instance = HiveStorage._internal();

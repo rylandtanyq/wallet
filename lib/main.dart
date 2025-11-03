@@ -17,6 +17,7 @@ import 'package:untitled1/pages/tabpage/WalletPage.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_theme.dart';
 import 'package:untitled1/util/CheckUpgrade.dart';
+import 'package:untitled1/util/image_cache_repo.dart';
 
 import 'util/HiveStorage.dart';
 import 'hive/Wallet.dart';
@@ -30,6 +31,7 @@ void main() async {
   await HiveStorage().ensureOpen(boxWallet);
   await HiveStorage().ensureOpen(boxTokens);
   await HiveStorage().ensureOpen(boxTx, lazy: true);
+  await ImageCacheRepo.I.init();
   final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet);
   final bool hasWallets = wallets != null && wallets.isNotEmpty;
   runApp(

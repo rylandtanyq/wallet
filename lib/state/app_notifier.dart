@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/request/request.api.dart';
 import 'package:untitled1/util/theme_persistence.dart';
 
 class ThemeNotifier extends StateNotifier<ThemeMode> {
@@ -67,5 +68,19 @@ class RiseAndFallCycleNotifier extends StateNotifier<String> {
     state = key;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefKey, key);
+  }
+}
+
+class GetWalletTokensNotifier extends StateNotifier<AsyncValue<dynamic>> {
+  GetWalletTokensNotifier() : super(const AsyncLoading());
+
+  Future fetchWalletTokenData(String tokenAddress) async {
+    try {
+      final walletTokenData = await WalletApi.walletTokensDataFetch(tokenAddress);
+      state = AsyncValue.data(walletTokenData);
+    } catch (e) {
+      debugPrint('获取钱包代币失败: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+    }
   }
 }

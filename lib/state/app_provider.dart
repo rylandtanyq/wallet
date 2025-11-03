@@ -13,3 +13,7 @@ final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
 final riseAndFallCycleProvide = StateNotifierProvider<RiseAndFallCycleNotifier, String>((ref) {
   return RiseAndFallCycleNotifier();
 });
+
+final getWalletTokensNotifierProvide = StateNotifierProvider.family<GetWalletTokensNotifier, AsyncValue<dynamic>, String>((ref, tokenAddress) {
+  return GetWalletTokensNotifier();
+});

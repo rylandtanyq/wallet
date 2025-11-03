@@ -31,6 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
     
+  shimmer: ^3.0.0
+  flutter_svg: ^2.0.10+1
   decimal: ^2.3.3
   flutter_inappwebview: ^6.1.5
   slang: ^4.8.1
@@ -88,7 +90,7 @@ dependencies:
   # 需要FFI支持
   ffi: ^2.0.1
   # 文件路径处理（可选）
-  path_provider: ^2.1.1
+  path_provider: ^2.1.4
   # 安全存储
   flutter_secure_storage: ^8.0.0
   #加密工具

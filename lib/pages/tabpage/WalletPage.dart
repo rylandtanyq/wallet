@@ -24,6 +24,7 @@ import 'package:untitled1/pages/transaction_history.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:untitled1/widget/tokenIcon.dart';
 import '../../base/base_page.dart';
 import '../../constants/AppColors.dart';
 import '../../util/HiveStorage.dart';
@@ -853,27 +854,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         child: Row(
           children: [
-            Stack(
-              children: [
-                ClipOval(
-                  child: Image.asset('assets/images/ic_home_bit_coin.png', width: 45.w, height: 45.w),
-                ),
-                Positioned(
-                  bottom: 2,
-                  right: 2,
-                  width: 10.w,
-                  height: 10.w,
-                  child: CircleAvatar(
-                    radius: 55, // 总半径(图片半径+白边宽度)
-                    backgroundColor: Colors.white, // 白边颜色
-                    child: CircleAvatar(
-                      radius: 50, // 图片半径
-                      backgroundImage: AssetImage('assets/images/ic_home_bit_coin.png'),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            ClipRRect(borderRadius: BorderRadiusGeometry.circular(50), child: TokenIcon(item.image, size: 40)),
             SizedBox(width: 10.w),
             Expanded(
               child: Column(
