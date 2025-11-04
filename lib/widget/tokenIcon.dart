@@ -62,6 +62,30 @@ class TokenIcon extends StatelessWidget {
     if (uri == null || !(uri.isScheme('http') || uri.isScheme('https'))) return _ph();
     final fixed = _fixJitoImageUri(uri);
 
+    final pathLower = fixed.path.toLowerCase();
+    if (pathLower.endsWith('.json')) {
+      // 明确是 metadata.json → 直接默认图
+      return _ph();
+    }
+    if (fixed.host.endsWith('ipfs.nftstorage.link')) {
+      // nftstorage 的 CID 子域名且无图片后缀 → 当作 metadata，直接默认图
+      final sub = fixed.host.split('.').first; // 形如 bafkrei...
+      final bool looksCid = sub.startsWith('baf') && sub.length > 40;
+      final bool hasImageExt =
+          pathLower.endsWith('.png') ||
+          pathLower.endsWith('.jpg') ||
+          pathLower.endsWith('.jpeg') ||
+          pathLower.endsWith('.gif') ||
+          pathLower.endsWith('.webp') ||
+          pathLower.endsWith('.svg') ||
+          pathLower.endsWith('.avif') ||
+          pathLower.endsWith('.bmp');
+
+      if (looksCid && !hasImageExt) {
+        return _ph();
+      }
+    }
+
     // arweave 走多网关回退，否则普通下载
     final Future<Response<Uint8List>> future = fixed.host.contains('arweave')
         ? fetchArweaveWithFallback(fixed.toString())
@@ -95,7 +119,7 @@ class TokenIcon extends StatelessWidget {
     );
   }
 
-  Widget _ph() => placeholder ?? Image.asset('assets/images/solana_logo.png', width: size, height: size);
+  Widget _ph() => placeholder ?? Image.asset('assets/images/default_profile_picture.png', width: size, height: size);
 
   // ipfs:// → https://ipfs.io/ipfs/...
   String _normalizeIpfs(String url) {

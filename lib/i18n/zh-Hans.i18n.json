@@ -264,7 +264,11 @@
         "no_nft_domain": "您还没有专属的NFT域名",
         "go_to_market": "去交易市场逛逛？",
         "enter_new_wallet_name": "输入新的钱包名称",
-        "please_enter_content": "请输入内容"
+        "please_enter_content": "请输入内容",
+        "no_token_found": "没有搜到你想要的代币",
+        "please_check_token_address": "请确保输入正确的代币地址",
+        "unknown_error_please_try_again_later": "未知错误，请稍后重试",
+        "searched_token": "搜索的代币"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "选择转账币种",

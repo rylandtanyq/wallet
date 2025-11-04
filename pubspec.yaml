@@ -246,6 +246,7 @@ flutter:
     - assets/images/fiery_second.png
     - assets/images/fiery_third.png
     - assets/images/no_transaction.png
+    - assets/images/default_profile_picture.png
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg

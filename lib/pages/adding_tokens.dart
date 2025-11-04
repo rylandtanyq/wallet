@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
@@ -52,9 +53,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     setState(() => _currentAddr = addr);
     _debounce = Timer(Duration(milliseconds: 1000), () async {
       if (_currentAddr.isEmpty) return;
-      ref
-          .read(getWalletTokensNotifierProvide('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263').notifier)
-          .fetchWalletTokenData('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263');
+      ref.read(getWalletTokensNotifierProvide(addr).notifier).fetchWalletTokenData(addr);
     });
   }
 
@@ -74,7 +73,10 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
       if (exists) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(t.wallet.solana_token_added(tokenName: tokensResult.title)),
+            content: Text(
+              t.wallet.solana_token_added(tokenName: tokensResult.title),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+            ),
             backgroundColor: Theme.of(context).colorScheme.primary,
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -82,6 +84,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
             duration: Duration(seconds: 2),
           ),
         );
+        _textEditingController.clear();
         return;
       }
       list.add(tokensResult);
@@ -126,7 +129,10 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(t.wallet.solana_token_deleted(tokenName: removed.title)),
+          content: Text(
+            t.wallet.solana_token_deleted(tokenName: removed.title),
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          ),
           backgroundColor: Theme.of(context).colorScheme.primary,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -236,28 +242,47 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
 
   Widget _buildSearchResult() {
     if (_currentAddr.isEmpty) return const SizedBox.shrink();
-    final async = ref.watch(getWalletTokensNotifierProvide('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263'));
+    final async = ref.watch(getWalletTokensNotifierProvide(_currentAddr));
     return async.when(
       data: (data) {
         debugPrint('数据请求成功: $data');
         // data 期望是 List<Map>
-        final list = (data as List?)?.cast<Map>() ?? const [];
-        if (list.isEmpty) return const SizedBox.shrink();
+        final List<Map<String, dynamic>> list = (data is List)
+            ? data.map((e) => Map<String, dynamic>.from(e as Map)).toList()
+            : const <Map<String, dynamic>>[];
+
+        if (list.isEmpty) {
+          return Container(
+            width: double.infinity,
+            height: 80,
+            margin: EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+                Text(t.wallet.no_token_found, style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                Text(
+                  t.wallet.please_check_token_address,
+                  style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                ),
+              ],
+            ),
+          );
+        }
 
         final item = Map<String, dynamic>.from(list.first);
 
         // 解析 metadata -> image
         String? image;
         final metaRaw = item['metadata'];
-        if (metaRaw is String && metaRaw.isNotEmpty) {
+        if (metaRaw is String && metaRaw.trim().isNotEmpty) {
           try {
             final meta = jsonDecode(metaRaw);
             if (meta is Map<String, dynamic>) {
               image = meta['image'] as String?;
             }
-          } catch (_) {
-            /* 不是合法 JSON 就走兜底 */
-          }
+          } catch (_) {} // 不是合法 JSON 就算了
         }
         // 兜底字段
         image ??= item['logoURI'] as String?;
@@ -270,7 +295,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "搜索的代币",
+              t.wallet.searched_token,
               style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 20),
@@ -281,7 +306,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ClipRRect(borderRadius: BorderRadiusGeometry.circular(50), child: TokenIcon(image, size: 40)),
+                  ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(image, size: 40)),
                   SizedBox(width: 10.w),
                   Expanded(
                     child: Row(
@@ -325,10 +350,59 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
         );
       },
       error: (e, _) {
-        return Text("加载失败");
+        debugPrint('数据错误: $e');
+        return Container(
+          width: double.infinity,
+          height: 80,
+          margin: EdgeInsets.only(bottom: 20),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+              Text(t.wallet.unknown_error_please_try_again_later, maxLines: 2, textAlign: TextAlign.center),
+            ],
+          ),
+        );
       },
       loading: () {
-        return Text("记载中....");
+        return Shimmer.fromColors(
+          baseColor: const Color.fromARGB(150, 224, 224, 224),
+          highlightColor: Colors.grey.shade400,
+          child: Container(
+            width: double.infinity,
+            height: 80,
+            margin: EdgeInsets.only(bottom: 20),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(color: const Color.fromARGB(150, 224, 224, 224), borderRadius: BorderRadius.circular(50)),
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width / 3,
+                        height: 16,
+                        decoration: BoxDecoration(color: const Color.fromARGB(150, 224, 224, 224), borderRadius: BorderRadius.circular(10)),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        height: 16,
+                        decoration: BoxDecoration(color: const Color.fromARGB(150, 224, 224, 224), borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }
@@ -347,7 +421,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ClipRRect(borderRadius: BorderRadiusGeometry.circular(50), child: TokenIcon(item.image, size: 40)),
+              ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(item.image, size: 40)),
               SizedBox(width: 10.w),
               Expanded(
                 child: Row(

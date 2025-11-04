@@ -264,7 +264,11 @@
         "no_nft_domain": "You don’t have a personal NFT domain yet",
         "go_to_market": "Go visit the marketplace?",
         "enter_new_wallet_name": "Enter a new wallet name",
-        "please_enter_content": "Please enter content"
+        "please_enter_content": "Please enter content",
+        "no_token_found": "No token found",
+        "please_check_token_address": "Please make sure you entered the correct token address",
+        "unknown_error_please_try_again_later": "Unknown error, please try again later",
+        "searched_token": "Searched token"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Select Coin",

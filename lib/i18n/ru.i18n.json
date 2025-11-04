@@ -264,7 +264,11 @@
         "no_nft_domain": "У вас ещё нет персонального NFT-домена",
         "go_to_market": "Перейти на торговую площадку?",
         "enter_new_wallet_name": "Введите новое имя кошелька",
-        "please_enter_content": "Пожалуйста, введите содержимое"
+        "please_enter_content": "Пожалуйста, введите содержимое",
+        "no_token_found": "Не удалось найти нужный токен",
+        "please_check_token_address": "Убедитесь, что вы ввели правильный адрес токена",
+        "unknown_error_please_try_again_later": "Неизвестная ошибка, повторите попытку позже",
+        "searched_token": "Искомый токен"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Выбрать монету",

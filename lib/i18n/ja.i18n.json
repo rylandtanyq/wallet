@@ -264,7 +264,11 @@
         "no_nft_domain": "まだ専用のNFTドメインをお持ちではありません",
         "go_to_market": "マーケットを見に行きますか？",
         "enter_new_wallet_name": "新しいウォレット名を入力してください",
-        "please_enter_content": "内容を入力してください"
+        "please_enter_content": "内容を入力してください",
+        "no_token_found": "お探しのトークンが見つかりませんでした",
+        "please_check_token_address": "正しいトークンアドレスを入力したことを確認してください",
+        "unknown_error_please_try_again_later": "不明なエラーが発生しました。しばらくしてからもう一度お試しください",
+        "searched_token": "検索したトークン"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "送金通貨を選択",
