@@ -19,7 +19,7 @@ import 'package:untitled1/pages/CoinDetailPage.dart';
 import 'package:untitled1/pages/SelectedPayeePage.dart';
 import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
-import 'package:untitled1/pages/adding_tokens.dart';
+import 'package:untitled1/pages/add_tokens_page/index.dart';
 import 'package:untitled1/pages/transaction_history.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';

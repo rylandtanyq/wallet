@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/pages/add_tokens_page/fragments/hint_fragments.dart';
+import 'package:untitled1/pages/add_tokens_page/fragments/shimmer_fragments.dart';
+import 'package:untitled1/pages/add_tokens_page/fragments/token_item_fragments.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/util/image_cache_repo.dart';
-import 'package:untitled1/widget/tokenIcon.dart';
 
 class AddingTokens extends ConsumerStatefulWidget {
   const AddingTokens({super.key});
@@ -245,29 +246,17 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     final async = ref.watch(getWalletTokensNotifierProvide(_currentAddr));
     return async.when(
       data: (data) {
-        debugPrint('数据请求成功: $data');
+        debugPrint('data success: $data');
         // data 期望是 List<Map>
         final List<Map<String, dynamic>> list = (data is List)
             ? data.map((e) => Map<String, dynamic>.from(e as Map)).toList()
             : const <Map<String, dynamic>>[];
 
         if (list.isEmpty) {
-          return Container(
-            width: double.infinity,
-            height: 80,
-            margin: EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10)),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-                Text(t.wallet.no_token_found, style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                Text(
-                  t.wallet.please_check_token_address,
-                  style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground),
-                ),
-              ],
-            ),
+          return HintFragments(
+            icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+            hitTitle: t.wallet.no_token_found,
+            hitSubtitle: t.wallet.please_check_token_address,
           );
         }
 
@@ -299,111 +288,27 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
               style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              height: 40.h,
-              margin: EdgeInsets.only(bottom: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(image, size: 40)),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              name,
-                              style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
-                            ),
-                            Text(symbol, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '0.00',
-                              style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
-                            ),
-                            Text('¥0.00', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  GestureDetector(
-                    onTap: () => _addedToken(name, symbol, image ?? ''),
-                    child: Icon(Icons.add_circle_outline, color: Theme.of(context).colorScheme.primary),
-                  ),
-                ],
-              ),
+            TokenItemFragments(
+              image: image!,
+              name: name,
+              symbol: symbol,
+              price: '0.00',
+              num: '0.00',
+              action: TokenTrailingAction.add,
+              onTap: () => _addedToken(name, symbol, image ?? ''),
             ),
+            SizedBox(height: 30),
           ],
         );
       },
       error: (e, _) {
-        debugPrint('数据错误: $e');
-        return Container(
-          width: double.infinity,
-          height: 80,
-          margin: EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-              Text(t.wallet.unknown_error_please_try_again_later, maxLines: 2, textAlign: TextAlign.center),
-            ],
-          ),
+        debugPrint('data error: $e');
+        return HintFragments(
+          icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+          hitTitle: t.wallet.unknown_error_please_try_again_later,
         );
       },
-      loading: () {
-        return Shimmer.fromColors(
-          baseColor: const Color.fromARGB(150, 224, 224, 224),
-          highlightColor: Colors.grey.shade400,
-          child: Container(
-            width: double.infinity,
-            height: 80,
-            margin: EdgeInsets.only(bottom: 20),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(color: const Color.fromARGB(150, 224, 224, 224), borderRadius: BorderRadius.circular(50)),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width / 3,
-                        height: 16,
-                        decoration: BoxDecoration(color: const Color.fromARGB(150, 224, 224, 224), borderRadius: BorderRadius.circular(10)),
-                      ),
-                      Container(
-                        width: double.infinity,
-                        height: 16,
-                        decoration: BoxDecoration(color: const Color.fromARGB(150, 224, 224, 224), borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      loading: () => ShimmerFragments(),
     );
   }
 
@@ -414,60 +319,22 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         final item = tokenList[index];
-        return Container(
-          margin: EdgeInsets.only(top: index == 0 ? 20 : 0),
-          width: double.infinity,
-          height: 40.h,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(item.image, size: 40)),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
-                        ),
-                        Text(item.subtitle, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                      ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '0.00',
-                          style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
-                        ),
-                        Text('¥0.00', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 10.w),
-              // Icon(Icons.add_circle_outline),
-              GestureDetector(
-                onLongPress: () async {
-                  HapticFeedback.heavyImpact();
-                  final confirm = await _showDialogWidget(
-                    title: t.wallet.delete,
-                    content: t.wallet.confirm_delete_solana_token(token: item.title),
-                  );
-                  if (confirm) _deleteTokens(index);
-                },
-                child: Icon(Icons.remove_circle_outline, color: Theme.of(context).colorScheme.error),
-              ),
-            ],
-          ),
+        return TokenItemFragments(
+          index: index,
+          image: item.image,
+          name: item.title,
+          symbol: item.subtitle,
+          num: '0.00',
+          price: '0.00',
+          action: TokenTrailingAction.remove,
+          onLongPress: () async {
+            HapticFeedback.heavyImpact();
+            final confirm = await _showDialogWidget(
+              title: t.wallet.delete,
+              content: t.wallet.confirm_delete_solana_token(token: item.title),
+            );
+            if (confirm) _deleteTokens(index);
+          },
         );
       },
       separatorBuilder: (BuildContext context, int index) {
