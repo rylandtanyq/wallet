@@ -158,6 +158,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         price: '0.00',
         number: '0.00',
         toadd: true,
+        tokenAddress: '',
       );
       _tokenList.add(solanaToken);
       _fillteredTokensList = List.from(_tokenList);

@@ -58,14 +58,14 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     });
   }
 
-  Future<void> _addedToken(String name, String symbol, String image) async {
+  Future<void> _addedToken(String name, String symbol, String image, String mint) async {
     final confirm = await _showDialogWidget(
       title: t.wallet.add,
       content: t.wallet.confirm_add_solana_token(token: name),
     );
     if (!confirm) return;
     try {
-      final tokensResult = Tokens(image: image, title: name, subtitle: symbol, price: '0.00', number: '0.00', toadd: true);
+      final tokensResult = Tokens(image: image, title: name, subtitle: symbol, price: '0.00', number: '0.00', toadd: true, tokenAddress: mint);
       // 读取已保存的列表
       List<Map> rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
       final list = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
@@ -279,6 +279,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
 
         final name = (item['name'] as String?) ?? '';
         final symbol = (item['symbol'] as String?) ?? '';
+        final mint = (item['mint'] as String?) ?? '';
         debugPrint('[_buildSearchResult] render with addr=$_currentAddr');
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,7 +296,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
               price: '0.00',
               num: '0.00',
               action: TokenTrailingAction.add,
-              onTap: () => _addedToken(name, symbol, image ?? ''),
+              onTap: () => _addedToken(name, symbol, image ?? '', mint),
             ),
             SizedBox(height: 30),
           ],
