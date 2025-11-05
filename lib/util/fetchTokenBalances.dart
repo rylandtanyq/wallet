@@ -7,7 +7,7 @@ import 'package:untitled1/servise/solana_servise.dart';
 /// 返回字符串（保持精度的字符串；UI 再格式化）
 Future<String> fetchTokenBalance({required String ownerAddress, String? mintAddress}) async {
   try {
-    if (mintAddress == null || mintAddress.trim().isEmpty) {
+    if (mintAddress == null || mintAddress.trim().isEmpty || mintAddress == 'SOL') {
       final sol = await getSolBalance(
         rpcUrl: 'https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/',
         ownerAddress: ownerAddress,

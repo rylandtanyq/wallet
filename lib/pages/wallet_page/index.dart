@@ -47,6 +47,7 @@ class WalletPage extends ConsumerStatefulWidget {
 }
 
 class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPage>, TickerProviderStateMixin, WidgetsBindingObserver {
+  static const String kSOL_KEY = 'SOL';
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
   final solana = Solana();
   final TextEditingController _textEditingController = TextEditingController();
@@ -108,6 +109,12 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   double _portfolioTotal(List<Tokens> list) => list.fold(0.0, (sum, t) => sum + _tokenSubtotal(t));
 
   String _fmt2(num v) => v.toStringAsFixed(2);
+
+  String _lookupKey(Tokens t) {
+    final addr = t.tokenAddress.trim();
+    final isSol = addr.isEmpty && t.title.toUpperCase() == 'SOL';
+    return isSol ? kSOL_KEY : addr;
+  }
 
   @override
   void initState() {
@@ -190,10 +197,10 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         image: 'assets/images/solana_logo.png',
         title: 'SOL',
         subtitle: 'Solana',
-        price: '0.000',
-        number: '0.000',
+        price: '0.00',
+        number: '0.00',
         toadd: true,
-        tokenAddress: '',
+        tokenAddress: 'SOL',
       );
       _tokenList.add(solanaToken);
       _fillteredTokensList = List.from(_tokenList);
@@ -208,6 +215,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   Future<void> _refreshTokenPrice() async {
     // 收集地址（统一小写、去重；SOL 无地址先略过）
     final addresses = _tokenList.map((t) => t.tokenAddress.trim()).where((s) => s.isNotEmpty).toSet().toList();
+
+    final hasSol = _tokenList.any((t) => t.tokenAddress.trim().isEmpty && t.title.toUpperCase() == 'SOL');
+
+    if (hasSol && !_addresses.contains(kSOL_KEY)) _addresses.add(kSOL_KEY);
+
     setState(() => _addresses = addresses);
     if (addresses.isEmpty) return;
 
@@ -216,14 +228,14 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     _priceSub = ref.listenManual<AsyncValue<TokenPriceModel>>(getWalletTokensPriceProvide(_addresses), (prev, next) {
       next.when(
         data: (data) async {
+          debugPrint('data print: $data');
           // 建映射：address -> unitPrice
           final priceMap = <String, String>{for (final p in data.result) p.address.trim(): p.unitPrice};
 
-          // 合并回内存列表（没有 copyWith 就 new 一个）
+          // 合并回内存列表
           for (var i = 0; i < _tokenList.length; i++) {
             final t = _tokenList[i];
             final addr = t.tokenAddress.trim();
-            if (addr.isEmpty) continue; // 先不处理 SOL
 
             final newPrice = priceMap[addr];
             if (newPrice == null) continue;
@@ -923,6 +935,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         ? AsyncValue<TokenPriceModel>.data(TokenPriceModel(result: []))
         : ref.watch(getWalletTokensPriceProvide(_addresses));
 
+    final priceMap = tokensPriceState.maybeWhen(
+      data: (m) => {for (final it in m.result) it.address.trim(): it.unitPrice.trim()},
+      orElse: () => const <String, String>{},
+    );
+
     if (tokensPriceState.hasError) {
       return Padding(
         padding: EdgeInsetsGeometry.symmetric(horizontal: 12, vertical: 12),
@@ -944,10 +961,9 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              // return _buildTokenItem(index);
               return tokensPriceState.when(
                 data: (data) {
-                  return _buildTokenItem(index);
+                  return _buildTokenItem(index, priceMap);
                 },
                 error: (e, StackTrace) => null,
                 loading: () {
@@ -1023,10 +1039,15 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     return Container(height: 200, padding: EdgeInsets.all(10), child: Text('银行卡'));
   }
 
-  Widget _buildTokenItem(int index) {
+  Widget _buildTokenItem(int index, Map<String, String> priceMap) {
     final item = _fillteredTokensList[index];
     final number = double.tryParse(item.number);
     final price = double.tryParse(item.price);
+
+    final key = item.tokenAddress == "SOL" ? "SOL" : item.tokenAddress;
+    final priceStr = priceMap[key];
+    debugPrint('priceStr print: $priceStr');
+
     return GestureDetector(
       onTap: () => {Get.to(CoinDetailPage())},
       child: Container(
@@ -1049,10 +1070,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                       SizedBox(width: 6),
                     ],
                   ),
-                  Text(
-                    item.price,
-                    style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
-                  ),
+                  if (priceStr != null)
+                    Text(
+                      item.price,
+                      style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
+                    ),
                 ],
               ),
             ),
