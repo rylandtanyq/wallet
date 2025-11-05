@@ -18,6 +18,7 @@ import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/widget/CustomTextField.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:untitled1/widget/tokenIcon.dart';
 
 import '../../base/base_page.dart';
 
@@ -28,7 +29,8 @@ class TransferPage extends StatefulWidget {
   final String currency;
   final String tokenAddress;
   final String network;
-  const TransferPage({super.key, required this.currency, required this.tokenAddress, required this.network});
+  final String image;
+  const TransferPage({super.key, required this.currency, required this.tokenAddress, required this.network, required this.image});
 
   @override
   State<StatefulWidget> createState() => _TransferPageState();
@@ -112,7 +114,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                           onPressed: () {},
                           child: Row(
                             children: [
-                              Image.asset('assets/images/ic_home_bit_coin.png', width: 20.5.w, height: 20.5.w),
+                              ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(widget.image, size: 20)),
                               SizedBox(width: 8.w),
                               Expanded(
                                 child: Text(
@@ -179,7 +181,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                               style: TextStyle(fontSize: 13.sp, color: AppColors.color_757F7F),
                             ),
                             SizedBox(width: 5.w),
-                            Image.asset('assets/images/ic_home_bit_coin.png', width: 20.5.w, height: 20.5.w),
+                            ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(widget.image, size: 20)),
                           ],
                         ),
                         SizedBox(height: 6.h),

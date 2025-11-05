@@ -26,6 +26,7 @@ import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/fetchTokenBalances.dart';
+import 'package:untitled1/util/toFixedTrunc.dart';
 import 'package:untitled1/widget/tokenIcon.dart';
 import '../../base/base_page.dart';
 import '../../constants/AppColors.dart';
@@ -233,14 +234,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     } catch (e, st) {
       debugPrint('refresh prices failed: $e\n$st');
     }
-  }
-
-  String toFixedTrunc(String s, {int digits = 2}) {
-    if (!s.contains('.')) return '$s.${'0' * digits}';
-    final parts = s.split('.');
-    final frac = parts[1];
-    final cut = frac.length >= digits ? frac.substring(0, digits) : frac.padRight(digits, '0');
-    return '${parts[0]}.$cut';
   }
 
   Future<void> _refreshTokenAmounts() async {

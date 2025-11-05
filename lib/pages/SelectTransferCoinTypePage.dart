@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
+import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/TransferPage.dart';
+import 'package:untitled1/util/HiveStorage.dart';
+import 'package:untitled1/util/toFixedTrunc.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/widget/HorizntalSelectList.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:untitled1/widget/tokenIcon.dart';
 import '../constants/AppColors.dart';
 
 class SelectTransferCoinTypePage extends StatefulWidget {
@@ -16,12 +21,43 @@ class SelectTransferCoinTypePage extends StatefulWidget {
 }
 
 class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage> with TickerProviderStateMixin {
+  late List<Tokens> _tokenList = [];
   final List<Map<String, String>> _items = [
     {"currency": "SOL", "network": "Solana", "tokenAddress": ""},
     {"currency": "USDT", "network": "Solana", "tokenAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"},
     {"currency": "USDC", "network": "Solana", "tokenAddress": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"},
     {"currency": "WSOL", "network": "Solana", "tokenAddress": "So11111111111111111111111111111111111111112"},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadingTokens();
+  }
+
+  Future<void> _loadingTokens() async {
+    final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
+    _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
+    // _fillteredTokensList = List.from(_tokenList);
+    final existsSolana = _tokenList.any((token) => token.title.toUpperCase() == 'SOL' || token.title.toUpperCase() == 'SOLANA');
+    if (!existsSolana) {
+      final solanaToken = Tokens(
+        image: 'assets/images/solana_logo.png',
+        title: 'SOL',
+        subtitle: 'Solana',
+        price: '0.000',
+        number: '0.000',
+        toadd: true,
+        tokenAddress: '',
+      );
+      _tokenList.add(solanaToken);
+      // _fillteredTokensList = List.from(_tokenList);
+
+      final list = _tokenList.map((t) => t.toJson()).toList();
+      await HiveStorage().putList<Map>('tokens', list, boxName: boxTokens);
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,16 +90,16 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
                 ),
               ],
             ),
-            HorizontalSelectList(
-              items: List.generate(10, (index) {
-                return '榜单 ${index + 1}';
-              }),
-              onSelected: (index) {
-                print('选中: $index');
-              },
-            ),
-            SizedBox(height: 15.h),
-            Divider(height: 0.5, color: Theme.of(context).colorScheme.surface),
+            // HorizontalSelectList(
+            //   items: List.generate(10, (index) {
+            //     return '榜单 ${index + 1}';
+            //   }),
+            //   onSelected: (index) {
+            //     print('选中: $index');
+            //   },
+            // ),
+            // SizedBox(height: 15.h),
+            // Divider(height: 0.5, color: Theme.of(context).colorScheme.surface),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -72,7 +108,7 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
                     ListView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
-                      itemCount: _items.length,
+                      itemCount: _tokenList.length,
                       itemBuilder: (context, index) {
                         return _buildCoinTypeItem(index);
                       },
@@ -123,41 +159,40 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
   }
 
   Widget _buildCoinTypeItem(int index) {
-    final currency = _items[index]["currency"];
-    final tokenAddress = _items[index]["tokenAddress"];
-    final network = _items[index]["network"];
+    final item = _tokenList[index];
+    final price = item.price;
+    final number = item.number;
     return GestureDetector(
       onTap: () async {
         Navigator.pop(context);
         // await HiveStorage().ensureBoxReady();
-        Get.to(TransferPage(currency: currency!, tokenAddress: tokenAddress!, network: network!));
+        Get.to(TransferPage(currency: item.title, tokenAddress: item.tokenAddress, network: item.subtitle, image: item.image));
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         color: Theme.of(context).colorScheme.background,
         child: Row(
           children: [
-            ClipOval(
-              child: Image.asset('assets/images/ic_home_bit_coin.png', width: 40.w, height: 40.h),
-            ),
+            ClipOval(child: TokenIcon(item.image)),
             SizedBox(width: 10.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _items[index]["currency"] ?? "",
+                    item.title,
                     style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
                   ),
-                  Text('Solana', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  Text(price, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('9.${index}0', style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                Text(toFixedTrunc(number, digits: 2), style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                 Text(
-                  '¥${index + 1}.00',
+                  toFixedTrunc(((double.tryParse(price))! * double.tryParse(number)!).toString(), digits: 2),
                   style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                 ),
               ],
