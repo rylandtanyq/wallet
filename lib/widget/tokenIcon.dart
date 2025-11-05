@@ -87,12 +87,12 @@ class TokenIcon extends StatelessWidget {
     }
 
     // arweave 走多网关回退，否则普通下载
-    final Future<Response<Uint8List>> future = fixed.host.contains('arweave')
-        ? fetchArweaveWithFallback(fixed.toString())
-        : _dio.getUri<Uint8List>(
-            fixed,
-            options: Options(responseType: ResponseType.bytes, followRedirects: true, validateStatus: (s) => s != null && s < 400),
-          );
+    // final Future<Response<Uint8List>> future = fixed.host.contains('arweave')
+    //     ? fetchArweaveWithFallback(fixed.toString())
+    //     : _dio.getUri<Uint8List>(
+    //         fixed,
+    //         options: Options(responseType: ResponseType.bytes, followRedirects: true, validateStatus: (s) => s != null && s < 400),
+    //       );
 
     final url = s;
 

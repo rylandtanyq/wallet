@@ -25,46 +25,15 @@ class DiscoveryPage extends ConsumerStatefulWidget {
 class _DiscoveryPageState extends ConsumerState<DiscoveryPage> with BasePage<DiscoveryPage>, AutomaticKeepAliveClientMixin {
   int _selectedIndex = 0;
   final List<Widget> _pages = [DiscoveryDAppPage(), DiscoveryMakingCoinCenterPage(), DiscoveryHotListPage()];
-  late final List<String> _addresses = const [
-    'jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL',
-    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-    'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
-  ];
 
   @override
   void initState() {
     super.initState();
-    // request();
-    // request2();
-    ref.read(getWalletTokensPriceProvide(_addresses).notifier).fetchWalletTokenPriceData(_addresses);
-  }
-
-  Future<void> request() async {
-    try {
-      final asd = await WalletApi.walletTokensDataFetch('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB');
-      debugPrint('00900--- $asd');
-    } catch (e) {
-      debugPrint('wqe: $e');
-    }
-  }
-
-  Future<void> request2() async {
-    try {
-      final asd = await WalletApi.listWalletTokenDataFetch([
-        'jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL',
-        'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-      ]);
-      debugPrint("list 头像数据: $asd");
-    } catch (e) {
-      debugPrint('wqe2: $e');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final ret = ref.watch(getWalletTokensPriceProvide(_addresses));
-    debugPrint('123qwe: $ret');
 
     return Scaffold(
       appBar: AppBar(
@@ -74,23 +43,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> with BasePage<Dis
           children: [_buildTabText(0, 'DApp'), _buildTabText(1, '赚币中心'), _buildTabText(2, '热榜')],
         ),
       ),
-      body: Column(
-        children: [
-          // _pages[_selectedIndex],
-          ret.when(
-            data: (data) {
-              debugPrint('000>>??? $data');
-              return Text("成功");
-            },
-            error: (err, e) {
-              return Text("错误");
-            },
-            loading: () {
-              return Text("记载");
-            },
-          ),
-        ],
-      ),
+      body: _pages[_selectedIndex],
     );
   }
 

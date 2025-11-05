@@ -19,8 +19,11 @@ import 'package:untitled1/pages/CoinDetailPage.dart';
 import 'package:untitled1/pages/SelectedPayeePage.dart';
 import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
+import 'package:untitled1/pages/add_tokens_page/fragments/hint_fragments.dart';
+import 'package:untitled1/pages/add_tokens_page/fragments/shimmer_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/index.dart';
 import 'package:untitled1/pages/transaction_history.dart';
+import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/request/request.api.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
@@ -88,8 +91,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   late Map<String, String> _currentNetwork = {};
   late List<Tokens> _tokenList = [];
   late List<Tokens> _fillteredTokensList = [];
+  late List<String> _addresses = [];
+  ProviderSubscription<AsyncValue<TokenPriceModel>>? _priceSub;
   Timer? _timer;
-  bool? _hasMnemonic;
+  bool _bootingTokens = true; // 是否还在本地初始化, 刚进页面、读 Hive 期间
+  bool _hadLocalTokens = false; // 本地有没有 token, 用于判定是否显示空态
 
   double _parseNum(String s) {
     // 兼容 "1,234.56" 这类字符串；空值返回 0
@@ -123,6 +129,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     _tabController.dispose();
     _refreshController.dispose();
     _timer?.cancel();
+    _priceSub?.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -170,9 +177,13 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Future<void> _loadingTokens() async {
+    _bootingTokens = true;
+    if (mounted) setState(() {});
     final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
     _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
     _fillteredTokensList = List.from(_tokenList);
+    // 如果本地没有代币, 则显示空状态
+    _hadLocalTokens = _tokenList.isNotEmpty;
     final existsSolana = _tokenList.any((token) => token.title.toUpperCase() == 'SOL' || token.title.toUpperCase() == 'SOLANA');
     if (!existsSolana) {
       final solanaToken = Tokens(
@@ -190,50 +201,55 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       final list = _tokenList.map((t) => t.toJson()).toList();
       await HiveStorage().putList<Map>('tokens', list, boxName: boxTokens);
     }
-    setState(() {});
+    _bootingTokens = false;
+    if (mounted) setState(() {});
   }
 
   Future<void> _refreshTokenPrice() async {
     // 收集地址（统一小写、去重；SOL 无地址先略过）
-    final addresses = _tokenList.map((t) => t.tokenAddress.trim().toLowerCase()).where((s) => s.isNotEmpty).toSet().toList();
+    final addresses = _tokenList.map((t) => t.tokenAddress.trim()).where((s) => s.isNotEmpty).toSet().toList();
+    setState(() => _addresses = addresses);
     if (addresses.isEmpty) return;
 
-    try {
-      // 一次请求拿所有价格
-      final list = await WalletApi.listWalletTokenDataFetch(addresses);
+    ref.read(getWalletTokensPriceProvide(_addresses).notifier).fetchWalletTokenPriceData(_addresses);
+    _priceSub?.closed;
+    _priceSub = ref.listenManual<AsyncValue<TokenPriceModel>>(getWalletTokensPriceProvide(_addresses), (prev, next) {
+      next.when(
+        data: (data) async {
+          // 建映射：address -> unitPrice
+          final priceMap = <String, String>{for (final p in data.result) p.address.trim(): p.unitPrice};
 
-      // 建映射：address -> unitPrice
-      final priceMap = <String, String>{for (final p in list) p.address.trim().toLowerCase(): p.unitPrice};
+          // 合并回内存列表（没有 copyWith 就 new 一个）
+          for (var i = 0; i < _tokenList.length; i++) {
+            final t = _tokenList[i];
+            final addr = t.tokenAddress.trim();
+            if (addr.isEmpty) continue; // 先不处理 SOL
 
-      // 合并回内存列表（没有 copyWith 就 new 一个）
-      for (var i = 0; i < _tokenList.length; i++) {
-        final t = _tokenList[i];
-        final addr = t.tokenAddress.trim().toLowerCase();
-        if (addr.isEmpty) continue; // 先不处理 SOL
+            final newPrice = priceMap[addr];
+            if (newPrice == null) continue;
 
-        final newPrice = priceMap[addr];
-        if (newPrice == null) continue;
+            _tokenList[i] = Tokens(
+              image: t.image,
+              title: t.title,
+              subtitle: t.subtitle,
+              price: newPrice, // 覆盖价格
+              number: t.number,
+              toadd: t.toadd,
+              tokenAddress: t.tokenAddress,
+            );
+          }
 
-        _tokenList[i] = Tokens(
-          image: t.image,
-          title: t.title,
-          subtitle: t.subtitle,
-          price: newPrice, // 覆盖价格
-          number: t.number,
-          toadd: t.toadd,
-          tokenAddress: t.tokenAddress,
-        );
-      }
+          // 回写 Hive + 刷新 UI
+          final toSave = _tokenList.map((t) => t.toJson()).toList();
+          await HiveStorage().putList<Map>('tokens', toSave, boxName: boxTokens);
 
-      // 回写 Hive + 刷新 UI
-      final toSave = _tokenList.map((t) => t.toJson()).toList();
-      await HiveStorage().putList<Map>('tokens', toSave, boxName: boxTokens);
-
-      _fillteredTokensList = List.from(_tokenList);
-      if (mounted) setState(() {});
-    } catch (e, st) {
-      debugPrint('refresh prices failed: $e\n$st');
-    }
+          _fillteredTokensList = List.from(_tokenList);
+          if (mounted) setState(() {});
+        },
+        loading: () {},
+        error: (e, StackTrace) => debugPrint('get token price failed: $e'),
+      );
+    });
   }
 
   Future<void> _refreshTokenAmounts() async {
@@ -877,7 +893,18 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   // 代币
   Widget _buildHomePage() {
-    if (_fillteredTokensList.isEmpty) {
+    if (_bootingTokens) {
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: 4,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 12), child: ShimmerFragments());
+        },
+      );
+    }
+
+    if (!_hadLocalTokens) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -891,6 +918,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         ),
       );
     }
+
+    final tokensPriceState = _addresses.isEmpty
+        ? AsyncValue<TokenPriceModel>.data(TokenPriceModel(result: []))
+        : ref.watch(getWalletTokensPriceProvide(_addresses));
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       child: Column(
@@ -902,7 +934,24 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              return _buildTokenItem(index);
+              // return _buildTokenItem(index);
+              return tokensPriceState.when(
+                data: (data) {
+                  return _buildTokenItem(index);
+                },
+                error: (e, StackTrace) {
+                  return Padding(
+                    padding: EdgeInsetsGeometry.symmetric(horizontal: 12),
+                    child: HintFragments(
+                      icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+                      hitTitle: t.wallet.unknown_error_please_try_again_later,
+                    ),
+                  );
+                },
+                loading: () {
+                  return Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 12), child: ShimmerFragments());
+                },
+              );
             },
             separatorBuilder: (BuildContext context, int index) {
               return SizedBox(height: 10);
