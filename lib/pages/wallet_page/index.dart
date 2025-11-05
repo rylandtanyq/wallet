@@ -21,9 +21,11 @@ import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
 import 'package:untitled1/pages/add_tokens_page/index.dart';
 import 'package:untitled1/pages/transaction_history.dart';
+import 'package:untitled1/request/request.api.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:untitled1/util/fetchTokenBalances.dart';
 import 'package:untitled1/widget/tokenIcon.dart';
 import '../../base/base_page.dart';
 import '../../constants/AppColors.dart';
@@ -88,6 +90,18 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   Timer? _timer;
   bool? _hasMnemonic;
 
+  double _parseNum(String s) {
+    // 兼容 "1,234.56" 这类字符串；空值返回 0
+    final t = (s).replaceAll(',', '').trim();
+    return double.tryParse(t) ?? 0.0;
+  }
+
+  double _tokenSubtotal(Tokens t) => _parseNum(t.price) * _parseNum(t.number);
+
+  double _portfolioTotal(List<Tokens> list) => list.fold(0.0, (sum, t) => sum + _tokenSubtotal(t));
+
+  String _fmt2(num v) => v.toStringAsFixed(2);
+
   @override
   void initState() {
     super.initState();
@@ -99,11 +113,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     });
     _searchController.addListener(_filterItems);
     WidgetsBinding.instance.addObserver(this);
-    _getCurrentSelectWalletfn().then((_) {
-      _updataWalletBalance();
-      _initWalletAndNetwork();
-      _loadingTokens();
-    });
+    _bootstrap();
     debugPrint('新存的助记词${_wallet.mnemonic}');
   }
 
@@ -145,6 +155,19 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     }
   }
 
+  Future<void> _bootstrap() async {
+    try {
+      await _getCurrentSelectWalletfn();
+      await _updataWalletBalance();
+      await _initWalletAndNetwork();
+      await _loadingTokens();
+      unawaited(_refreshTokenPrice());
+      unawaited(_refreshTokenAmounts());
+    } catch (e, st) {
+      debugPrint('init error: $e\n$st');
+    }
+  }
+
   Future<void> _loadingTokens() async {
     final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
     _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
@@ -155,8 +178,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         image: 'assets/images/solana_logo.png',
         title: 'SOL',
         subtitle: 'Solana',
-        price: '0.00',
-        number: '0.00',
+        price: '0.000',
+        number: '0.000',
         toadd: true,
         tokenAddress: '',
       );
@@ -167,6 +190,113 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       await HiveStorage().putList<Map>('tokens', list, boxName: boxTokens);
     }
     setState(() {});
+  }
+
+  Future<void> _refreshTokenPrice() async {
+    // 收集地址（统一小写、去重；SOL 无地址先略过）
+    final addresses = _tokenList.map((t) => t.tokenAddress.trim().toLowerCase()).where((s) => s.isNotEmpty).toSet().toList();
+    if (addresses.isEmpty) return;
+
+    try {
+      // 一次请求拿所有价格
+      final list = await WalletApi.listWalletTokenDataFetch(addresses);
+
+      // 建映射：address -> unitPrice
+      final priceMap = <String, String>{for (final p in list) p.address.trim().toLowerCase(): p.unitPrice};
+
+      // 合并回内存列表（没有 copyWith 就 new 一个）
+      for (var i = 0; i < _tokenList.length; i++) {
+        final t = _tokenList[i];
+        final addr = t.tokenAddress.trim().toLowerCase();
+        if (addr.isEmpty) continue; // 先不处理 SOL
+
+        final newPrice = priceMap[addr];
+        if (newPrice == null) continue;
+
+        _tokenList[i] = Tokens(
+          image: t.image,
+          title: t.title,
+          subtitle: t.subtitle,
+          price: newPrice, // 覆盖价格
+          number: t.number,
+          toadd: t.toadd,
+          tokenAddress: t.tokenAddress,
+        );
+      }
+
+      // 回写 Hive + 刷新 UI
+      final toSave = _tokenList.map((t) => t.toJson()).toList();
+      await HiveStorage().putList<Map>('tokens', toSave, boxName: boxTokens);
+
+      _fillteredTokensList = List.from(_tokenList);
+      if (mounted) setState(() {});
+    } catch (e, st) {
+      debugPrint('refresh prices failed: $e\n$st');
+    }
+  }
+
+  String toFixedTrunc(String s, {int digits = 2}) {
+    if (!s.contains('.')) return '$s.${'0' * digits}';
+    final parts = s.split('.');
+    final frac = parts[1];
+    final cut = frac.length >= digits ? frac.substring(0, digits) : frac.padRight(digits, '0');
+    return '${parts[0]}.$cut';
+  }
+
+  Future<void> _refreshTokenAmounts() async {
+    // 读取当前地址 & RPC
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
+    final owner = wallet.address;
+    if (owner.isEmpty) return;
+
+    // 收集 mint（忽略 SOL：tokenAddress 为空）
+    final mints = _tokenList.map((t) => t.tokenAddress.trim()).where((s) => s.isNotEmpty).toList();
+    if (mints.isEmpty) return;
+
+    try {
+      // 批量拉数量
+      final amountMap = await fetchTokenBalancesBatch(ownerAddress: owner, mintAddresses: mints);
+
+      // 合并回内存
+      for (var i = 0; i < _tokenList.length; i++) {
+        final t = _tokenList[i];
+        final key = t.tokenAddress.trim();
+        if (key.isEmpty) continue; // 先不处理 SOL
+        final newAmount = amountMap[key];
+        if (newAmount == null) continue;
+
+        // 没有 copyWith 就 new 一个
+        _tokenList[i] = Tokens(
+          image: t.image,
+          title: t.title,
+          subtitle: t.subtitle,
+          price: t.price,
+          number: newAmount, // 覆盖数量
+          toadd: t.toadd,
+          tokenAddress: t.tokenAddress,
+        );
+      }
+
+      // 回写 Hive + 刷新 UI
+      final toSave = _tokenList.map((t) => t.toJson()).toList();
+      await HiveStorage().putList<Map>('tokens', toSave, boxName: boxTokens);
+      _fillteredTokensList = List.from(_tokenList);
+      if (mounted) setState(() {});
+    } catch (e, st) {
+      debugPrint('_refreshTokenAmounts error: $e\n$st');
+    }
+  }
+
+  Future<Map<String, String>> fetchTokenBalancesBatch({required String ownerAddress, required List<String> mintAddresses}) async {
+    final mints = mintAddresses.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+
+    final results = <String, String>{};
+    for (final m in mints) {
+      final amt = await fetchTokenBalance(ownerAddress: ownerAddress, mintAddress: m);
+
+      results[m] = amt; // m 已经是 lower-case
+    }
+    return results;
   }
 
   void _onSearchChange(String value) {
@@ -563,7 +693,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   children: [
                     Expanded(
                       child: Text(
-                        '¥${_wallet.balance}',
+                        '¥${_fmt2(_portfolioTotal(_fillteredTokensList))}',
                         style: TextStyle(fontSize: 40.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -741,6 +871,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
               final added = await Get.to(AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
               if (added == true) {
                 _loadingTokens();
+                unawaited(_refreshTokenPrice());
+                unawaited(_refreshTokenAmounts());
               }
             },
             child: Icon(Icons.add_circle_outline_sharp),
@@ -849,6 +981,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   Widget _buildTokenItem(int index) {
     final item = _fillteredTokensList[index];
+    final number = double.tryParse(item.number);
+    final price = double.tryParse(item.price);
     return GestureDetector(
       onTap: () => {Get.to(CoinDetailPage())},
       child: Container(
@@ -859,6 +993,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
             SizedBox(width: 10.w),
             Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
@@ -868,49 +1003,24 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                         style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
                       ),
                       SizedBox(width: 6),
-                      if (index < 3)
-                        Container(
-                          decoration: BoxDecoration(color: AppColors.color_B5DE5B, borderRadius: BorderRadius.circular(19.r)),
-                          padding: EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                          height: 17.h,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Image.asset('assets/images/ic_home_search.png', width: 10.w, height: 8.w),
-                              SizedBox(width: 3.w),
-                              Text(
-                                '${index + 1}.98%APY',
-                                style: TextStyle(fontSize: 11.sp, color: AppColors.color_286713),
-                              ),
-                            ],
-                          ),
-                        ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        '¥69$index,603.5',
-                        style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        '-0.${index}5%',
-                        style: TextStyle(fontSize: 14.sp, color: AppColors.color_F3607B, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  Text(
+                    item.price,
+                    style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '9.${index}0',
-                  style: TextStyle(fontSize: 16.sp, color: Colors.black),
+                  toFixedTrunc(item.number, digits: 2),
+                  style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground),
                 ),
                 Text(
-                  '¥${index + 1}.00',
+                  toFixedTrunc((price! * number!).toString(), digits: 2),
                   style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
                 ),
               ],

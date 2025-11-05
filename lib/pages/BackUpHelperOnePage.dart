@@ -7,7 +7,7 @@ import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/tabpage/WalletPage.dart';
+import 'package:untitled1/pages/wallet_page/index.dart';
 import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';

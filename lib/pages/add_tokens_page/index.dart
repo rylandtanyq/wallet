@@ -54,7 +54,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     setState(() => _currentAddr = addr);
     _debounce = Timer(Duration(milliseconds: 1000), () async {
       if (_currentAddr.isEmpty) return;
-      ref.read(getWalletTokensNotifierProvide(addr).notifier).fetchWalletTokenData(addr);
+      ref.read(getWalletTokensProvide(addr).notifier).fetchWalletTokenData(addr);
     });
   }
 
@@ -243,7 +243,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
 
   Widget _buildSearchResult() {
     if (_currentAddr.isEmpty) return const SizedBox.shrink();
-    final async = ref.watch(getWalletTokensNotifierProvide(_currentAddr));
+    final async = ref.watch(getWalletTokensProvide(_currentAddr));
     return async.when(
       data: (data) {
         debugPrint('data success: $data');

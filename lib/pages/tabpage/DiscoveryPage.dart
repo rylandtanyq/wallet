@@ -1,7 +1,9 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/request/request.api.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
@@ -13,22 +15,28 @@ import 'DiscoveryMakingCoinCenterPage.dart';
 /*
  *  tab-  发现 主页面
  */
-class DiscoveryPage extends StatefulWidget {
+class DiscoveryPage extends ConsumerStatefulWidget {
   const DiscoveryPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _DiscoveryPageState();
+  ConsumerState<DiscoveryPage> createState() => _DiscoveryPageState();
 }
 
-class _DiscoveryPageState extends State<DiscoveryPage> with BasePage<DiscoveryPage>, AutomaticKeepAliveClientMixin {
+class _DiscoveryPageState extends ConsumerState<DiscoveryPage> with BasePage<DiscoveryPage>, AutomaticKeepAliveClientMixin {
   int _selectedIndex = 0;
   final List<Widget> _pages = [DiscoveryDAppPage(), DiscoveryMakingCoinCenterPage(), DiscoveryHotListPage()];
+  late final List<String> _addresses = const [
+    'jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL',
+    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+    'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+  ];
 
   @override
   void initState() {
     super.initState();
     // request();
-    request2();
+    // request2();
+    ref.read(getWalletTokensPriceProvide(_addresses).notifier).fetchWalletTokenPriceData(_addresses);
   }
 
   Future<void> request() async {
@@ -42,9 +50,10 @@ class _DiscoveryPageState extends State<DiscoveryPage> with BasePage<DiscoveryPa
 
   Future<void> request2() async {
     try {
-      final asd = await WalletApi.listWalletTokenDataFetch({
-        "addresses": ['jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL', 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263'],
-      });
+      final asd = await WalletApi.listWalletTokenDataFetch([
+        'jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL',
+        'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+      ]);
       debugPrint("list 头像数据: $asd");
     } catch (e) {
       debugPrint('wqe2: $e');
@@ -54,6 +63,8 @@ class _DiscoveryPageState extends State<DiscoveryPage> with BasePage<DiscoveryPa
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final ret = ref.watch(getWalletTokensPriceProvide(_addresses));
+    debugPrint('123qwe: $ret');
 
     return Scaffold(
       appBar: AppBar(
@@ -63,7 +74,23 @@ class _DiscoveryPageState extends State<DiscoveryPage> with BasePage<DiscoveryPa
           children: [_buildTabText(0, 'DApp'), _buildTabText(1, '赚币中心'), _buildTabText(2, '热榜')],
         ),
       ),
-      body: _pages[_selectedIndex],
+      body: Column(
+        children: [
+          // _pages[_selectedIndex],
+          ret.when(
+            data: (data) {
+              debugPrint('000>>??? $data');
+              return Text("成功");
+            },
+            error: (err, e) {
+              return Text("错误");
+            },
+            loading: () {
+              return Text("记载");
+            },
+          ),
+        ],
+      ),
     );
   }
 

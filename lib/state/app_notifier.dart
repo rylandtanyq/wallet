@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/request/request.api.dart';
 import 'package:untitled1/util/theme_persistence.dart';
 
@@ -80,6 +81,20 @@ class GetWalletTokensNotifier extends StateNotifier<AsyncValue<dynamic>> {
       state = AsyncValue.data(walletTokenData);
     } catch (e) {
       debugPrint('获取钱包代币失败: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
+}
+
+class GetWalletTokensPriceNotifier extends StateNotifier<AsyncValue<TokenPriceModel>> {
+  GetWalletTokensPriceNotifier() : super(const AsyncLoading());
+
+  Future fetchWalletTokenPriceData(List<String> data) async {
+    try {
+      final walletTokensPriceData = await WalletApi.listWalletTokenDataFetch(data);
+      state = AsyncValue.data(walletTokensPriceData);
+    } catch (e) {
+      debugPrint('token price fail: $e');
       state = AsyncValue.error(e, StackTrace.current);
     }
   }

@@ -13,6 +13,7 @@ import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddressbookAndMywallet.dart';
 import 'package:untitled1/pages/CameraScan.dart';
 import 'package:untitled1/util/HiveStorage.dart';
+import 'package:untitled1/util/fetchTokenBalances.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/widget/CustomTextField.dart';
 import 'package:untitled1/servise/solana_servise.dart';
@@ -55,7 +56,8 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
 
   Future<void> _initWalletData() async {
     await _getCurrentSelectedWalletInformation();
-    _getBalance();
+    final tokenBalance = await fetchTokenBalance(ownerAddress: _currentWalletAdderss!, mintAddress: widget.tokenAddress);
+    setState(() => balance = double.parse(tokenBalance));
   }
 
   // 获取当前选中的钱包信息
@@ -229,38 +231,6 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
         ),
       ),
     );
-  }
-
-  // 获取余额
-  void _getBalance() async {
-    if (widget.currency == "SOL") {
-      getSolBalance(
-            rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
-            ownerAddress: _currentWalletAdderss ?? '',
-          )
-          .then((e) {
-            setState(() {
-              balance = e;
-            });
-          })
-          .catchError((e) {
-            debugPrint("获取余额失败$e");
-          });
-    } else {
-      getSplTokenBalanceRpc(
-            rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
-            ownerAddress: _currentWalletAdderss ?? '',
-            mintAddress: widget.tokenAddress,
-          )
-          .then((e) {
-            setState(() {
-              balance = e;
-            });
-          })
-          .catchError((e) {
-            debugPrint("获取余额失败$e");
-          });
-    }
   }
 
   // toast

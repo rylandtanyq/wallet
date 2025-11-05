@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/request/request.dart';
 
 class WalletApi {
@@ -13,15 +14,17 @@ class WalletApi {
     return ret;
   }
 
-  static Future listWalletTokenDataFetch(dynamic datas) async {
+  static Future listWalletTokenDataFetch(List<String> datas) async {
     String path = '/api/solana/listTokenMetadataExtras';
+    dynamic data = {"addresses": datas};
     Response response = await RequestManager().handleRequest(
       path,
       "POST",
-      data: jsonEncode(datas),
+      data: data,
       options: Options(contentType: Headers.jsonContentType),
     );
-    debugPrint('request result: $response');
-    return response;
+    dynamic ret = response.data;
+    TokenPriceModel tokenPriceModel = TokenPriceModel.fromJson(ret);
+    return tokenPriceModel;
   }
 }

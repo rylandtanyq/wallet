@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/hive_boxes.dart';
+import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/LinkedWalletDApp.dart';
 import 'package:untitled1/pages/MoreServices.dart';
@@ -13,6 +15,7 @@ import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:untitled1/pages/search_page/index.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:untitled1/util/HiveStorage.dart';
 
 import '../../base/base_page.dart';
 import '../../entity/FinancialItem.dart';
@@ -47,6 +50,24 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   ];
 
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
+
+  late Future<String> _totalFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _totalFuture = computeTotalFromHive2dp();
+  }
+
+  Future<String> computeTotalFromHive2dp() async {
+    final raw = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? const <Map>[];
+    final tokens = raw.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
+    final sum = tokens.fold<double>(
+      0.0,
+      (acc, t) => acc + (double.tryParse(t.price.replaceAll(',', '').trim()) ?? 0.0) * (double.tryParse(t.number.replaceAll(',', '').trim()) ?? 0.0),
+    );
+    return sum.toStringAsFixed(2);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,9 +182,12 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
                       ],
                     ),
                   ),
-                  Text(
-                    '¥35.00',
-                    style: TextStyle(fontSize: 35.sp, fontWeight: FontWeight.bold),
+                  FutureBuilder<String>(
+                    future: _totalFuture,
+                    builder: (_, snap) => Text(
+                      '¥${snap.data ?? '0.00'}',
+                      style: TextStyle(fontSize: 35.sp, fontWeight: FontWeight.bold),
+                    ),
                   ),
                   SizedBox(width: 10.h),
                   Row(

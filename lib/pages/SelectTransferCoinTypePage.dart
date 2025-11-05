@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:lpinyin/lpinyin.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/TransferPage.dart';
-import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/widget/HorizntalSelectList.dart';
 import 'package:untitled1/theme/app_textStyle.dart';

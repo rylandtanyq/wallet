@@ -349,7 +349,7 @@ Color _handleColor(BuildContext context, int index) {
   }
 }
 
-Widget? _handleAssetImage(int index) {
+Widget _handleAssetImage(int index) {
   switch (index) {
     case 1:
       return Image.asset("assets/images/fiery_first.png");
@@ -358,7 +358,7 @@ Widget? _handleAssetImage(int index) {
     case 3:
       return Image.asset("assets/images/fiery_third.png");
     default:
-      return null;
+      return SizedBox();
   }
 }
 
@@ -395,7 +395,7 @@ Widget _buildCurrencyWidget() {
             child: Column(
               mainAxisAlignment: _handleAssetImage(index + 1) != null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
               children: [
-                ?_handleAssetImage(index + 1),
+                _handleAssetImage(index + 1),
                 Text(
                   "${index + 1}",
                   style: AppTextStyles.labelMedium.copyWith(color: _handleColor(context, index + 1), fontWeight: FontWeight.bold),
@@ -461,7 +461,7 @@ Widget _buildDAppWidget() {
               child: Column(
                 mainAxisAlignment: _handleAssetImage(index + 1) != null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
                 children: [
-                  ?_handleAssetImage(index + 1),
+                  _handleAssetImage(index + 1),
                   Text(
                     "${index + 1}",
                     style: AppTextStyles.labelMedium.copyWith(color: _handleColor(context, index + 1), fontWeight: FontWeight.bold),

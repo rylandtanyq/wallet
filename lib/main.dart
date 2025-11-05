@@ -13,7 +13,7 @@ import 'package:untitled1/pages/tabpage/DiscoveryPage.dart';
 import 'package:untitled1/pages/tabpage/HomePage.dart';
 import 'package:untitled1/pages/tabpage/SituationPage.dart';
 import 'package:untitled1/pages/tabpage/TradePage.dart';
-import 'package:untitled1/pages/tabpage/WalletPage.dart';
+import 'package:untitled1/pages/wallet_page/index.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_theme.dart';
 import 'package:untitled1/util/CheckUpgrade.dart';
