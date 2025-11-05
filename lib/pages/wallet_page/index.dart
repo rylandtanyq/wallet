@@ -923,6 +923,16 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         ? AsyncValue<TokenPriceModel>.data(TokenPriceModel(result: []))
         : ref.watch(getWalletTokensPriceProvide(_addresses));
 
+    if (tokensPriceState.hasError) {
+      return Padding(
+        padding: EdgeInsetsGeometry.symmetric(horizontal: 12, vertical: 12),
+        child: HintFragments(
+          icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+          hitTitle: t.wallet.unknown_error_please_try_again_later,
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       child: Column(
@@ -939,15 +949,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                 data: (data) {
                   return _buildTokenItem(index);
                 },
-                error: (e, StackTrace) {
-                  return Padding(
-                    padding: EdgeInsetsGeometry.symmetric(horizontal: 12),
-                    child: HintFragments(
-                      icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-                      hitTitle: t.wallet.unknown_error_please_try_again_later,
-                    ),
-                  );
-                },
+                error: (e, StackTrace) => null,
                 loading: () {
                   return Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 12), child: ShimmerFragments());
                 },
