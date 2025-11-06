@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:untitled1/constants/AppColors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/tokens.dart';
@@ -52,11 +55,26 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
 
   late Future<String> _totalFuture;
+  late StreamSubscription _hiveSub;
 
   @override
   void initState() {
     super.initState();
     _totalFuture = computeTotalFromHive2dp();
+
+    Hive.openBox(boxTokens).then((box) {
+      _hiveSub = box.watch().listen((_) {
+        setState(() {
+          _totalFuture = computeTotalFromHive2dp();
+        });
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _hiveSub.cancel();
   }
 
   Future<String> computeTotalFromHive2dp() async {
@@ -66,6 +84,8 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
       0.0,
       (acc, t) => acc + (double.tryParse(t.price.replaceAll(',', '').trim()) ?? 0.0) * (double.tryParse(t.number.replaceAll(',', '').trim()) ?? 0.0),
     );
+    debugPrint('sum print: $sum');
+
     return sum.toStringAsFixed(2);
   }
 
@@ -185,7 +205,7 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
                   FutureBuilder<String>(
                     future: _totalFuture,
                     builder: (_, snap) => Text(
-                      '¥${snap.data ?? '0.00'}',
+                      '\$${snap.data ?? '0.00'}',
                       style: TextStyle(fontSize: 35.sp, fontWeight: FontWeight.bold),
                     ),
                   ),

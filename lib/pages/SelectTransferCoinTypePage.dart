@@ -22,12 +22,12 @@ class SelectTransferCoinTypePage extends StatefulWidget {
 
 class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage> with TickerProviderStateMixin {
   late List<Tokens> _tokenList = [];
-  final List<Map<String, String>> _items = [
-    {"currency": "SOL", "network": "Solana", "tokenAddress": ""},
-    {"currency": "USDT", "network": "Solana", "tokenAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"},
-    {"currency": "USDC", "network": "Solana", "tokenAddress": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"},
-    {"currency": "WSOL", "network": "Solana", "tokenAddress": "So11111111111111111111111111111111111111112"},
-  ];
+  // final List<Map<String, String>> _items = [
+  //   {"currency": "SOL", "network": "Solana", "tokenAddress": ""},
+  //   {"currency": "USDT", "network": "Solana", "tokenAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"},
+  //   {"currency": "USDC", "network": "Solana", "tokenAddress": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"},
+  //   {"currency": "WSOL", "network": "Solana", "tokenAddress": "So11111111111111111111111111111111111111112"},
+  // ];
 
   @override
   void initState() {
@@ -38,24 +38,6 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
   Future<void> _loadingTokens() async {
     final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
     _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
-    // _fillteredTokensList = List.from(_tokenList);
-    final existsSolana = _tokenList.any((token) => token.title.toUpperCase() == 'SOL' || token.title.toUpperCase() == 'SOLANA');
-    if (!existsSolana) {
-      final solanaToken = Tokens(
-        image: 'assets/images/solana_logo.png',
-        title: 'SOL',
-        subtitle: 'Solana',
-        price: '0.000',
-        number: '0.000',
-        toadd: true,
-        tokenAddress: '',
-      );
-      _tokenList.add(solanaToken);
-      // _fillteredTokensList = List.from(_tokenList);
-
-      final list = _tokenList.map((t) => t.toJson()).toList();
-      await HiveStorage().putList<Map>('tokens', list, boxName: boxTokens);
-    }
     setState(() {});
   }
 
@@ -183,7 +165,7 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
                     item.title,
                     style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
                   ),
-                  Text(price, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  if (price != '0.00') Text(price, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),

@@ -62,26 +62,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   ];
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  int _currentPage = 0;
-  final List<List<Token>> tokenLists = [
-    [
-      Token(name: 'USDT', apy: '3.07%', price: '¥7.25', change: '0.00%'),
-      Token(name: 'USDC', apy: '3.07%', price: '¥7.25', change: '0.00%'),
-      Token(name: 'Q', price: '¥0.00', change: '0.00%'),
-    ],
-    [
-      // NFT 分类的代币数据
-      Token(name: 'NFT1', price: '¥10.00', change: '+5.00%'),
-    ],
-    [
-      // 银行卡分类的代币数据
-      Token(name: 'VISA', price: '¥100.00', change: '0.00%'),
-    ],
-  ];
 
   int _selectedNetWorkIndex = 0; // 存储选中的索引
-
-  int _selectedWalletIndex = 0;
 
   Wallet _wallet = Wallet.empty();
 
@@ -97,6 +79,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   Timer? _timer;
   bool _bootingTokens = true; // 是否还在本地初始化, 刚进页面、读 Hive 期间
   bool _hadLocalTokens = false; // 本地有没有 token, 用于判定是否显示空态
+
+  Map<String, String> _lastPriceMap = {};
 
   double _parseNum(String s) {
     // 兼容 "1,234.56" 这类字符串；空值返回 0
@@ -231,6 +215,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
           debugPrint('data print: $data');
           // 建映射：address -> unitPrice
           final priceMap = <String, String>{for (final p in data.result) p.address.trim(): p.unitPrice};
+          debugPrint('priceMap print: $priceMap');
+          if (mounted) setState(() => _lastPriceMap = priceMap);
 
           // 合并回内存列表
           for (var i = 0; i < _tokenList.length; i++) {
@@ -714,7 +700,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   children: [
                     Expanded(
                       child: Text(
-                        '¥${_fmt2(_portfolioTotal(_fillteredTokensList))}',
+                        '\$${_fmt2(_portfolioTotal(_fillteredTokensList))}',
                         style: TextStyle(fontSize: 40.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -931,24 +917,19 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       );
     }
 
-    final tokensPriceState = _addresses.isEmpty
-        ? AsyncValue<TokenPriceModel>.data(TokenPriceModel(result: []))
-        : ref.watch(getWalletTokensPriceProvide(_addresses));
+    // final tokensPriceState = _addresses.isEmpty
+    //     ? AsyncValue<TokenPriceModel>.data(TokenPriceModel(result: []))
+    //     : ref.watch(getWalletTokensPriceProvide(_addresses));
 
-    final priceMap = tokensPriceState.maybeWhen(
-      data: (m) => {for (final it in m.result) it.address.trim(): it.unitPrice.trim()},
-      orElse: () => const <String, String>{},
-    );
-
-    if (tokensPriceState.hasError) {
-      return Padding(
-        padding: EdgeInsetsGeometry.symmetric(horizontal: 12, vertical: 12),
-        child: HintFragments(
-          icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-          hitTitle: t.wallet.unknown_error_please_try_again_later,
-        ),
-      );
-    }
+    // if (tokensPriceState.hasError) {
+    //   return Padding(
+    //     padding: EdgeInsetsGeometry.symmetric(horizontal: 12, vertical: 12),
+    //     child: HintFragments(
+    //       icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+    //       hitTitle: t.wallet.unknown_error_please_try_again_later,
+    //     ),
+    //   );
+    // }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
@@ -961,15 +942,16 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              return tokensPriceState.when(
-                data: (data) {
-                  return _buildTokenItem(index, priceMap);
-                },
-                error: (e, StackTrace) => null,
-                loading: () {
-                  return Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 12), child: ShimmerFragments());
-                },
-              );
+              return _buildTokenItem(index);
+              // tokensPriceState.when(
+              //   data: (data) {
+              //     return _buildTokenItem(index);
+              //   },
+              //   error: (e, StackTrace) => null,
+              //   loading: () {
+              //     return Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 12), child: ShimmerFragments());
+              //   },
+              // );
             },
             separatorBuilder: (BuildContext context, int index) {
               return SizedBox(height: 10);
@@ -1039,14 +1021,13 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     return Container(height: 200, padding: EdgeInsets.all(10), child: Text('银行卡'));
   }
 
-  Widget _buildTokenItem(int index, Map<String, String> priceMap) {
+  Widget _buildTokenItem(int index) {
     final item = _fillteredTokensList[index];
     final number = double.tryParse(item.number);
     final price = double.tryParse(item.price);
 
     final key = item.tokenAddress == "SOL" ? "SOL" : item.tokenAddress;
-    final priceStr = priceMap[key];
-    debugPrint('priceStr print: $priceStr');
+    final priceStr = _lastPriceMap[key];
 
     return GestureDetector(
       onTap: () => {Get.to(CoinDetailPage())},
@@ -1072,7 +1053,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   ),
                   if (priceStr != null)
                     Text(
-                      item.price,
+                      '\$${toFixedTrunc(item.price)}',
                       style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
                     ),
                 ],
@@ -1086,7 +1067,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground),
                 ),
                 Text(
-                  toFixedTrunc((price! * number!).toString(), digits: 2),
+                  '\$${toFixedTrunc((price! * number!).toString(), digits: 2)}',
                   style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
                 ),
               ],

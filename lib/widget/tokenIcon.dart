@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:untitled1/util/arweave_gateway.dart';
+// import 'package:untitled1/util/arweave_gateway.dart';
 import 'package:untitled1/util/image_cache_repo.dart';
 
 class TokenIcon extends StatelessWidget {
@@ -13,14 +12,6 @@ class TokenIcon extends StatelessWidget {
   final Widget? placeholder;
 
   const TokenIcon(this.image, {super.key, this.size = 40, this.placeholder});
-
-  static final Dio _dio = Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 8),
-      receiveTimeout: const Duration(seconds: 12),
-      headers: const {'accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8', 'user-agent': 'Mozilla/5.0 (Flutter; like Chrome)'},
-    ),
-  );
 
   @override
   Widget build(BuildContext context) {

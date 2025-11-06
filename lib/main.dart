@@ -31,9 +31,9 @@ void main() async {
   await HiveStorage().ensureOpen(boxWallet);
   await HiveStorage().ensureOpen(boxTokens);
   await HiveStorage().ensureOpen(boxTx, lazy: true);
-  await ImageCacheRepo.I.init();
   final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet);
   final bool hasWallets = wallets != null && wallets.isNotEmpty;
+  await ImageCacheRepo.I.init();
   runApp(
     ProviderScope(
       child: TranslationProvider(child: MyApp(hasWallets: hasWallets)),

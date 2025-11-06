@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:untitled1/util/common_utils.dart';
 
 class RequestManager {
   late final Dio _dio;
@@ -10,7 +9,7 @@ class RequestManager {
     BaseOptions baseOptions = BaseOptions(
       connectTimeout: const Duration(milliseconds: 150000),
       receiveTimeout: const Duration(milliseconds: 5000),
-      baseUrl: 'http://38.180.242.53:14949',
+      baseUrl: 'http://156.245.145.81:14949',
     );
     _dio = Dio(baseOptions);
 
