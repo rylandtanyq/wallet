@@ -188,6 +188,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       );
       _tokenList.add(solanaToken);
       _fillteredTokensList = List.from(_tokenList);
+      _hadLocalTokens = true;
 
       final list = _tokenList.map((t) => t.toJson()).toList();
       await HiveStorage().putList<Map>('tokens', list, boxName: boxTokens);
