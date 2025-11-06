@@ -171,7 +171,7 @@ class _MyHomePageState extends ConsumerState<MainPage> {
         onTap: _onNavItemTapped,
       ),
       floatingActionButton: Transform.translate(
-        offset: Offset(0, 10),
+        offset: Offset(0, 4),
         child: FloatingActionButton(
           onPressed: () => _onNavItemTapped(2),
           backgroundColor: Colors.white,
