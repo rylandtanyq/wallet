@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/pages/add_tokens_page/models/add_tokens_model.dart';
 import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/request/request.api.dart';
 import 'package:untitled1/util/theme_persistence.dart';
@@ -72,7 +73,7 @@ class RiseAndFallCycleNotifier extends StateNotifier<String> {
   }
 }
 
-class GetWalletTokensNotifier extends StateNotifier<AsyncValue<dynamic>> {
+class GetWalletTokensNotifier extends StateNotifier<AsyncValue<AddTokensModel>> {
   GetWalletTokensNotifier() : super(const AsyncLoading());
 
   Future fetchWalletTokenData(String tokenAddress) async {

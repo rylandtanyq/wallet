@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +9,7 @@ import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/hint_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/shimmer_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/token_item_fragments.dart';
+import 'package:untitled1/pages/add_tokens_page/models/add_tokens_model.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/HiveStorage.dart';
@@ -245,42 +245,8 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     if (_currentAddr.isEmpty) return const SizedBox.shrink();
     final async = ref.watch(getWalletTokensProvide(_currentAddr));
     return async.when(
-      data: (data) {
-        debugPrint('data success: $data');
-        // data 期望是 List<Map>
-        final List<Map<String, dynamic>> list = (data is List)
-            ? data.map((e) => Map<String, dynamic>.from(e as Map)).toList()
-            : const <Map<String, dynamic>>[];
-
-        if (list.isEmpty) {
-          return HintFragments(
-            icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-            hitTitle: t.wallet.no_token_found,
-            hitSubtitle: t.wallet.please_check_token_address,
-          );
-        }
-
-        final item = Map<String, dynamic>.from(list.first);
-
-        // 解析 metadata -> image
-        String? image;
-        final metaRaw = item['metadata'];
-        if (metaRaw is String && metaRaw.trim().isNotEmpty) {
-          try {
-            final meta = jsonDecode(metaRaw);
-            if (meta is Map<String, dynamic>) {
-              image = meta['image'] as String?;
-            }
-          } catch (_) {} // 不是合法 JSON 就算了
-        }
-        // 兜底字段
-        image ??= item['logoURI'] as String?;
-        image ??= item['uri'] as String?;
-
-        final name = (item['name'] as String?) ?? '';
-        final symbol = (item['symbol'] as String?) ?? '';
-        final mint = (item['mint'] as String?) ?? '';
-        debugPrint('[_buildSearchResult] render with addr=$_currentAddr');
+      data: (AddTokensModel data) {
+        AddTokensItemModel item = data.result.first;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -290,13 +256,13 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
             ),
             SizedBox(height: 20),
             TokenItemFragments(
-              image: image ?? '',
-              name: name,
-              symbol: symbol,
+              image: item.image ?? '',
+              name: item.name,
+              symbol: item.symbol,
               price: '0.00',
               num: '0.00',
               action: TokenTrailingAction.add,
-              onTap: () => _addedToken(name, symbol, image ?? '', mint),
+              onTap: () => _addedToken(item.name, item.symbol, item.image ?? '', item.mint),
             ),
             SizedBox(height: 30),
           ],
@@ -314,7 +280,6 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
   }
 
   Widget _tokensListWidget(List<Tokens> tokenList) {
-    debugPrint('[_tokensListWidget] count=${tokenList.length}');
     return ListView.separated(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
