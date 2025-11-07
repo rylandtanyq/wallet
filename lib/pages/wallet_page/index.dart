@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,24 +6,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
-import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperOnePage.dart';
-import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/CoinDetailPage.dart';
 import 'package:untitled1/pages/SelectedPayeePage.dart';
 import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/hint_fragments.dart';
-import 'package:untitled1/pages/add_tokens_page/fragments/shimmer_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/index.dart';
 import 'package:untitled1/pages/transaction_history.dart';
+import 'package:untitled1/pages/wallet_page/fragments/skeleton_fragments.dart';
 import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
-import 'package:untitled1/request/request.api.dart';
 import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -34,7 +29,6 @@ import 'package:untitled1/widget/tokenIcon.dart';
 import '../../base/base_page.dart';
 import '../../constants/AppColors.dart';
 import '../../util/HiveStorage.dart';
-import '../../entity/Token.dart';
 import '../../widget/dialog/SelectWalletDialog.dart';
 import '../../widget/dialog/FullScreenDialog.dart';
 import '../../widget/StickyTabBarDelegate.dart';
@@ -77,7 +71,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   late List<String> _addresses = [];
   ProviderSubscription<AsyncValue<TokenPriceModel>>? _priceSub;
   Timer? _timer;
-  bool _bootingTokens = true; // 是否还在本地初始化, 刚进页面、读 Hive 期间
   bool _hadLocalTokens = false; // 本地有没有 token, 用于判定是否显示空态
 
   Map<String, String> _lastPriceMap = {};
@@ -156,10 +149,10 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   Future<void> _bootstrap() async {
     try {
+      await _loadingTokens();
       await _getCurrentSelectWalletfn();
       await _updataWalletBalance();
       await _initWalletAndNetwork();
-      await _loadingTokens();
       unawaited(_refreshTokenPrice());
       unawaited(_refreshTokenAmounts());
     } catch (e, st) {
@@ -168,7 +161,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Future<void> _loadingTokens() async {
-    _bootingTokens = true;
     if (mounted) setState(() {});
     final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
     _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
@@ -193,7 +185,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       final list = _tokenList.map((t) => t.toJson()).toList();
       await HiveStorage().putList<Map>('tokens', list, boxName: boxTokens);
     }
-    _bootingTokens = false;
     if (mounted) setState(() {});
   }
 
@@ -205,11 +196,12 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
     if (hasSol && !_addresses.contains(kSOL_KEY)) _addresses.add(kSOL_KEY);
 
-    setState(() => _addresses = addresses);
+    if (mounted) setState(() => _addresses = addresses);
     if (addresses.isEmpty) return;
 
+    if (!mounted) return;
     ref.read(getWalletTokensPriceProvide(_addresses).notifier).fetchWalletTokenPriceData(_addresses);
-    _priceSub?.closed;
+    _priceSub?.close();
     _priceSub = ref.listenManual<AsyncValue<TokenPriceModel>>(getWalletTokensPriceProvide(_addresses), (prev, next) {
       next.when(
         data: (data) async {
@@ -344,7 +336,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
     if (wallet != null) {
       debugPrint("读取钱包地址: ${wallet.address}");
-      setState(() => _wallet = wallet);
+      if (mounted) setState(() => _wallet = wallet);
       await _updataWalletBalance();
     } else {
       debugPrint("未找到钱包，使用默认 Wallet.empty()");
@@ -881,6 +873,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                 _loadingTokens();
                 unawaited(_refreshTokenPrice());
                 unawaited(_refreshTokenAmounts());
+                if (mounted) setState(() {});
               }
             },
             child: Icon(Icons.add_circle_outline_sharp),
@@ -892,17 +885,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   // 代币
   Widget _buildHomePage() {
-    if (_bootingTokens) {
-      return ListView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: 4,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 12), child: ShimmerFragments());
-        },
-      );
-    }
-
     if (!_hadLocalTokens) {
       return Center(
         child: Column(
@@ -918,19 +900,19 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       );
     }
 
-    // final tokensPriceState = _addresses.isEmpty
-    //     ? AsyncValue<TokenPriceModel>.data(TokenPriceModel(result: []))
-    //     : ref.watch(getWalletTokensPriceProvide(_addresses));
+    final tokensPriceState = _addresses.isEmpty
+        ? AsyncValue<TokenPriceModel>.data(TokenPriceModel(result: []))
+        : ref.watch(getWalletTokensPriceProvide(_addresses));
 
-    // if (tokensPriceState.hasError) {
-    //   return Padding(
-    //     padding: EdgeInsetsGeometry.symmetric(horizontal: 12, vertical: 12),
-    //     child: HintFragments(
-    //       icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-    //       hitTitle: t.wallet.unknown_error_please_try_again_later,
-    //     ),
-    //   );
-    // }
+    if (tokensPriceState.hasError) {
+      return Padding(
+        padding: EdgeInsetsGeometry.symmetric(horizontal: 12, vertical: 12),
+        child: HintFragments(
+          icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+          hitTitle: t.wallet.unknown_error_please_try_again_later,
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
@@ -943,16 +925,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              return _buildTokenItem(index);
-              // tokensPriceState.when(
-              //   data: (data) {
-              //     return _buildTokenItem(index);
-              //   },
-              //   error: (e, StackTrace) => null,
-              //   loading: () {
-              //     return Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 12), child: ShimmerFragments());
-              //   },
-              // );
+              return _buildTokenItem(index, tokensPriceState);
             },
             separatorBuilder: (BuildContext context, int index) {
               return SizedBox(height: 10);
@@ -1022,10 +995,11 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     return Container(height: 200, padding: EdgeInsets.all(10), child: Text('银行卡'));
   }
 
-  Widget _buildTokenItem(int index) {
+  Widget _buildTokenItem(int index, AsyncValue<TokenPriceModel> tokensPriceState) {
     final item = _fillteredTokensList[index];
     final number = double.tryParse(item.number);
     final price = double.tryParse(item.price);
+    final totalPrice = number! * price!;
 
     final key = item.tokenAddress == "SOL" ? "SOL" : item.tokenAddress;
     final priceStr = _lastPriceMap[key];
@@ -1036,7 +1010,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         child: Row(
           children: [
-            ClipRRect(borderRadius: BorderRadiusGeometry.circular(50), child: TokenIcon(item.image, size: 40)),
+            ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(item.image, size: 40)),
             SizedBox(width: 10.w),
             Expanded(
               child: Column(
@@ -1052,11 +1026,15 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                       SizedBox(width: 6),
                     ],
                   ),
-                  if (priceStr != null)
-                    Text(
-                      '\$${toFixedTrunc(item.price)}',
-                      style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
-                    ),
+                  // if (priceStr != null)
+                  if (tokensPriceState.isLoading)
+                    SkeletonFragments()
+                  else if (tokensPriceState.hasValue)
+                    if (priceStr != null)
+                      Text(
+                        '\$${toFixedTrunc(item.price)}',
+                        style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
+                      ),
                 ],
               ),
             ),
@@ -1067,10 +1045,13 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   toFixedTrunc(item.number, digits: 2),
                   style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground),
                 ),
-                Text(
-                  '\$${toFixedTrunc((price! * number!).toString(), digits: 2)}',
-                  style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
-                ),
+                if (tokensPriceState.isLoading)
+                  SkeletonFragments()
+                else if (tokensPriceState.hasValue)
+                  Text(
+                    '\$${toFixedTrunc((totalPrice).toString(), digits: 2)}',
+                    style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
+                  ),
               ],
             ),
           ],
