@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-class SkeletonFragments extends StatelessWidget {
-  const SkeletonFragments({super.key});
+class WalletPageSkeletonFragments extends StatelessWidget {
+  const WalletPageSkeletonFragments({super.key});
 
   @override
   Widget build(BuildContext context) {

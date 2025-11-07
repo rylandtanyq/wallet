@@ -1,33 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:get/get.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/BackUpHelperOnePage.dart';
-import 'package:untitled1/pages/CoinDetailPage.dart';
-import 'package:untitled1/pages/SelectedPayeePage.dart';
-import 'package:untitled1/pages/SelectTransferCoinTypePage.dart';
 import 'package:solana_wallet/solana_package.dart';
-import 'package:untitled1/pages/add_tokens_page/fragments/hint_fragments.dart';
-import 'package:untitled1/pages/add_tokens_page/index.dart';
-import 'package:untitled1/pages/transaction_history.dart';
-import 'package:untitled1/pages/wallet_page/fragments/skeleton_fragments.dart';
+import 'package:untitled1/pages/wallet_page/fragments/wallet_page_action_fragments.dart';
+import 'package:untitled1/pages/wallet_page/fragments/wallet_page_bankcard_fragments.dart';
+import 'package:untitled1/pages/wallet_page/fragments/wallet_page_build_top_frafments.dart';
+import 'package:untitled1/pages/wallet_page/fragments/wallet_page_defi_fragments.dart';
+import 'package:untitled1/pages/wallet_page/fragments/wallet_page_nft_fragment.dart';
+import 'package:untitled1/pages/wallet_page/fragments/wallet_page_token_fragments.dart';
 import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
-import 'package:untitled1/servise/solana_servise.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/fetchTokenBalances.dart';
-import 'package:untitled1/util/toFixedTrunc.dart';
-import 'package:untitled1/widget/tokenIcon.dart';
 import '../../base/base_page.dart';
-import '../../constants/AppColors.dart';
 import '../../util/HiveStorage.dart';
 import '../../widget/dialog/SelectWalletDialog.dart';
 import '../../widget/dialog/FullScreenDialog.dart';
@@ -41,71 +33,44 @@ class WalletPage extends ConsumerStatefulWidget {
 }
 
 class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPage>, TickerProviderStateMixin, WidgetsBindingObserver {
+  // ignore: constant_identifier_names
   static const String kSOL_KEY = 'SOL';
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
   final solana = Solana();
   final TextEditingController _textEditingController = TextEditingController();
-  String? tokensSearchContent;
-
-  final List<Widget> _navIcons = [
-    Image.asset('assets/images/ic_wallet_transfer.png', width: 48.w, height: 48.w),
-    Image.asset('assets/images/ic_home_grid_collection.png', width: 48.w, height: 48.w),
-    Image.asset('assets/images/ic_wallet_finance.png', width: 48.w, height: 48.w),
-    Image.asset('assets/images/ic_wallet_gat_gas.png', width: 48.w, height: 48.w),
-    Image.asset('assets/images/ic_wallet_transfer_record.png', width: 48.w, height: 48.w),
-  ];
-  late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-
-  int _selectedNetWorkIndex = 0; // 存储选中的索引
-
-  Wallet _wallet = Wallet.empty();
-
-  static const double _borderRadius = 20;
-  static const double _borderWidth = 1.0;
-
   final defaultNetwork = {"id": "Solana", "path": "assets/images/solana_logo.png"};
   late Map<String, String> _currentNetwork = {};
   late List<Tokens> _tokenList = [];
   late List<Tokens> _fillteredTokensList = [];
   late List<String> _addresses = [];
+  late final WalletActions actions;
+  late TabController _tabController;
+  String? tokensSearchContent;
+  int _selectedNetWorkIndex = 0; // 存储选中的索引
+  Wallet _wallet = Wallet.empty();
   ProviderSubscription<AsyncValue<TokenPriceModel>>? _priceSub;
   Timer? _timer;
   bool _hadLocalTokens = false; // 本地有没有 token, 用于判定是否显示空态
-
   Map<String, String> _lastPriceMap = {};
-
-  double _parseNum(String s) {
-    // 兼容 "1,234.56" 这类字符串；空值返回 0
-    final t = (s).replaceAll(',', '').trim();
-    return double.tryParse(t) ?? 0.0;
-  }
-
-  double _tokenSubtotal(Tokens t) => _parseNum(t.price) * _parseNum(t.number);
-
-  double _portfolioTotal(List<Tokens> list) => list.fold(0.0, (sum, t) => sum + _tokenSubtotal(t));
-
-  String _fmt2(num v) => v.toStringAsFixed(2);
-
-  String _lookupKey(Tokens t) {
-    final addr = t.tokenAddress.trim();
-    final isSol = addr.isEmpty && t.title.toUpperCase() == 'SOL';
-    return isSol ? kSOL_KEY : addr;
-  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        setState(() {});
-      }
+      if (_tabController.indexIsChanging) setState(() {});
     });
     _searchController.addListener(_filterItems);
     WidgetsBinding.instance.addObserver(this);
     _bootstrap();
-    debugPrint('新存的助记词${_wallet.mnemonic}');
+    actions = WalletActions(
+      reloadTokens: _loadingTokens,
+      reloadTokensPrice: _refreshTokenPrice,
+      reloadTokensAmount: _refreshTokenAmounts,
+      reloadCurrentSelectWalletfn: _getCurrentSelectWalletfn,
+      onSearchChange: _onSearchChange,
+    );
   }
 
   @override
@@ -151,7 +116,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     try {
       await _loadingTokens();
       await _getCurrentSelectWalletfn();
-      await _updataWalletBalance();
       await _initWalletAndNetwork();
       unawaited(_refreshTokenPrice());
       unawaited(_refreshTokenAmounts());
@@ -265,7 +229,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         final newAmount = amountMap[key];
         if (newAmount == null) continue;
 
-        // 没有 copyWith 就 new 一个
         _tokenList[i] = Tokens(
           image: t.image,
           title: t.title,
@@ -293,13 +256,13 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     final results = <String, String>{};
     for (final m in mints) {
       final amt = await fetchTokenBalance(ownerAddress: ownerAddress, mintAddress: m);
-
+      debugPrint('amt print: $amt');
       results[m] = amt; // m 已经是 lower-case
     }
     return results;
   }
 
-  void _onSearchChange(String value) {
+  Future<void> _onSearchChange(String value) async {
     if (_timer?.isActive ?? false) _timer?.cancel();
     _timer = Timer(Duration(milliseconds: 300), () {
       final query = value.trim().toLowerCase();
@@ -335,11 +298,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     final network = await HiveStorage().getObject<Map>('currentNetwork');
 
     if (wallet != null) {
-      debugPrint("读取钱包地址: ${wallet.address}");
       if (mounted) setState(() => _wallet = wallet);
-      await _updataWalletBalance();
     } else {
-      debugPrint("未找到钱包，使用默认 Wallet.empty()");
       _wallet = Wallet.empty();
     }
 
@@ -349,51 +309,16 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       _currentNetwork = Map<String, String>.from(defaultNetwork);
       await HiveStorage().putObject('currentNetwork', _currentNetwork);
     }
-
-    debugPrint("当前网络: ${_currentNetwork['id']}");
-    debugPrint("助记词: ${_wallet.mnemonic}");
   }
 
   Future<void> _loadWalletData() async {
     try {
       final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
       if (wallet != null) {
-        debugPrint("刷新钱包数据: ${wallet.address}");
-        setState(() => _wallet = wallet);
-        await _updataWalletBalance();
-      } else {
-        debugPrint("未找到 currentSelectWallet");
-      }
-    } catch (e) {
-      debugPrint("加载钱包数据失败: $e");
-    }
-  }
-
-  // 获取实时钱包余额
-  Future<void> _updataWalletBalance() async {
-    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
-
-    if (wallet.address.isEmpty || wallet.address.startsWith('0x000')) {
-      return;
-    }
-
-    try {
-      var solBalance = await getSolBalance(
-        rpcUrl: "https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/",
-        ownerAddress: wallet.address,
-      );
-
-      wallet.balance = solBalance.toString();
-      await HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
-
-      if (mounted) {
         setState(() => _wallet = wallet);
       }
     } catch (e) {
-      if (!mounted) return;
-      wallet.balance = "0.00";
-      await HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
-      debugPrint("更新余额失败: $e");
+      debugPrint("loadding wallet error:: $e");
     }
   }
 
@@ -490,55 +415,6 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   child: Image.asset(_currentNetwork['path'] ?? items[_selectedNetWorkIndex]["path"]!, width: 25.w, height: 25.w, fit: BoxFit.cover),
                 ),
               ),
-              // SizedBox(
-              //   width: 100.w,
-              //   child: ElevatedButton(
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: Theme.of(context).colorScheme.background,
-              //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-              //       padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.h),
-              //       side: BorderSide(
-              //         color: Theme.of(context).colorScheme.onSurface,
-              //         width: 1.0, // 边框宽度
-              //       ),
-              //     ),
-              //     onPressed: () async {
-              //       final currentSelectNetwork = await showAnimatedFullScreenDialog(context, items);
-              //       if (currentSelectNetwork != null) {
-              //         await HiveStorage().putObject('currentNetwork', currentSelectNetwork);
-              //         setState(() {
-              //           _currentNetwork = currentSelectNetwork;
-              //           _wallet.network = currentSelectNetwork['id']!;
-              //         });
-              //       }
-              //     },
-              //     child:
-              //     Row(
-              //       children: [
-              //         ClipOval(
-              //           child: Image.asset(
-              //             _currentNetwork['path'] ?? items[_selectedNetWorkIndex]["path"]!,
-              //             width: 25.w,
-              //             height: 25.w,
-              //             fit: BoxFit.cover,
-              //           ),
-              //         ),
-              //         SizedBox(width: 5.w),
-              //         Expanded(
-              //           child: Text(
-              //             languageNetName,
-              //             style: AppTextStyles.size15.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
-              //             maxLines: 1,
-              //             overflow: TextOverflow.ellipsis,
-              //             textAlign: TextAlign.center,
-              //           ),
-              //         ),
-              //         SizedBox(width: 8.w),
-              //         Image.asset('assets/images/ic_arrows_right.png', width: 12.w, height: 12.w),
-              //       ],
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -550,7 +426,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
-          child: _buildPageContent(titles, categories),
+          child: _buildPageContent(titles, categories, actions),
         ),
       ),
     );
@@ -628,9 +504,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
           const curve = Curves.easeInOut;
-
           var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
           return SlideTransition(position: animation.drive(tween), child: child);
         },
       ),
@@ -644,6 +518,9 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       builder: (ctx) => SelectWalletDialog(
         onWalletSelected: () {
           _loadWalletData();
+          unawaited(_refreshTokenPrice());
+          unawaited(_refreshTokenAmounts());
+          setState(() {});
         },
       ),
     );
@@ -654,162 +531,15 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       setState(() {
         _wallet = resultWallet;
       });
-      await _updataWalletBalance();
     }
   }
 
-  Widget _buildTopView(List<String> titles) {
-    final hasMnemonic = _wallet.mnemonic?.isNotEmpty ?? false;
-    final showBackupCTA = !_wallet.isBackUp && hasMnemonic;
-    return Container(
-      padding: EdgeInsets.only(top: 10.h),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.only(left: 10.w, right: 10.w, top: 10.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      _wallet.address.length > 12
-                          ? '${_wallet.network}:${_wallet.address.substring(0, 6)}...${_wallet.address.substring(_wallet.address.length - 6)}'
-                          : '${_wallet.network}:${_wallet.address}',
-                      style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                    SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: _wallet.address));
-                      },
-                      child: Icon(Icons.copy_outlined, size: 16, color: Theme.of(context).colorScheme.onBackground),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '\$${_fmt2(_portfolioTotal(_fillteredTokensList))}',
-                        style: TextStyle(fontSize: 40.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    showBackupCTA
-                        ? SizedBox(
-                            child: Material(
-                              borderRadius: BorderRadius.circular(_borderRadius.r),
-                              clipBehavior: Clip.antiAlias,
-                              child: InkWell(
-                                onTap: () async {
-                                  final result = await Get.to(
-                                    BackUpHelperOnePage(title: t.wallet.please_remember, prohibit: false, backupAddress: _wallet.address),
-                                    arguments: {"mnemonic": _wallet.mnemonic?.join(" ")},
-                                  );
-                                  debugPrint('已备份2');
-                                  if (result == true) {
-                                    await _getCurrentSelectWalletfn();
-                                    setState(() {});
-                                  }
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.background,
-                                    border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: _borderWidth),
-                                    borderRadius: BorderRadius.circular(_borderRadius.r),
-                                  ),
-                                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 15.w),
-                                  child: _buildButtonContent(),
-                                ),
-                              ),
-                            ),
-                          )
-                        : SizedBox(),
-                  ],
-                ),
-                // SizedBox(height: 10.h),
-                // Row(
-                //   children: [
-                //     Text(
-                //       '¥10.00 (0.00%)',
-                //       style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
-                //     ),
-                //     Container(
-                //       padding: EdgeInsets.symmetric(horizontal: 10.w),
-                //       margin: EdgeInsets.symmetric(horizontal: 5),
-                //       decoration: BoxDecoration(
-                //         color: Theme.of(context).colorScheme.background,
-                //         borderRadius: BorderRadius.circular(10.r),
-                //         border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: 1.h),
-                //       ),
-                //       child: Center(
-                //         child: Row(
-                //           children: [
-                //             Text(t.common.today, style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                //           ],
-                //         ),
-                //       ),
-                //     ),
-                //   ],
-                // ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20.h),
-          GridView.count(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            crossAxisCount: 5,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 0.8,
-            children: List.generate(titles.length, (index) {
-              return GestureDetector(
-                onTap: () {
-                  if (index == 0) {
-                    Get.to(SelectTransferCoinTypePage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
-                  } else if (index == 1) {
-                    Get.to(SelectedPayeePage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
-                  } else if (index == 4) {
-                    Get.to(TransactionHistory(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
-                  }
-                },
-                child: SizedBox(
-                  height: 80,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _navIcons[index],
-                      SizedBox(height: 5),
-                      Text(
-                        titles[index],
-                        style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-          SizedBox(height: 15.h),
-          Divider(
-            color: Theme.of(context).colorScheme.onSurface,
-            height: 1, // 线的高度
-            thickness: 1, // 线的粗细
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPageContent(titles, List<String> categories) {
+  Widget _buildPageContent(titles, List<String> categories, WalletActions actions) {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: _buildTopView(titles)),
+        SliverToBoxAdapter(
+          child: WalletPageBuildTopFrafments(wallet: _wallet, fillteredTokensList: _fillteredTokensList, actions: actions),
+        ),
         SliverPersistentHeader(
           pinned: true,
           delegate: StickyTabBarDelegate(
@@ -831,313 +561,31 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
           ),
         ),
         SliverToBoxAdapter(
-          child: IndexedStack(index: _tabController.index, children: [_buildHomePage(), _buildDeFiPage(), _buildNFTPage(), _buildBankCardPage()]),
-        ),
-      ],
-    );
-  }
-
-  /// 代币筛选
-  Widget _filterAddWidget() {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Icon(Icons.sort, color: Theme.of(context).colorScheme.onBackground),
-          SizedBox(width: 15),
-          Expanded(
-            child: TextField(
-              controller: _textEditingController,
-              decoration: InputDecoration(
-                hintText: t.wallet.token_name,
-                hintStyle: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surface,
-                contentPadding: EdgeInsets.only(right: 14),
-                border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(25.r)),
-                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
-              ),
-              onChanged: (e) => _onSearchChange(e),
-            ),
-          ),
-          SizedBox(width: 15),
-          Icon(Icons.update_sharp, color: Theme.of(context).colorScheme.onBackground),
-          SizedBox(width: 15),
-          GestureDetector(
-            onTap: () async {
-              final added = await Get.to(AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
-              if (added == true) {
-                _loadingTokens();
-                unawaited(_refreshTokenPrice());
-                unawaited(_refreshTokenAmounts());
-                if (mounted) setState(() {});
-              }
-            },
-            child: Icon(Icons.add_circle_outline_sharp),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 代币
-  Widget _buildHomePage() {
-    if (!_hadLocalTokens) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: 60),
-            Image.asset('assets/images/no_transaction.png', width: 108, height: 92),
-            SizedBox(height: 8),
-            Text(t.wallet.no_token_added_yet, style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-          ],
-        ),
-      );
-    }
-
-    final tokensPriceState = _addresses.isEmpty
-        ? AsyncValue<TokenPriceModel>.data(TokenPriceModel(result: []))
-        : ref.watch(getWalletTokensPriceProvide(_addresses));
-
-    if (tokensPriceState.hasError) {
-      return Padding(
-        padding: EdgeInsetsGeometry.symmetric(horizontal: 12, vertical: 12),
-        child: HintFragments(
-          icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-          hitTitle: t.wallet.unknown_error_please_try_again_later,
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _filterAddWidget(),
-          const SizedBox(height: 12),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              return _buildTokenItem(index, tokensPriceState);
-            },
-            separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(height: 10);
-            },
-            itemCount: _fillteredTokensList.length,
-          ),
-          const SizedBox(height: 20),
-          Center(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.color_2B6D16,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21.5.r)),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 11),
-              ),
-              onPressed: () {},
-              child: Text(
-                t.common.manageToken,
-                style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          const SizedBox(height: 40),
-        ],
-      ),
-    );
-  }
-
-  // DeFi
-  Widget _buildDeFiPage() {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Row(
+          child: IndexedStack(
+            index: _tabController.index,
             children: [
-              Expanded(
-                child: Text(
-                  '热门理财',
-                  style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
+              WalletPageTokenFragments(
+                actions: actions,
+                textEditingController: _textEditingController,
+                hadLocalTokens: _hadLocalTokens,
+                addresses: _addresses,
+                fillteredTokensList: _fillteredTokensList,
+                lastPriceMap: _lastPriceMap,
               ),
-              Image.asset('assets/images/ic_arrows_right.png', width: 7, height: 12),
+              WalletPageDefiFragments(),
+              WalletPageNftFragment(),
+              WalletPageBankcardFragments(),
             ],
           ),
         ),
-        SizedBox(
-          height: 115.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return GestureDetector(onTap: () => {}, child: _buildHotCoinItemView());
-            },
-          ),
-        ),
       ],
     );
-  }
-
-  // NFT
-  Widget _buildNFTPage() {
-    return Container(height: 200, padding: EdgeInsets.all(10), child: Text('NFT'));
-  }
-
-  // 银行卡
-  Widget _buildBankCardPage() {
-    return Container(height: 200, padding: EdgeInsets.all(10), child: Text('银行卡'));
-  }
-
-  Widget _buildTokenItem(int index, AsyncValue<TokenPriceModel> tokensPriceState) {
-    final item = _fillteredTokensList[index];
-    final number = double.tryParse(item.number);
-    final price = double.tryParse(item.price);
-    final totalPrice = number! * price!;
-
-    final key = item.tokenAddress == "SOL" ? "SOL" : item.tokenAddress;
-    final priceStr = _lastPriceMap[key];
-
-    return GestureDetector(
-      onTap: () => {Get.to(CoinDetailPage())},
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-        child: Row(
-          children: [
-            ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(item.image, size: 40)),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        // 'USDT',
-                        item.title,
-                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
-                      ),
-                      SizedBox(width: 6),
-                    ],
-                  ),
-                  // if (priceStr != null)
-                  if (tokensPriceState.isLoading)
-                    SkeletonFragments()
-                  else if (tokensPriceState.hasValue)
-                    if (priceStr != null)
-                      Text(
-                        '\$${toFixedTrunc(item.price)}',
-                        style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
-                      ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  toFixedTrunc(item.number, digits: 2),
-                  style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground),
-                ),
-                if (tokensPriceState.isLoading)
-                  SkeletonFragments()
-                else if (tokensPriceState.hasValue)
-                  Text(
-                    '\$${toFixedTrunc((totalPrice).toString(), digits: 2)}',
-                    style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHotCoinItemView() {
-    return Container(
-      height: 115.h,
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      padding: EdgeInsets.all(10.w),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE8EEEE), width: 1),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              ClipOval(
-                child: Image.asset('assets/images/ic_home_bit_coin.png', width: 35.h, height: 35.h, fit: BoxFit.cover),
-              ),
-              SizedBox(width: 11.w),
-              Text(
-                'FARTCION',
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          SizedBox(height: 11.h),
-          Text(
-            '¥1.14',
-            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 2.h),
-          Text(
-            '-10.22%',
-            style: TextStyle(fontSize: 13.sp, color: AppColors.color_F3607B),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildButtonContent() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildNetworkIcon(),
-        SizedBox(width: 3.w),
-        _buildNetworkText(),
-      ],
-    );
-  }
-
-  Widget _buildNetworkIcon() {
-    return ClipOval(
-      child: ColorFiltered(
-        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-        child: Image.asset('assets/images/ic_wallet_reminder.png', width: 14.w, height: 14.w),
-      ),
-    );
-  }
-
-  Widget _buildNetworkText() {
-    return SizedBox(
-      width: 40.w,
-      child: Text(
-        t.Mysettings.go_backup,
-        style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  void _handleNetworkSelect(BuildContext context) {
-    // 处理网络选择逻辑
   }
 
   void _onRefresh() async {
     await _refreshRequest();
+    unawaited(_refreshTokenPrice());
+    unawaited(_refreshTokenAmounts());
     _refreshController.finishRefresh();
   }
 
