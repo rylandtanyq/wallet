@@ -14,6 +14,7 @@ import 'package:untitled1/pages/wallet_page/fragments/wallet_page_bankcard_fragm
 import 'package:untitled1/pages/wallet_page/fragments/wallet_page_build_top_frafments.dart';
 import 'package:untitled1/pages/wallet_page/fragments/wallet_page_defi_fragments.dart';
 import 'package:untitled1/pages/wallet_page/fragments/wallet_page_nft_fragment.dart';
+import 'package:untitled1/pages/wallet_page/fragments/wallet_page_screen_loader_fragments.dart';
 import 'package:untitled1/pages/wallet_page/fragments/wallet_page_token_fragments.dart';
 import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/state/app_provider.dart';
@@ -40,6 +41,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   final TextEditingController _textEditingController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   final defaultNetwork = {"id": "Solana", "path": "assets/images/solana_logo.png"};
+  final loader = FullscreenLoader();
   late Map<String, String> _currentNetwork = {};
   late List<Tokens> _tokenList = [];
   late List<Tokens> _fillteredTokensList = [];
@@ -512,25 +514,20 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Future<void> showSelectWalletDialog() async {
-    final resultWallet = await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (ctx) => SelectWalletDialog(
-        onWalletSelected: () {
-          _loadWalletData();
-          unawaited(_refreshTokenPrice());
-          unawaited(_refreshTokenAmounts());
-          setState(() {});
-        },
-      ),
-    );
-
-    if (resultWallet == true) {
-      _initWalletAndNetwork();
-    } else if (resultWallet != null) {
-      setState(() {
-        _wallet = resultWallet;
-      });
+    final resultWallet = await showModalBottomSheet(context: context, isScrollControlled: true, builder: (ctx) => SelectWalletDialog());
+    if (resultWallet is Wallet) {
+      setState(() => _wallet = resultWallet);
+      // ignore: use_build_context_synchronously
+      loader.show(context);
+      try {
+        await _initWalletAndNetwork();
+        await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
+      } catch (e) {
+        debugPrint('wallet toggle failed: $e');
+      } finally {
+        loader.hide();
+        setState(() {});
+      }
     }
   }
 

@@ -8,7 +8,6 @@ import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperOnePage.dart';
 import 'package:untitled1/util/HiveStorage.dart';
-import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/calcTotalBalanceReadable.dart';
@@ -253,7 +252,6 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
       onTap: () {
         setState(() {
           _selectWallet(wallet);
-          debugPrint('${wallet.mnemonic}');
           Navigator.pop(context, wallet);
         });
       },
