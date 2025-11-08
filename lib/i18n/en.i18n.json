@@ -268,7 +268,9 @@
         "no_token_found": "No token found",
         "please_check_token_address": "Please make sure you entered the correct token address",
         "unknown_error_please_try_again_later": "Unknown error, please try again later",
-        "searched_token": "Searched token"
+        "searched_token": "Searched token",
+        "switching_wallet": "Switching wallet",
+        "refreshing_wallet_info": "Refreshing wallet information"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Select Coin",

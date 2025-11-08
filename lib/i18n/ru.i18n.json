@@ -268,7 +268,9 @@
         "no_token_found": "Не удалось найти нужный токен",
         "please_check_token_address": "Убедитесь, что вы ввели правильный адрес токена",
         "unknown_error_please_try_again_later": "Неизвестная ошибка, повторите попытку позже",
-        "searched_token": "Искомый токен"
+        "searched_token": "Искомый токен",
+        "switching_wallet": "Переключение кошелька",
+        "refreshing_wallet_info": "Обновление информации о кошельке"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Выбрать монету",

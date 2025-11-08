@@ -8,10 +8,9 @@ import 'package:untitled1/pages/TransferPage.dart';
 import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/util/toFixedTrunc.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
-import 'package:untitled1/widget/HorizntalSelectList.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/widget/tokenIcon.dart';
-import '../constants/AppColors.dart';
+import '../constants/app_colors.dart';
 
 class SelectTransferCoinTypePage extends StatefulWidget {
   const SelectTransferCoinTypePage({super.key});

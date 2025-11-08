@@ -9,7 +9,7 @@ import 'package:untitled1/pages/BackUpHelperPage.dart';
 import 'package:untitled1/pages/ImportWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
-import '../../constants/AppColors.dart';
+import '../../constants/app_colors.dart';
 import '../../entity/AddWalletEntity.dart';
 import '../../pages/LinkHardwareWalletPage.dart';
 

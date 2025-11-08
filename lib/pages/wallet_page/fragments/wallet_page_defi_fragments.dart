@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/app_colors.dart';
 
 class WalletPageDefiFragments extends StatelessWidget {
   const WalletPageDefiFragments({super.key});

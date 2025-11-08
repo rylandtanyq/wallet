@@ -268,7 +268,9 @@
         "no_token_found": "No se encontró el token que buscas",
         "please_check_token_address": "Asegúrate de ingresar la dirección correcta del token",
         "unknown_error_please_try_again_later": "Error desconocido, inténtalo de nuevo más tarde",
-        "searched_token": "Token buscado"
+        "searched_token": "Token buscado",
+        "switching_wallet": "Cambiando de billetera",
+        "refreshing_wallet_info": "Actualizando la información de la billetera"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Seleccionar moneda",

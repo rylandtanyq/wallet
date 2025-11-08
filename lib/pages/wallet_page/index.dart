@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:untitled1/constants/app_value_notifier.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/hive/tokens.dart';
@@ -65,7 +66,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     });
     _searchController.addListener(_filterItems);
     WidgetsBinding.instance.addObserver(this);
-    _bootstrap();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
     actions = WalletActions(
       reloadTokens: _loadingTokens,
       reloadTokensPrice: _refreshTokenPrice,
@@ -116,13 +117,19 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   Future<void> _bootstrap() async {
     try {
+      if (OneShotFlag.value.value) {
+        OneShotFlag.value.value = false;
+        loader.show(context, message: t.wallet.refreshing_wallet_info);
+      }
       await _loadingTokens();
       await _getCurrentSelectWalletfn();
       await _initWalletAndNetwork();
-      unawaited(_refreshTokenPrice());
-      unawaited(_refreshTokenAmounts());
+      await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
     } catch (e, st) {
       debugPrint('init error: $e\n$st');
+    } finally {
+      loader.hide();
+      if (mounted) setState(() {});
     }
   }
 
@@ -518,7 +525,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     if (resultWallet is Wallet) {
       setState(() => _wallet = resultWallet);
       // ignore: use_build_context_synchronously
-      loader.show(context);
+      loader.show(context, message: t.wallet.switching_wallet);
       try {
         await _initWalletAndNetwork();
         await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
@@ -526,7 +533,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         debugPrint('wallet toggle failed: $e');
       } finally {
         loader.hide();
-        setState(() {});
+        if (mounted) setState(() {});
       }
     }
   }
@@ -581,8 +588,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   void _onRefresh() async {
     await _refreshRequest();
-    unawaited(_refreshTokenPrice());
-    unawaited(_refreshTokenAmounts());
+    await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
     _refreshController.finishRefresh();
   }
 

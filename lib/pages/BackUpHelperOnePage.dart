@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/app_colors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';

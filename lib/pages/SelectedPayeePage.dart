@@ -4,7 +4,7 @@ import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/widget/dialog/PayeeSelectNetworkDialog.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
-import '../constants/AppColors.dart';
+import '../constants/app_colors.dart';
 
 class SelectedPayeePage extends StatefulWidget {
   const SelectedPayeePage({super.key});

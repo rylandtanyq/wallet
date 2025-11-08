@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/app_colors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/core/AdvancedMultiChainWallet.dart';
 import 'package:untitled1/entity/BackUpEntity.dart';
@@ -67,9 +67,6 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
     address = newWallet['currentAddress'] ?? '';
     privateKey = newWallet['privateKey'] ?? '';
     network = newWallet['currentNetwork'] ?? '';
-    print('init --address:${address}');
-    print('init --privateKey:${privateKey}');
-    print('init --network:${network}');
     String mnemonic = newWallet['mnemonic'];
     mnemonics = mnemonic.split(' ');
     _orderlyMnemonics = List.from(mnemonics);

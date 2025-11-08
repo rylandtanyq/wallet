@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/app_value_notifier.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
@@ -15,7 +15,6 @@ import '../util/HiveStorage.dart';
 import '../hive/Wallet.dart';
 import '../main.dart';
 import '../util/CryptoInputValidator.dart';
-import 'BackUpHelperOnePage.dart';
 
 /*
  * 导入钱包
@@ -155,7 +154,8 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       await importWalletByPrivateKey();
     }
     dismissLoading();
-    Get.offAll(() => MainPage(initialPageIndex: 4));
+    OneShotFlag.value.value = true;
+    Get.offAll(() => MainPage(initialPageIndex: 4), arguments: {'refrensh': true});
   }
 
   /*

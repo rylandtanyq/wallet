@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:untitled1/constants/AppColors.dart';
+import 'package:untitled1/constants/app_colors.dart';
+import 'package:untitled1/constants/app_value_notifier.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddWalletPage.dart';
@@ -269,6 +270,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
 
         // 关闭 loading 再导航（保留主框架，回到钱包Tab）
         dismissLoading();
+        OneShotFlag.value.value = true;
         Get.offAll(() => MainPage(initialPageIndex: 4));
       } else {
         // 清空所有与“当前选中钱包”相关的键

@@ -45,7 +45,13 @@ class _WalletPageToolFragmentsState extends State<WalletPageToolFragments> {
             ),
           ),
           SizedBox(width: 15),
-          Icon(Icons.update_sharp, color: Theme.of(context).colorScheme.onBackground),
+          GestureDetector(
+            onTap: () {
+              unawaited(widget.actions.reloadTokensPrice());
+              if (mounted) setState(() {});
+            },
+            child: Icon(Icons.update_sharp, color: Theme.of(context).colorScheme.onBackground),
+          ),
           SizedBox(width: 15),
           GestureDetector(
             onTap: () async {

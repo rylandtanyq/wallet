@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class FullscreenLoader {
   OverlayEntry? _entry;
 
-  void show(BuildContext context) {
+  void show(BuildContext context, {required String message}) {
     if (_entry != null) return;
 
     _entry = OverlayEntry(
@@ -22,7 +22,7 @@ class FullscreenLoader {
                     SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 3, color: Theme.of(ctx).colorScheme.primary)),
                     const SizedBox(height: 12),
                     Text(
-                      '正在切换钱包',
+                      message,
                       style: Theme.of(
                         ctx,
                       ).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(ctx).colorScheme.onBackground),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../constants/AppColors.dart';
-
 class HorizontalSelectList extends StatefulWidget {
   final List<String> items;
   final ValueChanged<int>? onSelected;

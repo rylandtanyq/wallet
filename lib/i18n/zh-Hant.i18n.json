@@ -268,7 +268,9 @@
         "no_token_found": "沒有搜到你想要的代幣",
         "please_check_token_address": "請確保輸入正確的代幣地址",
         "unknown_error_please_try_again_later": "未知錯誤，請稍後重試",
-        "searched_token": "搜索的代幣"
+        "searched_token": "搜索的代幣",
+        "switching_wallet": "正在切換錢包",
+        "refreshing_wallet_info": "正在刷新錢包資訊"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "選擇轉帳幣種",

@@ -6,10 +6,9 @@ import 'package:untitled1/widget/FiltrateView.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 import '../../base/base_page.dart';
-import '../../constants/AppColors.dart';
+import '../../constants/app_colors.dart';
 import '../../widget/HorizntalSelectList.dart';
 import '../../widget/SliverHeaderDelegate.dart';
-import '../../widget/StickyTabBarDelegate.dart';
 
 /*
  * 行情子页面
