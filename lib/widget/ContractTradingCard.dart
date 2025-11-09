@@ -4,7 +4,10 @@ import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 
 class ContractTradingCard extends StatefulWidget {
+  const ContractTradingCard({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ContractTradingCardState createState() => _ContractTradingCardState();
 }
 
@@ -41,7 +44,7 @@ class _ContractTradingCardState extends State<ContractTradingCard> {
                   SizedBox(height: 4),
                 ],
               ),
-              Image.asset('assets/images/bg_home_banner.png', width: 100.w, height: 43.h, fit: BoxFit.cover),
+              Image.asset('assets/images/contract_Increase.png', width: 100.w, height: 43.h, fit: BoxFit.cover),
             ],
           ),
           SizedBox(width: 20.h),

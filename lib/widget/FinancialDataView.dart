@@ -8,7 +8,7 @@ import '../entity/FinancialItem.dart';
 class FinancialDataPage extends StatelessWidget {
   final List<FinancialItem> items;
 
-  const FinancialDataPage({Key? key, required this.items}) : super(key: key);
+  const FinancialDataPage({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -18,43 +18,33 @@ class FinancialDataPage extends StatelessWidget {
         _buildHeaderRow(context),
         Divider(color: Theme.of(context).colorScheme.onSurface.withOpacity(.4), height: 1, thickness: 1),
 
-        Container(
-          height: 260.h,
-          child: ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.all(8),
-            itemCount: items.length > 5 ? 5 : items.length,
-            itemBuilder: (context, index) => _buildItemRow(items[index], context),
-          ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.all(8),
+          itemCount: items.length > 5 ? 5 : items.length,
+          itemBuilder: (context, index) => _buildItemRow(items[index], context),
         ),
-
-        // Expanded(
-        //   child: ListView.builder(
-        //     padding: EdgeInsets.all(16),
-        //     itemCount: items.length>5?5:items.length,
-        //     itemBuilder: (context, index) => _buildItemRow(items[index]),
-        //   ),
-        // ),
-        // ListView.builder(
-        //   itemCount: items.length,
-        //   itemBuilder: (context, index) {
-        //     return _buildItemRow(items[index]);
-        //   }
-        // ),
         SizedBox(
-          width: 104.w,
-          height: 25.h,
+          width: 100.w,
+          height: 32.h,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: Theme.of(context).colorScheme.onSecondary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
               padding: EdgeInsets.symmetric(vertical: 5),
               side: BorderSide(color: AppColors.color_286713, width: 1.0),
             ),
             onPressed: () => {},
-            child: Text(
-              '${t.home.view_all}  >',
-              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${t.home.view_all}  ',
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                ),
+                Icon(Icons.arrow_forward_ios_outlined, size: 14, color: Theme.of(context).colorScheme.primary),
+              ],
             ),
           ),
         ),

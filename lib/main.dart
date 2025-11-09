@@ -10,7 +10,7 @@ import 'package:untitled1/hive/transaction_record.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddWalletPage.dart';
 import 'package:untitled1/pages/tabpage/DiscoveryPage.dart';
-import 'package:untitled1/pages/tabpage/HomePage.dart';
+import 'package:untitled1/pages/home_page/index.dart';
 import 'package:untitled1/pages/tabpage/SituationPage.dart';
 import 'package:untitled1/pages/tabpage/TradePage.dart';
 import 'package:untitled1/pages/wallet_page/index.dart';
