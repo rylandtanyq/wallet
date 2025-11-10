@@ -135,7 +135,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                 onPressed: () => Navigator.pop(context),
               ),
               Spacer(),
-              Text(_calcTotalAdderessBalance, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+              Text('\$$_calcTotalAdderessBalance', style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
             ],
           ),
         ),
@@ -280,7 +280,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(wallet.name, style: AppTextStyles.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                          Text('¥${wallet.balance}', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                          Text('\$${wallet.balance}', style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         ],
                       ),
                       Spacer(),

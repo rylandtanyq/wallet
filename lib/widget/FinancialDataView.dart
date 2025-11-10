@@ -36,15 +36,9 @@ class FinancialDataPage extends StatelessWidget {
               side: BorderSide(color: AppColors.color_286713, width: 1.0),
             ),
             onPressed: () => {},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${t.home.view_all}  ',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
-                ),
-                Icon(Icons.arrow_forward_ios_outlined, size: 14, color: Theme.of(context).colorScheme.primary),
-              ],
+            child: Text(
+              t.home.view_all,
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
             ),
           ),
         ),

@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:untitled1/constants/app_colors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
+import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/util/HiveStorage.dart';
@@ -18,17 +20,26 @@ class HomePageProfileFragments extends StatefulWidget {
 
 class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
   late Future<String> _totalFuture;
+  late Future<String> _walletName;
   late StreamSubscription _hiveSub;
+  late StreamSubscription _hiveWalletName;
 
   @override
   void initState() {
     super.initState();
     _totalFuture = computeTotalFromHive2dp();
-
+    _walletName = getCurrentSelectWalletName();
     Hive.openBox(boxTokens).then((box) {
       _hiveSub = box.watch().listen((_) {
         setState(() {
           _totalFuture = computeTotalFromHive2dp();
+        });
+      });
+    });
+    Hive.openBox(boxWallet).then((box) {
+      _hiveWalletName = box.watch().listen((box) {
+        setState(() {
+          _walletName = getCurrentSelectWalletName();
         });
       });
     });
@@ -38,6 +49,7 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
   void dispose() {
     super.dispose();
     _hiveSub.cancel();
+    _hiveWalletName.cancel();
   }
 
   Future<String> computeTotalFromHive2dp() async {
@@ -49,6 +61,11 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
     );
 
     return sum.toStringAsFixed(2);
+  }
+
+  Future<String> getCurrentSelectWalletName() async {
+    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
+    return wallet.name;
   }
 
   @override
@@ -67,12 +84,14 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                t.common.my_wallet,
-                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
+              FutureBuilder(
+                future: _walletName,
+                builder: (_, snap) => Text(
+                  "${snap.data}",
+                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
+                ),
               ),
               SizedBox(width: 8.w),
-              // Image.asset('assets/images/ic_arrows_down.png', width: 10.w, height: 6.w),
               Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onBackground),
             ],
           ),

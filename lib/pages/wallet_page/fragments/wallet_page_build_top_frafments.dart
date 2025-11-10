@@ -23,17 +23,6 @@ class WalletPageBuildTopFrafments extends StatefulWidget {
 }
 
 class _WalletPageBuildTopFrafmentsState extends State<WalletPageBuildTopFrafments> {
-  double _parseNum(String s) {
-    // 兼容 "1,234.56" 这类字符串；空值返回 0
-    final t = (s).replaceAll(',', '').trim();
-    return double.tryParse(t) ?? 0.0;
-  }
-
-  double _tokenSubtotal(Tokens t) => _parseNum(t.price) * _parseNum(t.number);
-
-  double _portfolioTotal(List<Tokens> list) => list.fold(0.0, (sum, t) => sum + _tokenSubtotal(t));
-
-  String _fmt2(num v) => v.toStringAsFixed(2);
   final List<String> titles = [t.home.transfer, t.home.receive, t.home.finance, t.home.getGas, t.home.transaction_history];
   final List<Widget> _navIcons = [
     Image.asset('assets/images/ic_wallet_transfer.png', width: 48.w, height: 48.w),
@@ -79,7 +68,7 @@ class _WalletPageBuildTopFrafmentsState extends State<WalletPageBuildTopFrafment
                   children: [
                     Expanded(
                       child: Text(
-                        '\$${_fmt2(_portfolioTotal(widget.fillteredTokensList))}',
+                        '\$${widget.wallet.balance}',
                         style: TextStyle(fontSize: 40.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -94,7 +83,6 @@ class _WalletPageBuildTopFrafmentsState extends State<WalletPageBuildTopFrafment
                                     BackUpHelperOnePage(title: t.wallet.please_remember, prohibit: false, backupAddress: widget.wallet.address),
                                     arguments: {"mnemonic": widget.wallet.mnemonic?.join(" ")},
                                   );
-                                  debugPrint('已备份2');
                                   if (result == true) {
                                     await widget.actions.reloadCurrentSelectWalletfn();
                                     setState(() {});
