@@ -76,24 +76,11 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
           child: Image.asset('assets/images/ic_clip_photo.png', width: 60.w, height: 60.w, fit: BoxFit.cover),
         ),
         SizedBox(height: 8.h),
-        GestureDetector(
-          onTap: () {
-            //弹出钱包Dialog
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FutureBuilder(
-                future: _walletName,
-                builder: (_, snap) => Text(
-                  "${snap.data}",
-                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onBackground),
-            ],
+        FutureBuilder(
+          future: _walletName,
+          builder: (_, snap) => Text(
+            "${snap.data}",
+            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
           ),
         ),
         FutureBuilder<String>(
