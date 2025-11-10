@@ -44,6 +44,7 @@ class _CamerascanState extends State<Camerascan> {
   void _albumPermissions() async {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
+      debugPrint('image print: ${image.path}');
       debugPrint('你选择了图片');
     } else {
       debugPrint('你没有选择图片');

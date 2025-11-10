@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:untitled1/constants/app_colors.dart';
 import 'package:untitled1/constants/app_value_notifier.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddWalletPage.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
+import 'package:path/path.dart' as p;
+import 'package:untitled1/widget/wallet_avatar_smart.dart';
 
 import '../../base/base_page.dart';
 import '../util/HiveStorage.dart';
@@ -27,6 +33,7 @@ class SettingWalletPage extends StatefulWidget {
 
 class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<SettingWalletPage>, AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
+  final ImagePicker picker = ImagePicker();
   bool _showExpandedTitle = false;
 
   final GlobalKey _headerKey = GlobalKey();
@@ -108,14 +115,9 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
                       mainTitle: t.wallet.edit_wallet_name,
                       subTitle: _wallet.name,
                       isVerify: false,
-                      onTap: () async {
-                        final result = await showModalBottomSheet(context: context, isScrollControlled: true, builder: (ctx) => UpdateWalletDialog());
-                        if (result != null) {
-                          Navigator.of(context).pop(true);
-                        }
-                      },
+                      onTap: () => showUpdateWalletDialog(_wallet),
                     ),
-                    _buildListItem(icon: '', mainTitle: t.wallet.change_avatar, subTitle: "", isVerify: false, onTap: () {}),
+                    _buildListItem(icon: '', mainTitle: t.wallet.change_avatar, subTitle: "", isVerify: false, onTap: () => _albumPermissions()),
                     _buildListItem(icon: '', mainTitle: t.wallet.view_private_key, subTitle: "", isVerify: false, onTap: () {}),
                     Divider(height: 0.5, color: AppColors.color_E8E8E8),
                     _buildListItem(icon: '', mainTitle: t.wallet.google_verification, subTitle: t.wallet.not_bound, isVerify: false, onTap: () {}),
@@ -167,9 +169,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ClipOval(
-            child: Image.asset('assets/images/ic_clip_photo.png', width: 60.w, height: 60.w, fit: BoxFit.cover),
-          ),
+          WalletAvatarSmart(address: _wallet.address, avatarImagePath: _wallet.avatarImagePath, size: 60.w),
           SizedBox(height: 8.h),
           Text(
             _wallet.name,
@@ -243,9 +243,60 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
     );
   }
 
-  // Future<void> showUpdateWalletDialog() {
-  //   showModalBottomSheet(context: context, isScrollControlled: true, builder: (ctx) => UpdateWalletDialog());
-  // }
+  Future<void> showUpdateWalletDialog(Wallet wallet) async {
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => UpdateWalletDialog(wallet: wallet),
+    );
+    if (result != null) {
+      Navigator.of(context).pop(true);
+    }
+  }
+
+  Future<void> _albumPermissions() async {
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxHeight: 1024, maxWidth: 1024, imageQuality: 92);
+    if (image == null) return;
+
+    // 私有持久目录
+    final baseDir = await getApplicationSupportDirectory();
+    final avatarDir = Directory(p.join(baseDir.path, 'avatars'));
+    if (!avatarDir.existsSync()) avatarDir.createSync(recursive: true);
+
+    // 生成文件名并复制
+    final ext = p.extension(image.path).toLowerCase();
+    final fileName = 'avatar_${_wallet.key}_${DateTime.now().millisecondsSinceEpoch}${ext.isEmpty ? '.jpg' : ext}';
+    final savedPath = p.join(avatarDir.path, fileName);
+    await File(image.path).copy(savedPath);
+
+    // 删除旧头像
+    final old = _wallet.avatarImagePath;
+    if (old != null && old.isNotEmpty) {
+      final f = File(old);
+      if (await f.exists()) {
+        try {
+          await f.delete();
+        } catch (_) {}
+      }
+    }
+
+    final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
+
+    if (wallets.isEmpty) return;
+
+    int idx = wallets.indexWhere((e) => e.address.toLowerCase() == _wallet.address.toLowerCase());
+    if (idx == -1) return;
+
+    wallets[idx].avatarImagePath = savedPath;
+    // 同步 currentSelectWallet
+    _wallet.avatarImagePath = savedPath;
+
+    await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
+    await HiveStorage().putObject<Wallet>('currentSelectWallet', _wallet, boxName: boxWallet);
+
+    Navigator.of(context).pop();
+    debugPrint('avatar saved: $savedPath');
+  }
 
   Future<void> deleteWallet() async {
     showLoadingDialog();

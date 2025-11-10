@@ -29,6 +29,9 @@ class Wallet extends HiveObject {
   @HiveField(7)
   final List<String>? mnemonic; // 助记词
 
+  @HiveField(8)
+  String? avatarImagePath;
+
   Wallet({
     required this.name,
     required this.balance,
@@ -38,6 +41,7 @@ class Wallet extends HiveObject {
     this.isExpanded = false,
     this.isBackUp = false,
     this.mnemonic,
+    this.avatarImagePath,
   });
 
   factory Wallet.empty() => Wallet(
@@ -49,7 +53,32 @@ class Wallet extends HiveObject {
     isExpanded: false,
     isBackUp: false,
     mnemonic: <String>[],
+    avatarImagePath: null,
   );
+
+  Wallet copyWith({
+    String? name,
+    String? balance,
+    String? address,
+    String? network,
+    String? privateKey,
+    bool? isExpanded,
+    bool? isBackUp,
+    List<String>? mnemonic,
+    String? avatarImagePath,
+  }) {
+    return Wallet(
+      name: name ?? this.name,
+      balance: balance ?? this.balance,
+      address: address ?? this.address,
+      network: network ?? this.network,
+      privateKey: privateKey ?? this.privateKey,
+      isExpanded: isExpanded ?? this.isExpanded,
+      isBackUp: isBackUp ?? this.isBackUp,
+      mnemonic: mnemonic ?? this.mnemonic,
+      avatarImagePath: avatarImagePath ?? this.avatarImagePath,
+    );
+  }
 
   factory Wallet.fromJson(Map<String, dynamic> json) => _$WalletFromJson(json);
 

@@ -11,6 +11,7 @@ import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/pages/SettingWalletPage.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/calcTotalBalanceReadable.dart';
+import 'package:untitled1/widget/wallet_avatar_smart.dart';
 import '../../pages/AddWalletPage.dart';
 
 /*
@@ -205,9 +206,10 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ClipOval(
-              child: Image.asset('assets/images/ic_clip_photo.png', width: 37.5.w, height: 37.5.w, fit: BoxFit.cover),
-            ),
+            WalletAvatarSmart(address: item.address, avatarImagePath: item.avatarImagePath, size: 37.5.w),
+            // ClipOval(
+            //   child: Image.asset('assets/images/ic_clip_photo.png', width: 37.5.w, height: 37.5.w, fit: BoxFit.cover),
+            // ),
             SizedBox(width: 8.w),
             // 自定义内容
             Expanded(
@@ -272,9 +274,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                 children: [
                   Row(
                     children: [
-                      ClipOval(
-                        child: Image.asset('assets/images/ic_clip_photo.png', width: 37.5.w, height: 37.5.w, fit: BoxFit.cover),
-                      ),
+                      WalletAvatarSmart(address: wallet.address, avatarImagePath: wallet.avatarImagePath, size: 37.5.w),
                       SizedBox(width: 8.w),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +11,7 @@ import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/util/HiveStorage.dart';
+import 'package:untitled1/widget/wallet_avatar_smart.dart';
 
 class HomePageProfileFragments extends StatefulWidget {
   const HomePageProfileFragments({super.key});
@@ -20,15 +22,15 @@ class HomePageProfileFragments extends StatefulWidget {
 
 class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
   late Future<String> _totalFuture;
-  late Future<String> _walletName;
+  late Future<Wallet> _wallet;
   late StreamSubscription _hiveSub;
-  late StreamSubscription _hiveWalletName;
+  late StreamSubscription _hiveWallet;
 
   @override
   void initState() {
     super.initState();
     _totalFuture = computeTotalFromHive2dp();
-    _walletName = getCurrentSelectWalletName();
+    _wallet = getCurrentSelectWallet();
     Hive.openBox(boxTokens).then((box) {
       _hiveSub = box.watch().listen((_) {
         setState(() {
@@ -37,9 +39,9 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
       });
     });
     Hive.openBox(boxWallet).then((box) {
-      _hiveWalletName = box.watch().listen((box) {
+      _hiveWallet = box.watch().listen((box) {
         setState(() {
-          _walletName = getCurrentSelectWalletName();
+          _wallet = getCurrentSelectWallet();
         });
       });
     });
@@ -49,7 +51,7 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
   void dispose() {
     super.dispose();
     _hiveSub.cancel();
-    _hiveWalletName.cancel();
+    _hiveWallet.cancel();
   }
 
   Future<String> computeTotalFromHive2dp() async {
@@ -63,25 +65,46 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
     return sum.toStringAsFixed(2);
   }
 
-  Future<String> getCurrentSelectWalletName() async {
+  Future<Wallet> getCurrentSelectWallet() async {
     final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
-    return wallet.name;
+    return wallet;
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ClipOval(
-          child: Image.asset('assets/images/ic_clip_photo.png', width: 60.w, height: 60.w, fit: BoxFit.cover),
+        FutureBuilder<Wallet>(
+          future: _wallet,
+          builder: (_, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done || !snapshot.hasData) {
+              return ClipOval(
+                child: Image.asset('assets/images/ic_clip_photo.png', width: 60.w, height: 60.w, fit: BoxFit.cover),
+              );
+            }
+            final w = snapshot.data!;
+            return WalletAvatarSmart(
+              address: w.address,
+              avatarImagePath: w.avatarImagePath,
+              size: 60.w,
+              radius: 60.w / 2,
+              defaultAsset: 'assets/images/ic_clip_photo.png',
+            );
+          },
         ),
         SizedBox(height: 8.h),
         FutureBuilder(
-          future: _walletName,
-          builder: (_, snap) => Text(
-            "${snap.data}",
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
-          ),
+          future: _wallet,
+          builder: (_, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink();
+            }
+            final w = snapshot.data ?? Wallet.empty();
+            return Text(
+              w.name,
+              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
+            );
+          },
         ),
         FutureBuilder<String>(
           future: _totalFuture,

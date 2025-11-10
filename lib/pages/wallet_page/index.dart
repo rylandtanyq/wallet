@@ -21,6 +21,7 @@ import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/fetchTokenBalances.dart';
+import 'package:untitled1/widget/wallet_avatar_smart.dart';
 import '../../base/base_page.dart';
 import '../../util/HiveStorage.dart';
 import '../../widget/dialog/SelectWalletDialog.dart';
@@ -428,9 +429,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
                   },
                   child: Row(
                     children: [
-                      ClipOval(
-                        child: Image.asset('assets/images/ic_clip_photo.png', width: 30.w, height: 30.w, fit: BoxFit.cover),
-                      ),
+                      WalletAvatarSmart(address: _wallet.address, avatarImagePath: _wallet.avatarImagePath, size: 30.w),
                       SizedBox(width: 8.w),
                       Text(
                         _wallet.name,

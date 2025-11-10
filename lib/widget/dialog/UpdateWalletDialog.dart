@@ -10,7 +10,8 @@ import 'package:untitled1/util/HiveStorage.dart';
 import '../CustomTextField.dart';
 
 class UpdateWalletDialog extends StatefulWidget {
-  const UpdateWalletDialog({super.key});
+  final Wallet wallet;
+  const UpdateWalletDialog({super.key, required this.wallet});
 
   @override
   State<UpdateWalletDialog> createState() => _UpdateWalletDialogState();
@@ -227,17 +228,17 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
 
     // 读列表 & 当前选中
     final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
-    final current = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
+    // final current = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
 
-    if (current == null || wallets.isEmpty) {
+    if (wallets.isEmpty) {
       Navigator.of(context).pop(false);
       return;
     }
 
     // 找到当前钱包在列表中的位置
-    int idx = wallets.indexWhere((e) => e.address.toLowerCase() == current.address.toLowerCase());
+    int idx = wallets.indexWhere((e) => e.address.toLowerCase() == widget.wallet.address.toLowerCase());
     if (idx == -1) {
-      idx = wallets.indexWhere((e) => e.address == current.address);
+      idx = wallets.indexWhere((e) => e.address == widget.wallet.address);
     }
     if (idx == -1) {
       Get.snackbar('提示', '未在本地列表中找到当前钱包');
@@ -248,11 +249,11 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
     wallets[idx].name = newName;
 
     // 同步 currentSelectWallet
-    current.name = newName;
+    widget.wallet.name = newName;
 
     // 先写列表，再写当前选中
     await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
-    await HiveStorage().putObject<Wallet>('currentSelectWallet', current, boxName: boxWallet);
+    await HiveStorage().putObject<Wallet>('currentSelectWallet', widget.wallet, boxName: boxWallet);
 
     // 关闭弹窗并通知刷新
     Navigator.of(context).pop(true);
