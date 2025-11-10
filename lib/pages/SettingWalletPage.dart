@@ -294,7 +294,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
     await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
     await HiveStorage().putObject<Wallet>('currentSelectWallet', _wallet, boxName: boxWallet);
 
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(true);
     debugPrint('avatar saved: $savedPath');
   }
 
