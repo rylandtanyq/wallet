@@ -43,10 +43,10 @@ const oldTxBox = 'transactions_v2'; // 或者用你的 boxTxOld 常量
         await Hive.box(oldTxBox).close(); // 先关再删
       }
       await Hive.deleteBoxFromDisk(oldTxBox);
-      debugPrint('🧹 deleted old box: $oldTxBox');
+      debugPrint(' deleted old box: $oldTxBox');
     }
   } catch (e) {
-    debugPrint('⚠️ delete $oldTxBox failed: $e');
+    debugPrint(' delete $oldTxBox failed: $e');
   }
 
 
