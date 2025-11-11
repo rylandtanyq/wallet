@@ -249,11 +249,11 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
     wallets[idx].name = newName;
 
     // 同步 currentSelectWallet
-    widget.wallet.name = newName;
+    // widget.wallet.name = newName;
 
     // 先写列表，再写当前选中
     await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
-    await HiveStorage().putObject<Wallet>('currentSelectWallet', widget.wallet, boxName: boxWallet);
+    // await HiveStorage().putObject<Wallet>('currentSelectWallet', widget.wallet, boxName: boxWallet);
 
     // 关闭弹窗并通知刷新
     Navigator.of(context).pop(true);

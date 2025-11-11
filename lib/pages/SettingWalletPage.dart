@@ -289,12 +289,12 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
 
     wallets[idx].avatarImagePath = savedPath;
     // 同步 currentSelectWallet
-    _wallet.avatarImagePath = savedPath;
+    // _wallet.avatarImagePath = savedPath;
 
     await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
-    await HiveStorage().putObject<Wallet>('currentSelectWallet', _wallet, boxName: boxWallet);
+    // await HiveStorage().putObject<Wallet>('currentSelectWallet', _wallet, boxName: boxWallet);
 
-    Navigator.of(context).pop(true);
+    Navigator.of(context).pop();
     debugPrint('avatar saved: $savedPath');
   }
 
@@ -305,8 +305,29 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
       String selectedAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
       List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
 
+      final idx = wallets.indexWhere((w) => w.address.toLowerCase() == _wallet.address.toLowerCase());
+      if (idx == -1) {
+        dismissLoading();
+        Get.snackbar('提示', '未找到要删除的钱包');
+        return;
+      }
+
       // 移除目标钱包
       wallets.removeWhere((w) => w.address == _wallet.address);
+
+      // 记录头像路径
+      final String? targetAvatarPath = wallets[idx].avatarImagePath;
+      if (targetAvatarPath != null && targetAvatarPath.isNotEmpty) {
+        final stillUsed = wallets.any((w) => (w.avatarImagePath ?? '') == targetAvatarPath);
+        if (!stillUsed) {
+          final f = File(targetAvatarPath);
+          if (await f.exists()) {
+            try {
+              await f.delete();
+            } catch (_) {}
+          }
+        }
+      }
 
       // 计算新的选中钱包 & 同步写回
       if (wallets.isNotEmpty) {
