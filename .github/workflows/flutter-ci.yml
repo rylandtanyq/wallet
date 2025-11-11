@@ -47,13 +47,13 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
 
   release:
-    # 只有在打 tag 的时候才跑这个 job
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: build-and-test
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
-      - - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Download APK artifact
         uses: actions/download-artifact@v4
@@ -64,7 +64,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: app-release.apk
+          files: build/app/outputs/flutter-apk/app-release.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
