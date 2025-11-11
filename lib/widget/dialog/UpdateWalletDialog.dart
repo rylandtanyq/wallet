@@ -52,22 +52,20 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
 
             Container(
               margin: EdgeInsets.all(15.w),
-              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(22.r)),
+              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(.1), borderRadius: BorderRadius.circular(50.r)),
               child: Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         splashFactory: NoSplash.splashFactory,
-                        backgroundColor: _isDIYNameMode
-                            ? Theme.of(context).colorScheme.onSurface.withOpacity(.3)
-                            : Theme.of(context).colorScheme.onSurface.withOpacity(.1),
+                        backgroundColor: _isDIYNameMode ? Colors.transparent : Theme.of(context).colorScheme.background,
                         foregroundColor: _isDIYNameMode ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onBackground,
                         minimumSize: Size(double.infinity, 40.h),
                         elevation: 0,
                         textStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(19.r)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.r)),
                       ),
                       onPressed: () {
                         setState(() {
@@ -81,14 +79,12 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         splashFactory: NoSplash.splashFactory,
-                        backgroundColor: _isDIYNameMode
-                            ? Theme.of(context).colorScheme.onSurface.withOpacity(.1)
-                            : Theme.of(context).colorScheme.onSurface.withOpacity(.3),
+                        backgroundColor: _isDIYNameMode ? Theme.of(context).colorScheme.background : Colors.transparent,
                         foregroundColor: _isDIYNameMode ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
                         minimumSize: Size(double.infinity, 40.h),
                         elevation: 0,
                         textStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(19.r)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.r)),
                       ),
                       onPressed: () {
                         setState(() {
@@ -106,7 +102,7 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
             Expanded(child: _isDIYNameMode ? _buildDIYNameView() : _buildDomainNameView()),
 
             // 分割线
-            Divider(height: 0.75.h, color: AppColors.color_EEEEEE),
+            Divider(height: 0.75.h, color: Theme.of(context).colorScheme.onSurface.withOpacity(.3)),
 
             Container(
               padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
@@ -116,7 +112,7 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.background,
                         foregroundColor: AppColors.color_286713,
                         minimumSize: Size(double.infinity, 42.h),
                         elevation: 0,
@@ -168,7 +164,7 @@ class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
             margin: EdgeInsets.all(12.h),
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.background, borderRadius: BorderRadius.circular(7.5.r)),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(.1), borderRadius: BorderRadius.circular(7.5.r)),
             child: Row(
               children: [
                 Image.asset('assets/images/ic_home_bit_coin.png', width: 20.5.w, height: 20.5.w),
