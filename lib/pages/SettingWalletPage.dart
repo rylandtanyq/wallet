@@ -302,60 +302,68 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
     showLoadingDialog();
     try {
       // 取当前选中地址 & 列表
-      String selectedAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
-      List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
+      final String selectedAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
+      final List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
 
-      final idx = wallets.indexWhere((w) => w.address.toLowerCase() == _wallet.address.toLowerCase());
+      // 找到要删的钱包下标（不区分大小写）
+      final int idx = wallets.indexWhere((w) => (w.address).toLowerCase() == (_wallet.address).toLowerCase());
+
       if (idx == -1) {
         dismissLoading();
         Get.snackbar('提示', '未找到要删除的钱包');
         return;
       }
 
-      // 移除目标钱包
-      wallets.removeWhere((w) => w.address == _wallet.address);
+      // 先保存目标项信息，再删除，避免越界/错位
+      final Wallet target = wallets[idx];
+      final String targetAddress = target.address;
+      final String? targetAvatarPath = target.avatarImagePath;
 
-      // 记录头像路径
-      final String? targetAvatarPath = wallets[idx].avatarImagePath;
+      // 删除目标钱包（使用下标删除，避免大小写不一致导致 removeWhere 失败）
+      wallets.removeAt(idx);
+
+      // 头像清理：仅当没有其他钱包引用同一路径时才删除
       if (targetAvatarPath != null && targetAvatarPath.isNotEmpty) {
-        final stillUsed = wallets.any((w) => (w.avatarImagePath ?? '') == targetAvatarPath);
+        final bool stillUsed = wallets.any((w) => (w.avatarImagePath ?? '') == targetAvatarPath);
         if (!stillUsed) {
-          final f = File(targetAvatarPath);
-          if (await f.exists()) {
-            try {
+          try {
+            final f = File(targetAvatarPath);
+            if (await f.exists()) {
               await f.delete();
-            } catch (_) {}
-          }
+            }
+          } catch (_) {}
         }
       }
 
-      // 计算新的选中钱包 & 同步写回
+      // 计算新的选中地址（删除的是当前选中时，把第一个设为选中；否则保持不变）
       if (wallets.isNotEmpty) {
-        // 如果删的是当前选中，就把第一个设为选中；否则保持原选中
-        final nextSelected = (selectedAddress == _wallet.address) ? wallets.first.address : selectedAddress;
+        final bool isDeletingSelected = selectedAddress.isNotEmpty && selectedAddress.toLowerCase() == targetAddress.toLowerCase();
+        final String nextSelected = isDeletingSelected ? wallets.first.address : selectedAddress;
 
+        // 写回 Hive
         await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
         await HiveStorage().putValue('selected_address', nextSelected, boxName: boxWallet);
 
-        final nextWallet = wallets.firstWhere((w) => w.address == nextSelected, orElse: () => wallets.first);
+        // 同步 currentSelectWallet
+        final Wallet nextWallet = wallets.firstWhere((w) => w.address.toLowerCase() == nextSelected.toLowerCase(), orElse: () => wallets.first);
         await HiveStorage().putObject<Wallet>('currentSelectWallet', nextWallet, boxName: boxWallet);
 
-        // 关闭 loading 再导航（保留主框架，回到钱包Tab）
+        // 关闭 loading 再跳转（避免同帧清空路由栈导致断言）
         dismissLoading();
         OneShotFlag.value.value = true;
-        Get.offAll(() => MainPage(initialPageIndex: 4));
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.offAll(() => MainPage(initialPageIndex: 4));
+        });
       } else {
         // 清空所有与“当前选中钱包”相关的键
         await HiveStorage().putList<Wallet>('wallets_data', <Wallet>[], boxName: boxWallet);
         await HiveStorage().putValue('selected_address', '', boxName: boxWallet);
         await HiveStorage().delete('currentSelectWallet', boxName: boxWallet);
 
-        // 清除此钱包相关的 tokens / transactions 等本地缓存
-        // await HiveStorage().clearBox(boxTokens);
-        // await HiveStorage().clearBox(boxTx);
-
         dismissLoading();
-        Get.offAll(() => AddWalletPage());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.offAll(() => AddWalletPage());
+        });
       }
     } catch (e) {
       dismissLoading();
