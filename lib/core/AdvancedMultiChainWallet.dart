@@ -32,6 +32,7 @@ class AdvancedMultiChainWallet {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   late Box _localStorage;
   final Map<String, solana.SolanaClient> _clients2 = {};
+  String? _solanaSecretKeyBase58;
 
   // 初始化钱包
   Future<void> initialize({String? networkId}) async {
@@ -66,9 +67,26 @@ class AdvancedMultiChainWallet {
   // 创建新钱包
   Future<Map<String, String>> createNewWallet() async {
     _mnemonic = bip39.generateMnemonic(strength: 128);
+
+    // 用助记词派生所有链（包含 Solana）
     await _generateKeysFromMnemonic();
+
+    // 必须先保存（可选）
     await _saveToSecureStorage();
-    return _getWalletInfo();
+
+    // 这里强制把当前网络设为 solana（如果你希望创建即为 solana）
+    _currentNetwork = supportedNetworks['solana'];
+
+    // 返回三件套：助记词 + 地址 + Base58 64B SecretKey
+    final address = _addresses['solana'] ?? _addresses['Solana'] ?? '';
+    final secret58 = _solanaSecretKeyBase58 ?? '';
+
+    return {
+      'mnemonic': _mnemonic ?? '',
+      'currentAddress': address,
+      'privateKey': secret58, // ← 给 UI 用这个给 Bitget 导入
+      'currentNetwork': _currentNetwork?.name ?? '',
+    };
   }
 
   // 从助记词恢复
@@ -171,9 +189,42 @@ class AdvancedMultiChainWallet {
   // ===================== 最终版：私钥导入函数 ======================
   // 私钥/secretKey/seed 智能导入：支持 EVM 与 Solana
   Future<Map<String, String?>> importWalletFromPrivateKey(String input, {String rpcUrl = "https://cloudflare-eth.com"}) async {
-    final trimmed = input.trim();
+    String trimmed = input.trim();
 
-    // === EVM：0x + 64 hex ===
+    // 1) 先试 Base58（Solana 常见：64B secretKey 或 32B seed）
+    try {
+      final decoded = Uint8List.fromList(bs58.base58.decode(trimmed));
+      if (decoded.length == 64 || decoded.length == 32) {
+        final seed32 = decoded.length == 64 ? decoded.sublist(0, 32) : decoded;
+
+        final kp = await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: seed32);
+        final address = kp.address;
+
+        String balance = '0.00';
+        try {
+          final client = _clients['solana'] as solana.SolanaClient?;
+          if (client != null) {
+            // 直接传 Base58 地址字符串
+            final res = await client.rpcClient.getBalance(address); // BalanceResult
+            final lamports = res.value; // int
+            balance = (lamports / solana.lamportsPerSol).toStringAsFixed(9);
+          }
+        } catch (_) {}
+
+        return {
+          'WalletType': decoded.length == 64 ? 'solanaSecretKeyImported' : 'solanaSeedImported',
+          'currentNetwork': 'Solana',
+          'currentAddress': address, // Base58
+          'balance': balance,
+          'mnemonic': '',
+          'privateKey': input, // 不回传明文
+        };
+      }
+    } catch (_) {
+      // 不是 Base58 就走后面的分支
+    }
+
+    // 2) EVM：0x + 64 hex
     if (_looksLikeHex64With0x(trimmed)) {
       final client = Web3Client(rpcUrl, Client());
       try {
@@ -195,8 +246,8 @@ class AdvancedMultiChainWallet {
 
         return {
           'WalletType': 'privateKeyImported',
-          'currentNetwork': network, // Ethereum/BSC/Polygon...
-          'currentAddress': address, // 0x...
+          'currentNetwork': network,
+          'currentAddress': address,
           'balance': balance,
           'mnemonic': '',
           'privateKey': trimmed,
@@ -206,32 +257,7 @@ class AdvancedMultiChainWallet {
       }
     }
 
-    // === Solana：64B secretKey（JSON/Base58/Hex 128） ===
-    try {
-      final secret64 = _parseSolanaSecretKey64(trimmed); // 64B = private32 + public32
-      final seed32 = secret64.sublist(0, 32); // 取前 32B 当 seed
-
-      final kp = await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: seed32);
-      final address = kp.address;
-
-      String balance = '0.00';
-      try {
-        balance = await _getSolanaBalance(address, _getRpcUrl('solana'));
-      } catch (_) {}
-
-      return {
-        'WalletType': 'solanaSecretKeyImported',
-        'currentNetwork': 'Solana',
-        'currentAddress': address, // Base58
-        'balance': balance,
-        'mnemonic': '',
-        'privateKey': '', // 建议不要回传明文；如需存储请自行加密后再存
-      };
-    } catch (_) {
-      // 继续尝试 32B seed
-    }
-
-    // === Solana：32B seed（64 hex，带/不带 0x） ===
+    // 3) Solana：32B seed（64 hex，带/不带 0x）
     if (_looksLikeHex64(trimmed)) {
       final seed32 = _hexToBytes(trimmed.replaceFirst(RegExp(r'^0x'), ''));
       if (seed32.length != 32) {
@@ -243,25 +269,36 @@ class AdvancedMultiChainWallet {
 
       String balance = '0.00';
       try {
-        balance = await _getSolanaBalance(address, _getRpcUrl('solana'));
+        final client = _clients['solana'] as solana.SolanaClient?;
+        if (client != null) {
+          // address 可以是 Base58 字符串或先转成 Key 对象都行
+          // final pubKey = solana.Ed25519HDPublicKey.fromBase58(address);
+          // final res = await client.rpcClient.getBalance(pubKey);
+
+          final res = await client.rpcClient.getBalance(address); // BalanceResult
+          final lamports = res.value; // <-- 关键：取 value (int)
+          balance = '${lamports / solana.lamportsPerSol}';
+          // 如果想固定小数：
+          // balance = (lamports / solana.lamportsPerSol).toStringAsFixed(9);
+        }
       } catch (_) {}
 
       return {
         'WalletType': 'solanaSeedImported',
         'currentNetwork': 'Solana',
-        'currentAddress': address, // Base58
+        'currentAddress': address,
         'balance': balance,
         'mnemonic': '',
         'privateKey': '',
       };
     }
 
-    // === 兜底 ===
+    // 4) 兜底
     throw ArgumentError(
       'Unsupported key format. Provide:\n'
+      '- Solana SecretKey (Base58, 64 bytes) or Base58 32-byte seed;\n'
       '- EVM 32-byte hex (0x...);\n'
-      '- Solana 64-byte secretKey (JSON/Base58/Hex 128);\n'
-      '- Solana 32-byte seed (Hex 64, with/without 0x).',
+      '- Solana 32-byte seed (Hex 64).',
     );
   }
 
@@ -342,9 +379,9 @@ class AdvancedMultiChainWallet {
 
   /// 获取Solana余额(SOL)
   Future<String> _getSolanaBalance(String address, String rpcUrl) async {
-    final pubKey = solana.Ed25519HDPublicKey.fromBase58(address);
-    final balance = await _clients[address].rpc.getBalance(pubKey);
-    return '${balance / solana.lamportsPerSol}';
+    final client = _clients['solana'] as solana.SolanaClient; // 不要用 address 当 key
+    final res = await client.rpcClient.getBalance(address); // BalanceResult
+    return '${res.value / solana.lamportsPerSol}';
   }
 
   String _getRpcUrl(String blockchain) {
@@ -662,11 +699,11 @@ class AdvancedMultiChainWallet {
           break;
 
         case ChainType.Solana:
-          // ====== 关键改动：用派生的 32B seed 还原 KeyPair，并保存这个 seed ======
           try {
-            // ✨ 用对齐版派生，保证地址与 fromMnemonic(account,change) 完全一致
+            // 1) 用“对齐版”派生 32B seed（确保与 fromMnemonic 的地址一致）
             final seed32 = await _deriveSolanaSeed32Aligned(mnemonic: _mnemonic!, account: 0, change: 0);
 
+            // 2) 生成 keypair & 地址
             final keyPair = await solana.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: seed32);
             final solAddress = keyPair.publicKey.toBase58();
 
@@ -674,7 +711,14 @@ class AdvancedMultiChainWallet {
             _addresses[network.id] = solAddress;
             _addresses[network.name] = solAddress;
 
-            // 保存“私钥”请保存这个 seed32（建议加密后再存）
+            // 3) 组装 64B SecretKey = 私钥32 + 公钥32，并转 Base58（Bitget 识别的那种）
+            final pub32 = keyPair.publicKey.bytes; // 32B
+            final secret64 = Uint8List(64)
+              ..setRange(0, 32, seed32)
+              ..setRange(32, 64, pub32);
+            _solanaSecretKeyBase58 = bs58.base58.encode(secret64); // ✅ 88字符
+
+            // （可选）若你仍想保存 seed32 的 hex：
             _privateKey = HEX.encode(seed32);
           } catch (e) {
             debugPrint('Solana derive failed: $e');

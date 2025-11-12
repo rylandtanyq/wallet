@@ -193,7 +193,7 @@ class _BackUpHelperPageState extends State<BackUpHelperPage> with BasePage<BackU
   void createWalletToBackUp() async {
     showLoadingDialog();
     final walletData = await wallet.createNewWallet();
-    debugPrint('New wallet created:');
+    debugPrint('New wallet created: $walletData');
     debugPrint('Mnemonic: ${walletData['mnemonic']}');
     debugPrint('privateKey: ${walletData['privateKey']}');
     debugPrint('Current address: ${walletData['currentAddress']}');

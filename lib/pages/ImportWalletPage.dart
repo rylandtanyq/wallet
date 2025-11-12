@@ -143,19 +143,43 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
   }
 
   Future<void> importWallet(String input) async {
-    showLoadingDialog();
-    await _advWallet.initialize();
-    if (CryptoInputValidator.isMnemonic(input)) {
-      print('importWallet --- 助记词导入');
-      await importWalletByMnemonic(input);
-      debugPrint('input: $input');
-    } else if (CryptoInputValidator.isPrivateKey(input)) {
-      print('importWallet --- 私钥导入');
-      await importWalletByPrivateKey();
+    try {
+      showLoadingDialog();
+      await _advWallet.initialize(networkId: 'solana');
+
+      final cleaned = input.trim();
+
+      if (CryptoInputValidator.isMnemonic(cleaned)) {
+        await importWalletByMnemonic(cleaned);
+        return;
+      }
+
+      // ✅ 兜底：不管 isPrivateKey 判不判得出来，都尝试按“私钥/secretKey/seed”导入
+      _importKeyValue = cleaned; // 确保传给下面用的值
+      try {
+        await importWalletByPrivateKey(); // 内部会调用 _advWallet.importWalletFromPrivateKey
+        return;
+      } catch (_) {
+        // 只有真正解析失败才提示
+        Fluttertoast.showToast(msg: '输入既不是助记词也不是私钥');
+        return;
+      }
+    } catch (e, st) {
+      debugPrint('importWallet error: $e\n$st');
+      Fluttertoast.showToast(msg: '导入失败：$e');
+      return;
+    } finally {
+      if (Get.isDialogOpen == true) {
+        Get.back(); // 关闭 showLoadingDialog 打开的对话框
+      }
+
+      OneShotFlag.value.value = true;
+
+      // 2) 下一帧再跳转，避免同帧把最后一个路由移除导致 _history 为空
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.offAll(() => MainPage(initialPageIndex: 4), arguments: {'refrensh': true});
+      });
     }
-    dismissLoading();
-    OneShotFlag.value.value = true;
-    Get.offAll(() => MainPage(initialPageIndex: 4), arguments: {'refrensh': true});
   }
 
   /*
@@ -163,6 +187,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
    */
   Future<void> importWalletByPrivateKey() async {
     final wallet = await _advWallet.importWalletFromPrivateKey(_importKeyValue);
+    debugPrint('wallet ss: $wallet');
     final currentAddress = wallet['currentAddress'];
     List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
     bool exists = _wallets.any((item) => item.address == currentAddress);
