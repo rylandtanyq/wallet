@@ -171,7 +171,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       final newWallet = Wallet(
         name: _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length + 1})',
         balance: wallet['balance'] ?? '0.00', // 默认余额或从 wallet 中获取
-        network: wallet['currentNetwork'] ?? 'Ethereum',
+        network: wallet['currentNetwork'] ?? 'Solana',
         address: currentAddress ?? '',
         privateKey: _importKeyValue,
         isBackUp: true,
@@ -203,7 +203,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       final newWallet = Wallet(
         name: _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length + 1})',
         balance: wallet['balance'] ?? '0.00',
-        network: wallet['network'] ?? 'Ethereum',
+        network: wallet['network'] ?? 'Solana',
         address: currentAddress ?? '',
         privateKey: wallet['privateKey'] ?? '',
         isBackUp: false,
