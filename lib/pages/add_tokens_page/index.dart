@@ -246,7 +246,14 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     final async = ref.watch(getWalletTokensProvide(_currentAddr));
     return async.when(
       data: (AddTokensModel data) {
-        AddTokensItemModel item = data.result.first;
+        final items = data.result;
+        if (items.isEmpty) {
+          return HintFragments(
+            icons: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+            hitTitle: t.wallet.no_token_found,
+          );
+        }
+        final AddTokensItemModel item = items.first;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
