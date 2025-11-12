@@ -48,8 +48,8 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.9,
-      padding: EdgeInsets.all(16),
+      width: double.infinity,
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.4), width: 1),
         borderRadius: BorderRadius.circular(8.0),

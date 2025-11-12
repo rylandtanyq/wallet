@@ -15,7 +15,7 @@ class _ContractTradingCardState extends State<ContractTradingCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.9,
+      // width: MediaQuery.of(context).size.width * 0.9,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.4), width: 1),

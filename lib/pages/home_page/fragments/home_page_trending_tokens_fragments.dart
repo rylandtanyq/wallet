@@ -16,7 +16,7 @@ class _HomePageTrendingTokensFragmentsState extends State<HomePageTrendingTokens
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 5),
           child: Row(
             children: [
               Text(
@@ -26,8 +26,9 @@ class _HomePageTrendingTokensFragmentsState extends State<HomePageTrendingTokens
             ],
           ),
         ),
-        SizedBox(
+        Container(
           height: 115.h,
+          padding: EdgeInsets.symmetric(horizontal: 10.h),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: 2,
@@ -43,8 +44,8 @@ class _HomePageTrendingTokensFragmentsState extends State<HomePageTrendingTokens
   Widget _buildHotCoinItemView(int index) {
     return Container(
       height: 115.h,
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      padding: EdgeInsets.all(10.w),
+      margin: EdgeInsets.only(right: 16.w),
+      padding: EdgeInsets.all(10.h),
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.4), width: 1),
         borderRadius: BorderRadius.circular(8.0),

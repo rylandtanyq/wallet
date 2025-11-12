@@ -26,7 +26,7 @@ class _HomePageFullChainRankingFragmentsState extends State<HomePageFullChainRan
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 5),
           child: Row(
             children: [
               Text(

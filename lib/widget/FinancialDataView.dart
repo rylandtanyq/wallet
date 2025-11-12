@@ -21,7 +21,7 @@ class FinancialDataPage extends StatelessWidget {
         ListView.builder(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.all(8),
+          // padding: EdgeInsets.all(8),
           itemCount: items.length > 5 ? 5 : items.length,
           itemBuilder: (context, index) => _buildItemRow(items[index], context),
         ),
@@ -112,7 +112,7 @@ class FinancialDataPage extends StatelessWidget {
 
   Widget _buildItemRow(FinancialItem item, BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.h),
       child: Row(
         children: [
           Expanded(
