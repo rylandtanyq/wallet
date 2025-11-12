@@ -12,7 +12,7 @@ class HomePageTradingContractFragments extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 5),
           child: Row(
             children: [
               Expanded(
@@ -26,7 +26,10 @@ class HomePageTradingContractFragments extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8.h),
-        ContractTradingCard(),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.h),
+          child: ContractTradingCard(),
+        ),
       ],
     );
   }

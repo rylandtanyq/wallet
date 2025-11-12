@@ -11,7 +11,7 @@ class HomePageUserGuideFragments extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 5),
           child: Row(
             children: [
               Expanded(
@@ -24,7 +24,8 @@ class HomePageUserGuideFragments extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.h),
           height: 130.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -41,7 +42,7 @@ class HomePageUserGuideFragments extends StatelessWidget {
   Widget _buildGuideItemRow(BuildContext context) {
     return Container(
       height: 130.h,
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      margin: EdgeInsets.only(right: 15.w),
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.4), width: 1),
         borderRadius: BorderRadius.circular(8.0),

@@ -34,6 +34,7 @@ class _HomePageEarnCoinsFragmentsState extends State<HomePageEarnCoinsFragments>
           ),
         ),
         Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.h),
           decoration: BoxDecoration(
             border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(.1), width: .5),
             borderRadius: BorderRadius.circular(8.0), // 设置圆角
