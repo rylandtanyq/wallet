@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/hive/tokens.dart';
@@ -59,6 +60,15 @@ class _WalletPageBuildTopFrafmentsState extends State<WalletPageBuildTopFrafment
                     GestureDetector(
                       onTap: () {
                         Clipboard.setData(ClipboardData(text: widget.wallet.address));
+                        Fluttertoast.showToast(
+                          msg: '地址已复制',
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                          fontSize: 16.0,
+                        );
                       },
                       child: Icon(Icons.copy_outlined, size: 16, color: Theme.of(context).colorScheme.onBackground),
                     ),
