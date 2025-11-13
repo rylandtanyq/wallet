@@ -217,6 +217,7 @@ flutter:
     - assets/images/BTC.png
     - assets/images/ETH.png
     - assets/images/USDT.png
+    - assets/images/dogwifhat.png
     - assets/images/rewardsAccount_popup_img.png
     - assets/images/authorization_detection.png
     - assets/images/bank_card.png
