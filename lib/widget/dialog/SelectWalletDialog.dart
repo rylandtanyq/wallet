@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:untitled1/constants/app_colors.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
@@ -345,6 +346,15 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                       GestureDetector(
                         onTap: () {
                           Clipboard.setData(ClipboardData(text: wallet.address));
+                          Fluttertoast.showToast(
+                            msg: '地址已复制',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16.0,
+                          );
                         },
                         child: Icon(Icons.copy_outlined, size: 16, color: Theme.of(context).colorScheme.onSurface),
                       ),
