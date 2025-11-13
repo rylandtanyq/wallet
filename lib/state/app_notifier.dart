@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/add_tokens_page/models/add_tokens_model.dart';
+import 'package:untitled1/pages/add_tokens_page/models/search_token_model.dart';
 import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/request/request.api.dart';
 import 'package:untitled1/util/theme_persistence.dart';
@@ -96,6 +97,20 @@ class GetWalletTokensPriceNotifier extends StateNotifier<AsyncValue<TokenPriceMo
       state = AsyncValue.data(walletTokensPriceData);
     } catch (e) {
       debugPrint('token price fail: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
+}
+
+class GetWalletSearchTokenNotifier extends StateNotifier<AsyncValue<SearchTokenModel>> {
+  GetWalletSearchTokenNotifier() : super(const AsyncLoading());
+
+  Future fetchWalletSearchTokenData(String name) async {
+    try {
+      final walletSearchTokenData = await WalletApi.searchTokenFetch(name);
+      state = AsyncValue.data(walletSearchTokenData);
+    } catch (e) {
+      debugPrint('search token fail: $e');
       state = AsyncValue.error(e, StackTrace.current);
     }
   }

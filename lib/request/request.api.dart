@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:untitled1/pages/add_tokens_page/models/add_tokens_model.dart';
+import 'package:untitled1/pages/add_tokens_page/models/search_token_model.dart';
 import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/request/request.dart';
 
@@ -24,5 +26,14 @@ class WalletApi {
     dynamic ret = response.data;
     TokenPriceModel tokenPriceModel = TokenPriceModel.fromJson(ret);
     return tokenPriceModel;
+  }
+
+  // /api/solana/searchToken
+  static Future searchTokenFetch(String name) async {
+    String path = '/api/solana/searchToken?keyword=$name';
+    Response response = await RequestManager().handleRequest(path, "GET");
+    dynamic ret = response.data;
+    SearchTokenModel searchTokenModel = SearchTokenModel.fromJson(ret);
+    return searchTokenModel;
   }
 }

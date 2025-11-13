@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled1/pages/add_tokens_page/models/add_tokens_model.dart';
+import 'package:untitled1/pages/add_tokens_page/models/search_token_model.dart';
 import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
 import 'package:untitled1/state/app_notifier.dart';
 
@@ -22,4 +23,8 @@ final getWalletTokensProvide = StateNotifierProvider.family<GetWalletTokensNotif
 
 final getWalletTokensPriceProvide = StateNotifierProvider.family<GetWalletTokensPriceNotifier, AsyncValue<TokenPriceModel>, List<String>>((ref, arg) {
   return GetWalletTokensPriceNotifier();
+});
+
+final getWalletSearchTokenProvide = StateNotifierProvider.family<GetWalletSearchTokenNotifier, AsyncValue<SearchTokenModel>, String>((ref, name) {
+  return GetWalletSearchTokenNotifier();
 });

@@ -10,6 +10,7 @@ import 'package:untitled1/pages/add_tokens_page/fragments/hint_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/shimmer_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/token_item_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/models/add_tokens_model.dart';
+import 'package:untitled1/pages/add_tokens_page/models/search_token_model.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/HiveStorage.dart';
@@ -59,7 +60,8 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     setState(() => _currentAddr = addr);
     _debounce = Timer(Duration(milliseconds: 1000), () async {
       if (_currentAddr.isEmpty) return;
-      ref.read(getWalletTokensProvide(addr).notifier).fetchWalletTokenData(addr);
+      // ref.read(getWalletTokensProvide(addr).notifier).fetchWalletTokenData(addr); // 暂时不用
+      ref.read(getWalletSearchTokenProvide(addr).notifier).fetchWalletSearchTokenData(addr);
     });
   }
 
@@ -209,6 +211,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
                     contentPadding: EdgeInsets.only(right: 14),
                     border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(25.r)),
                     prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
+                    suffixIcon: _textEditingController.text.isNotEmpty ? _suffixIconWidget() : null,
                   ),
                   onChanged: (e) {
                     _searchTokens(e);
@@ -256,10 +259,9 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
 
   Widget _buildSearchResult() {
     if (_currentAddr.isEmpty) return const SizedBox.shrink();
-    final async = ref.watch(getWalletTokensProvide(_currentAddr));
+    final async = ref.watch(getWalletSearchTokenProvide(_currentAddr));
     return async.when(
-      data: (AddTokensModel data) {
-        debugPrint('data printn: $data');
+      data: (SearchTokenModel data) {
         final items = data.result;
         if (items.isEmpty) {
           return HintFragments(
@@ -267,7 +269,6 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
             hitTitle: t.wallet.no_token_found,
           );
         }
-        final AddTokensItemModel item = items.first;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -276,15 +277,27 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
               style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 20),
-            TokenItemFragments(
-              image: item.image ?? '',
-              name: item.name,
-              symbol: item.symbol,
-              price: '0.00',
-              num: '0.00',
-              action: TokenTrailingAction.add,
-              onTap: () => _addedToken(item.name, item.symbol, item.image ?? '', item.mint),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (BuildContext context, int index) {
+                final SearchTokenItemModel item = items[index];
+                return TokenItemFragments(
+                  image: item.logoUrl ?? '',
+                  name: item.name,
+                  symbol: item.symbol,
+                  price: item.currentPriceUsd ?? '',
+                  num: '0.00',
+                  action: TokenTrailingAction.add,
+                  onTap: () => _addedToken(item.name, item.symbol, item.logoUrl ?? '', item.token),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(height: 10);
+              },
+              itemCount: items.length,
             ),
+
             SizedBox(height: 30),
           ],
         );
@@ -328,6 +341,17 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
         return SizedBox(height: 20);
       },
       itemCount: tokenList.length,
+    );
+  }
+
+  Widget _suffixIconWidget() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _textEditingController.clear();
+        });
+      },
+      child: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
     );
   }
 
