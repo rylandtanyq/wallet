@@ -1,7 +1,7 @@
 import 'package:untitled1/hive/tokens.dart';
 
 final List<Tokens> kBuiltInSolanaTokens = [
-  Tokens(image: 'assets/images/W_SOL.png', title: 'SOL', subtitle: 'Solana', price: '0.00', number: '0.00', toadd: true, tokenAddress: 'Solana'),
+  Tokens(image: 'assets/images/W_SOL.png', title: 'SOL', subtitle: 'Solana', price: '0.00', number: '0.00', toadd: true, tokenAddress: 'SOL'),
   Tokens(
     image: 'https://assets.coingecko.com/coins/images/325/standard/Tether.png?1696501661',
     title: 'USDT',
