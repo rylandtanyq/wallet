@@ -21,6 +21,7 @@ class SelectTransferCoinTypePage extends StatefulWidget {
 
 class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage> with TickerProviderStateMixin {
   late List<Tokens> _tokenList = [];
+  String tokensListKey(String address) => 'tokens_$address';
   // final List<Map<String, String>> _items = [
   //   {"currency": "SOL", "network": "Solana", "tokenAddress": ""},
   //   {"currency": "USDT", "network": "Solana", "tokenAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"},
@@ -35,7 +36,12 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
   }
 
   Future<void> _loadingTokens() async {
-    final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+    if (reqAddr.isEmpty) return;
+    final key = tokensListKey(reqAddr);
+
+    final rawList = await HiveStorage().getList<Map>(key, boxName: boxTokens) ?? <Map>[];
+    debugPrint('rawList print: $rawList');
     _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
     setState(() {});
   }

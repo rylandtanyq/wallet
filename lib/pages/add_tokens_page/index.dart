@@ -28,6 +28,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
   late List<Tokens> _tokenList = [];
   Timer? _debounce;
   String _currentAddr = '';
+  String tokensListKey(String address) => 'tokens_$address';
 
   @override
   void initState() {
@@ -43,7 +44,11 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
   }
 
   Future<void> _loadingTokens() async {
-    final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+    if (reqAddr.isEmpty) return;
+    final key = tokensListKey(reqAddr);
+
+    final rawList = await HiveStorage().getList<Map>(key, boxName: boxTokens) ?? <Map>[];
     _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
     setState(() {});
   }
@@ -59,6 +64,10 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
   }
 
   Future<void> _addedToken(String name, String symbol, String image, String mint) async {
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+    if (reqAddr.isEmpty) return;
+    final key = tokensListKey(reqAddr);
+
     final confirm = await _showDialogWidget(
       title: t.wallet.add,
       content: t.wallet.confirm_add_solana_token(token: name),
@@ -67,7 +76,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     try {
       final tokensResult = Tokens(image: image, title: name, subtitle: symbol, price: '0.00', number: '0.00', toadd: true, tokenAddress: mint);
       // 读取已保存的列表
-      List<Map> rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
+      List<Map> rawList = await HiveStorage().getList<Map>(key, boxName: boxTokens) ?? <Map>[];
       final list = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
       // 防止重复添加
       final exists = list.any((e) => e.title == tokensResult.title);
@@ -90,7 +99,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
       }
       list.add(tokensResult);
       final listAsMap = list.map((t) => t.toJson()).toList();
-      await HiveStorage().putList<Map>('tokens', listAsMap, boxName: boxTokens);
+      await HiveStorage().putList<Map>(key, listAsMap, boxName: boxTokens);
       setState(() {
         _tokenList = list;
       });
@@ -108,6 +117,10 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
   }
 
   Future<void> _deleteTokens(int index) async {
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+    if (reqAddr.isEmpty) return;
+    final key = tokensListKey(reqAddr);
+
     if (index < 0 || index >= _tokenList.length) return;
 
     final removed = _tokenList[index];
@@ -119,7 +132,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     try {
       // 持久化到 Hive
       final listAsMap = _tokenList.map((t) => t.toJson()).toList();
-      await HiveStorage().putList<Map>('tokens', listAsMap, boxName: boxTokens);
+      await HiveStorage().putList<Map>(key, listAsMap, boxName: boxTokens);
 
       // 清理对应图片缓存
       final img = (removed.image).trim();

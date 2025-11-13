@@ -63,6 +63,8 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     return double.tryParse(t) ?? 0.0;
   }
 
+  String tokensListKey(String address) => 'tokens_$address';
+
   double _tokenSubtotal(Tokens t) => _parseNum(t.price) * _parseNum(t.number);
   double _portfolioTotal(List<Tokens> list) => list.fold(0.0, (sum, t) => sum + _tokenSubtotal(t));
   String _fmt2(num v) => v.toStringAsFixed(2);
@@ -131,9 +133,9 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         OneShotFlag.value.value = false;
         loader.show(context, message: t.wallet.refreshing_wallet_info);
       }
-      await _loadingTokens();
       await _getCurrentSelectWalletfn();
       await _initWalletAndNetwork();
+      await _loadingTokens();
       await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
     } catch (e, st) {
       debugPrint('init error: $e\n$st');
@@ -144,8 +146,12 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Future<void> _loadingTokens() async {
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+    if (reqAddr.isEmpty) return;
+    final key = tokensListKey(reqAddr);
+
     if (mounted) setState(() {});
-    final rawList = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? <Map>[];
+    final rawList = await HiveStorage().getList<Map>(key, boxName: boxTokens) ?? <Map>[];
     _tokenList = rawList.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
     _fillteredTokensList = List.from(_tokenList);
     // 如果本地没有代币, 则显示空状态
@@ -166,12 +172,16 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       _hadLocalTokens = true;
 
       final list = _tokenList.map((t) => t.toJson()).toList();
-      await HiveStorage().putList<Map>('tokens', list, boxName: boxTokens);
+      await HiveStorage().putList<Map>(key, list, boxName: boxTokens);
     }
     if (mounted) setState(() {});
   }
 
   Future<void> _refreshTokenPrice() async {
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+    if (reqAddr.isEmpty) return;
+    final key = tokensListKey(reqAddr);
+
     // 收集地址（统一小写、去重；SOL 无地址先略过）
     final addresses = _tokenList.map((t) => t.tokenAddress.trim()).where((s) => s.isNotEmpty).toSet().toList();
 
@@ -213,10 +223,14 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
             );
           }
 
+          final nowAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+          if (nowAddr != reqAddr) return;
+
           // 回写 Hive + 刷新 UI
           final toSave = _tokenList.map((t) => t.toJson()).toList();
-          await HiveStorage().putList<Map>('tokens', toSave, boxName: boxTokens);
+          await HiveStorage().putList<Map>(key, toSave, boxName: boxTokens);
 
+          if (!mounted) return;
           _fillteredTokensList = List.from(_tokenList);
           if (mounted) setState(() {});
         },
@@ -251,6 +265,10 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
   }
 
   Future<void> _refreshTokenAmounts() async {
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+    if (reqAddr.isEmpty) return;
+    final key = tokensListKey(reqAddr);
+
     // 读取当前地址 & RPC
     final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
     final owner = wallet.address;
@@ -283,9 +301,13 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
         );
       }
 
+      final nowAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+      if (nowAddr != reqAddr) return;
+
       // 回写 Hive + 刷新 UI
       final toSave = _tokenList.map((t) => t.toJson()).toList();
-      await HiveStorage().putList<Map>('tokens', toSave, boxName: boxTokens);
+      await HiveStorage().putList<Map>(key, toSave, boxName: boxTokens);
+
       _fillteredTokensList = List.from(_tokenList);
       await updataWaletTotalBalance(_fillteredTokensList);
       if (mounted) setState(() {});
@@ -559,6 +581,12 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
       // ignore: use_build_context_synchronously
       loader.show(context, message: t.wallet.switching_wallet);
       try {
+        setState(() {
+          _tokenList = [];
+          _fillteredTokensList = [];
+          _addresses = [];
+        });
+        await _loadingTokens(); // ← 关键：先把新地址的代币列表加载到内存
         await _initWalletAndNetwork();
         await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
       } catch (e) {
