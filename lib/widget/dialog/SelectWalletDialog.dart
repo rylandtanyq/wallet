@@ -28,7 +28,6 @@ class SelectWalletDialog extends StatefulWidget {
 class _SelectWalletDialogState extends State<SelectWalletDialog> {
   bool _isEditMode = false; // 是否处于编辑模式
   List<Wallet> _wallets = [];
-  List<Wallet> _originalItems = [];
   String? _selectedWalletAddress;
   String _calcTotalAdderessBalance = '0.00';
 
@@ -40,25 +39,21 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
 
   Future<void> _initHive() async {
     _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
-    setState(() {
-      _originalItems = List.from(_wallets);
-    });
+    setState(() {});
     _selectedWalletAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
     _calcTotalAdderessBalance = await calcTotalBalanceReadable();
   }
 
-  void _selectWallet(Wallet wallet) {
-    HiveStorage().putValue('selected_address', wallet.address, boxName: boxWallet);
-    HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
+  Future<void> _selectWallet(Wallet wallet) async {
+    await HiveStorage().putValue('selected_address', wallet.address, boxName: boxWallet);
+    await HiveStorage().putObject('currentSelectWallet', wallet, boxName: boxWallet);
     widget.onWalletSelected?.call();
   }
 
   Future<void> _saveWalletOrder() async {
     // 保存新的顺序到 Hive
     HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);
-    setState(() {
-      _originalItems = List.from(_wallets);
-    });
+    setState(() {});
   }
 
   @override
@@ -102,7 +97,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                       setState(() {
                         if (_isEditMode) {
                           // 保存逻辑
-                          _originalItems = List.from(_wallets); // 更新备份
+                          // 更新备份
                         }
                         _isEditMode = !_isEditMode;
                       });
@@ -251,11 +246,10 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
     final hasMnemonic = wallet.mnemonic?.isNotEmpty ?? false;
     final needsBackup = !wallet.isBackUp && hasMnemonic;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectWallet(wallet);
-          Navigator.pop(context, wallet);
-        });
+      onTap: () async {
+        await _selectWallet(wallet); // 一定要 await
+        if (!mounted) return;
+        Navigator.pop(context, wallet);
       },
       child: Container(
         // padding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 1.w),
