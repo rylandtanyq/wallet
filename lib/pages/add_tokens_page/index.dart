@@ -55,7 +55,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     setState(() => _currentAddr = addr);
     _debounce = Timer(Duration(milliseconds: 1000), () async {
       if (_currentAddr.isEmpty) return;
-      // ref.read(getWalletTokensProvide(addr).notifier).fetchWalletTokenData(addr);
+      // ref.read(getWalletTokensProvide(addr).notifier).fetchWalletTokenData(addr); // 暂时不用
       ref.read(getWalletSearchTokenProvide(addr).notifier).fetchWalletSearchTokenData(addr);
     });
   }
