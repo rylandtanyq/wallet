@@ -259,6 +259,7 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
     final async = ref.watch(getWalletTokensProvide(_currentAddr));
     return async.when(
       data: (AddTokensModel data) {
+        debugPrint('data printn: $data');
         final items = data.result;
         if (items.isEmpty) {
           return HintFragments(

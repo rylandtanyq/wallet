@@ -18,6 +18,7 @@ import 'package:untitled1/pages/wallet_page/fragments/wallet_page_nft_fragment.d
 import 'package:untitled1/pages/wallet_page/fragments/wallet_page_screen_loader_fragments.dart';
 import 'package:untitled1/pages/wallet_page/fragments/wallet_page_token_fragments.dart';
 import 'package:untitled1/pages/wallet_page/models/token_price_model.dart';
+import 'package:untitled1/pages/wallet_page/utils/kBuiltInSolanaTokens.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/fetchTokenBalances.dart';
@@ -156,24 +157,28 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
     _fillteredTokensList = List.from(_tokenList);
     // 如果本地没有代币, 则显示空状态
     _hadLocalTokens = _tokenList.isNotEmpty;
-    final existsSolana = _tokenList.any((token) => token.title.toUpperCase() == 'SOL' || token.title.toUpperCase() == 'SOLANA');
-    if (!existsSolana) {
-      final solanaToken = Tokens(
-        image: 'assets/images/solana_logo.png',
-        title: 'SOL',
-        subtitle: 'Solana',
-        price: '0.00',
-        number: '0.00',
-        toadd: true,
-        tokenAddress: 'SOL',
-      );
-      _tokenList.add(solanaToken);
+
+    bool changed = false;
+
+    final existingTitles = _tokenList.map((t) => t.title.toUpperCase()).toSet();
+
+    for (final builtIn in kBuiltInSolanaTokens) {
+      final title = builtIn.title.toUpperCase();
+      if (!existingTitles.contains(title)) {
+        _tokenList.add(builtIn);
+        existingTitles.add(title);
+        changed = true;
+      }
+    }
+
+    if (changed) {
       _fillteredTokensList = List.from(_tokenList);
       _hadLocalTokens = true;
 
       final list = _tokenList.map((t) => t.toJson()).toList();
       await HiveStorage().putList<Map>(key, list, boxName: boxTokens);
     }
+
     if (mounted) setState(() {});
   }
 
