@@ -88,21 +88,21 @@ class _WalletPageTokenFragmentsState extends ConsumerState<WalletPageTokenFragme
             },
             itemCount: widget.fillteredTokensList.length,
           ),
-          const SizedBox(height: 20),
-          Center(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.color_2B6D16,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21.5.r)),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 11),
-              ),
-              onPressed: () {},
-              child: Text(
-                t.common.manageToken,
-                style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
+          // const SizedBox(height: 20),
+          // Center(
+          //   child: ElevatedButton(
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: AppColors.color_2B6D16,
+          //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21.5.r)),
+          //       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 11),
+          //     ),
+          //     onPressed: () {},
+          //     child: Text(
+          //       t.common.manageToken,
+          //       style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+          //     ),
+          //   ),
+          // ),
           const SizedBox(height: 40),
         ],
       ),
