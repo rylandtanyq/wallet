@@ -14,12 +14,12 @@ class SearchTokenModel with _$SearchTokenModel {
 class SearchTokenItemModel with _$SearchTokenItemModel {
   const factory SearchTokenItemModel({
     required String token,
-    required String chain,
+    String? chain,
     required String name,
     required String symbol,
-    required String currentPriceUsd,
-    required String holders,
-    required String logoUrl,
+    String? currentPriceUsd,
+    int? holders,
+    String? logoUrl,
   }) = _SearchTokenItemModel;
 
   factory SearchTokenItemModel.fromJson(Map<String, dynamic> json) => _$SearchTokenItemModelFromJson(json);
