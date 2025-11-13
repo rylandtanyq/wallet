@@ -25,6 +25,7 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
   late Future<Wallet> _wallet;
   late StreamSubscription _hiveSub;
   late StreamSubscription _hiveWallet;
+  String tokensListKey(String address) => 'tokens_$address';
 
   @override
   void initState() {
@@ -55,7 +56,9 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
   }
 
   Future<String> computeTotalFromHive2dp() async {
-    final raw = await HiveStorage().getList<Map>('tokens', boxName: boxTokens) ?? const <Map>[];
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+    final key = tokensListKey(reqAddr);
+    final raw = await HiveStorage().getList<Map>(key, boxName: boxTokens) ?? const <Map>[];
     final tokens = raw.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
     final sum = tokens.fold<double>(
       0.0,
