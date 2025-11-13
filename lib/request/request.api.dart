@@ -25,4 +25,12 @@ class WalletApi {
     TokenPriceModel tokenPriceModel = TokenPriceModel.fromJson(ret);
     return tokenPriceModel;
   }
+
+  // /api/solana/searchToken
+  static Future searchTokenFetch(String name) async {
+    String path = '/api/solana/searchToken?keyword=$name';
+    Response response = await RequestManager().handleRequest(path, "GET");
+    dynamic ret = response.data;
+    return ret;
+  }
 }
