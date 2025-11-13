@@ -147,35 +147,31 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       showLoadingDialog();
       await _advWallet.initialize(networkId: 'solana');
 
+      // 预处理输入：去掉首尾空格
       final cleaned = input.trim();
+      _importKeyValue = cleaned; // 不管是助记词还是私钥，都先存一份
 
       if (CryptoInputValidator.isMnemonic(cleaned)) {
+        // 助记词导入
         await importWalletByMnemonic(cleaned);
-        return;
-      }
-
-      // ✅ 兜底：不管 isPrivateKey 判不判得出来，都尝试按“私钥/secretKey/seed”导入
-      _importKeyValue = cleaned; // 确保传给下面用的值
-      try {
-        await importWalletByPrivateKey(); // 内部会调用 _advWallet.importWalletFromPrivateKey
-        return;
-      } catch (_) {
-        // 只有真正解析失败才提示
-        Fluttertoast.showToast(msg: '输入既不是助记词也不是私钥');
-        return;
+      } else {
+        // 兜底当做私钥导入
+        try {
+          await importWalletByPrivateKey();
+        } catch (_) {
+          Fluttertoast.showToast(msg: '输入既不是助记词也不是私钥');
+        }
       }
     } catch (e, st) {
       debugPrint('importWallet error: $e\n$st');
       Fluttertoast.showToast(msg: '导入失败：$e');
-      return;
     } finally {
       if (Get.isDialogOpen == true) {
-        Get.back(); // 关闭 showLoadingDialog 打开的对话框
+        Get.back(); // 关闭 loading 弹窗
       }
 
       OneShotFlag.value.value = true;
 
-      // 2) 下一帧再跳转，避免同帧把最后一个路由移除导致 _history 为空
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Get.offAll(() => MainPage(initialPageIndex: 4), arguments: {'refrensh': true});
       });
@@ -187,7 +183,6 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
    */
   Future<void> importWalletByPrivateKey() async {
     final wallet = await _advWallet.importWalletFromPrivateKey(_importKeyValue);
-    debugPrint('wallet ss: $wallet');
     final currentAddress = wallet['currentAddress'];
     List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
     bool exists = _wallets.any((item) => item.address == currentAddress);
@@ -206,10 +201,10 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       await HiveStorage().putValue('selected_address', currentAddress, boxName: boxWallet);
       _wallets.add(newWallet);
       await HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);
-      print('新钱包已添加: ${newWallet.address}');
+      debugPrint('新钱包已添加: ${newWallet.address}');
     } else {
       Fluttertoast.showToast(msg: '钱包已存在，未添加: $currentAddress');
-      print('钱包已存在，未添加: $currentAddress');
+      debugPrint('钱包已存在，未添加: $currentAddress');
     }
   }
 
@@ -218,31 +213,43 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
    * TODO: 需要弹出选择网络弹窗
    */
   Future<void> importWalletByMnemonic(String mnemonicString) async {
-    final wallet = await _advWallet.restoreFromMnemonic(_importKeyValue);
-    List<Wallet> _wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
-    final List<String> mnemonic = mnemonicString.trim().split(' ');
-    final currentAddress = wallet['currentAddress'];
-    bool exists = _wallets.any((item) => item.address == currentAddress);
+    // 统一空格：连在一起的空白全部压成一个空格
+    final normalizedMnemonic = mnemonicString.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+    // 这里不要再用 _importKeyValue 了，直接用当前这次的助记词
+    final wallet = await _advWallet.restoreFromMnemonic(normalizedMnemonic);
+
+    List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? [];
+
+    final List<String> mnemonic = normalizedMnemonic.split(' ');
+    final currentAddress = (wallet['currentAddress'] as String? ?? '').trim();
+    if (currentAddress.isEmpty) {
+      Fluttertoast.showToast(msg: '导入失败：地址为空');
+      return;
+    }
+
+    final exists = wallets.any((w) => w.address == currentAddress);
     if (!exists) {
-      // 创建新钱包对象
       final newWallet = Wallet(
-        name: _wallets.isEmpty ? '我的钱包' : '我的钱包(${_wallets.length + 1})',
+        name: wallets.isEmpty ? '我的钱包' : '我的钱包(${wallets.length + 1})',
         balance: wallet['balance'] ?? '0.00',
         network: wallet['network'] ?? 'Solana',
-        address: currentAddress ?? '',
+        address: currentAddress,
         privateKey: wallet['privateKey'] ?? '',
         isBackUp: false,
         mnemonic: mnemonic,
       );
-      // 保存回 Hive
+
+      // 先写当前选中 + 地址
       await HiveStorage().putObject('currentSelectWallet', newWallet, boxName: boxWallet);
       await HiveStorage().putValue('selected_address', currentAddress, boxName: boxWallet);
-      await HiveStorage().putValue('currentSelectWallet_mnemonic', mnemonic.join(" "));
-      _wallets.add(newWallet);
-      await HiveStorage().putList('wallets_data', _wallets, boxName: boxWallet);
+      await HiveStorage().putValue('currentSelectWallet_mnemonic', mnemonic.join(' '));
+
+      wallets.add(newWallet);
+      await HiveStorage().putList('wallets_data', wallets, boxName: boxWallet);
+
       debugPrint('新钱包已添加: ${newWallet.address}');
     } else {
-      // 钱包已存在，不添加
       Fluttertoast.showToast(msg: '钱包已存在，未添加: $currentAddress');
       debugPrint('钱包已存在，未添加: $currentAddress');
     }
