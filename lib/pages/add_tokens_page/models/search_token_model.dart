@@ -13,10 +13,10 @@ class SearchTokenModel with _$SearchTokenModel {
 @freezed
 class SearchTokenItemModel with _$SearchTokenItemModel {
   const factory SearchTokenItemModel({
-    required String token,
+    String? token,
     String? chain,
-    required String name,
-    required String symbol,
+    String? name,
+    String? symbol,
     String? currentPriceUsd,
     int? holders,
     String? logoUrl,
