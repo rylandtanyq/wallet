@@ -1,84 +1,28 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:untitled1/constants/app_colors.dart';
-import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
-import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/util/HiveStorage.dart';
 import 'package:untitled1/widget/wallet_avatar_smart.dart';
 
 class HomePageProfileFragments extends StatefulWidget {
-  const HomePageProfileFragments({super.key});
+  final Future<String> totalFuture;
+  final Future<Wallet> wallet;
+  const HomePageProfileFragments({super.key, required this.totalFuture, required this.wallet});
 
   @override
   State<HomePageProfileFragments> createState() => _HomePageProfileFragmentsState();
 }
 
 class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
-  late Future<String> _totalFuture;
-  late Future<Wallet> _wallet;
-  late StreamSubscription _hiveSub;
-  late StreamSubscription _hiveWallet;
-  String tokensListKey(String address) => 'tokens_$address';
-
-  @override
-  void initState() {
-    super.initState();
-    _totalFuture = computeTotalFromHive2dp();
-    _wallet = getCurrentSelectWallet();
-    Hive.openBox(boxTokens).then((box) {
-      _hiveSub = box.watch().listen((_) {
-        setState(() {
-          _totalFuture = computeTotalFromHive2dp();
-        });
-      });
-    });
-    Hive.openBox(boxWallet).then((box) {
-      _hiveWallet = box.watch().listen((box) {
-        setState(() {
-          _wallet = getCurrentSelectWallet();
-        });
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _hiveSub.cancel();
-    _hiveWallet.cancel();
-  }
-
-  Future<String> computeTotalFromHive2dp() async {
-    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
-    final key = tokensListKey(reqAddr);
-    final raw = await HiveStorage().getList<Map>(key, boxName: boxTokens) ?? const <Map>[];
-    final tokens = raw.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
-    final sum = tokens.fold<double>(
-      0.0,
-      (acc, t) => acc + (double.tryParse(t.price.replaceAll(',', '').trim()) ?? 0.0) * (double.tryParse(t.number.replaceAll(',', '').trim()) ?? 0.0),
-    );
-
-    return sum.toStringAsFixed(2);
-  }
-
-  Future<Wallet> getCurrentSelectWallet() async {
-    final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
-    return wallet;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         FutureBuilder<Wallet>(
-          future: _wallet,
+          future: widget.wallet,
           builder: (_, snapshot) {
             if (snapshot.connectionState != ConnectionState.done || !snapshot.hasData) {
               return ClipOval(
@@ -97,7 +41,7 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
         ),
         SizedBox(height: 8.h),
         FutureBuilder(
-          future: _wallet,
+          future: widget.wallet,
           builder: (_, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
               return const SizedBox.shrink();
@@ -110,7 +54,7 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
           },
         ),
         FutureBuilder<String>(
-          future: _totalFuture,
+          future: widget.totalFuture,
           builder: (_, snap) => Text(
             '\$${snap.data ?? '0.00'}',
             style: TextStyle(fontSize: 35.sp, fontWeight: FontWeight.bold),

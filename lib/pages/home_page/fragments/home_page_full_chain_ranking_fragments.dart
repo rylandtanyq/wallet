@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/entity/FinancialItem.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
-import 'package:untitled1/widget/FinancialDataView.dart';
+import 'package:untitled1/pages/home_page/fragments/home_page_financial_data_view_fragments.dart';
 
 class HomePageFullChainRankingFragments extends StatefulWidget {
   const HomePageFullChainRankingFragments({super.key});
@@ -40,7 +40,7 @@ class _HomePageFullChainRankingFragmentsState extends State<HomePageFullChainRan
         //   items: List.generate(10, (index) => '榜单 ${index + 1}'),
         //   onSelected: (index) {},
         // ),
-        FinancialDataPage(items: items),
+        HomePageFinancialDataViewFragments(items: items),
         SizedBox(height: 13.h),
       ],
     );
