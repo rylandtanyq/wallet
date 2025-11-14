@@ -9,7 +9,7 @@ import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/BackUpHelperOnePage.dart';
 import 'package:untitled1/util/HiveStorage.dart';
-import 'package:untitled1/pages/SettingWalletPage.dart';
+import 'package:untitled1/pages/setting_wallet/index.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/util/calcTotalBalanceReadable.dart';
 import 'package:untitled1/widget/wallet_avatar_smart.dart';
