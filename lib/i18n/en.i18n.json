@@ -270,7 +270,12 @@
         "unknown_error_please_try_again_later": "Unknown error, please try again later",
         "searched_token": "Searched token",
         "switching_wallet": "Switching wallet",
-        "refreshing_wallet_info": "Refreshing wallet information"
+        "refreshing_wallet_info": "Refreshing wallet information",
+        "private_key_warning": "Make sure you are not being recorded and do not share it with anyone.",
+        "address_copied": "Address copied",
+        "done": "Done",
+        "ensure_not_being_watched": "Please ensure you are not being watched or recorded",
+        "hide_mnemonic": "Hide mnemonic"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Select Coin",

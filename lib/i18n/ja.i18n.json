@@ -270,7 +270,12 @@
         "unknown_error_please_try_again_later": "不明なエラーが発生しました。しばらくしてからもう一度お試しください",
         "searched_token": "検索したトークン",
         "switching_wallet": "ウォレットを切り替え中",
-        "refreshing_wallet_info": "ウォレット情報を更新中"
+        "refreshing_wallet_info": "ウォレット情報を更新中",
+        "private_key_warning": "録画されていないことを確認し、誰にも漏らさないでください。",
+        "address_copied": "アドレスをコピーしました",
+        "done": "完了",
+        "ensure_not_being_watched": "周囲に見られたり録画されたりしていないことを確認してください",
+        "hide_mnemonic": "ニーモニックを隠す"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "送金通貨を選択",

@@ -270,7 +270,12 @@
         "unknown_error_please_try_again_later": "Error desconocido, inténtalo de nuevo más tarde",
         "searched_token": "Token buscado",
         "switching_wallet": "Cambiando de billetera",
-        "refreshing_wallet_info": "Actualizando la información de la billetera"
+        "refreshing_wallet_info": "Actualizando la información de la billetera",
+        "private_key_warning": "Asegúrate de no estar siendo grabado y no la compartas con nadie.",
+        "address_copied": "Dirección copiada",
+        "done": "Hecho",
+        "ensure_not_being_watched": "Asegúrate de que no te estén observando o grabando",
+        "hide_mnemonic": "Ocultar frase mnemotécnica"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Seleccionar moneda",

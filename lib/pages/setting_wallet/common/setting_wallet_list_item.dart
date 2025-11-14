@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/constants/app_colors.dart';
 
-class SettingWalletListItemFragments extends StatelessWidget {
+class SettingWalletListItem extends StatelessWidget {
   final String icon;
   final String mainTitle;
   final String subTitle;
   final bool isVerify;
   final VoidCallback onTap;
-  const SettingWalletListItemFragments({
+  const SettingWalletListItem({
     super.key,
     required this.icon,
     required this.isVerify,

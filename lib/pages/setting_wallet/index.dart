@@ -13,7 +13,8 @@ import 'package:untitled1/pages/AddWalletPage.dart';
 import 'package:path/path.dart' as p;
 import 'package:untitled1/pages/setting_wallet/fragments/setting_wallet_build_back_button_fragments.dart';
 import 'package:untitled1/pages/setting_wallet/fragments/setting_wallet_header_content_fragments.dart';
-import 'package:untitled1/pages/setting_wallet/fragments/setting_wallet_list_item_fragments.dart';
+import 'package:untitled1/pages/setting_wallet/common/setting_wallet_list_item.dart';
+import 'package:untitled1/pages/setting_wallet/screen/view_private_key_screen.dart';
 
 import '../../../base/base_page.dart';
 import '../../util/HiveStorage.dart';
@@ -110,31 +111,43 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
               delegate: SliverChildListDelegate([
                 Column(
                   children: [
-                    SettingWalletListItemFragments(
+                    SettingWalletListItem(
                       icon: '',
                       mainTitle: t.wallet.edit_wallet_name,
                       subTitle: _wallet.name,
                       isVerify: false,
                       onTap: () => showUpdateWalletDialog(_wallet),
                     ),
-                    SettingWalletListItemFragments(
+                    SettingWalletListItem(
                       icon: '',
                       mainTitle: t.wallet.change_avatar,
                       subTitle: "",
                       isVerify: false,
                       onTap: () => _albumPermissions(),
                     ),
-                    SettingWalletListItemFragments(icon: '', mainTitle: t.wallet.view_private_key, subTitle: "", isVerify: false, onTap: () {}),
+                    SettingWalletListItem(
+                      icon: '',
+                      mainTitle: t.wallet.view_private_key,
+                      subTitle: "",
+                      isVerify: false,
+                      onTap: () {
+                        Get.to(
+                          () => ViewPrivateKeyScreen(privateKey: _wallet.privateKey),
+                          transition: Transition.rightToLeft,
+                          duration: const Duration(milliseconds: 300),
+                        );
+                      },
+                    ),
                     Divider(height: 0.5, color: AppColors.color_E8E8E8),
-                    SettingWalletListItemFragments(
+                    SettingWalletListItem(
                       icon: '',
                       mainTitle: t.wallet.google_verification,
                       subTitle: t.wallet.not_bound,
                       isVerify: false,
                       onTap: () {},
                     ),
-                    SettingWalletListItemFragments(icon: '', mainTitle: t.wallet.authorization_check, subTitle: "", isVerify: false, onTap: () {}),
-                    SettingWalletListItemFragments(icon: '', mainTitle: t.wallet.node_settings, subTitle: "", isVerify: false, onTap: () {}),
+                    SettingWalletListItem(icon: '', mainTitle: t.wallet.authorization_check, subTitle: "", isVerify: false, onTap: () {}),
+                    SettingWalletListItem(icon: '', mainTitle: t.wallet.node_settings, subTitle: "", isVerify: false, onTap: () {}),
                     Padding(
                       padding: EdgeInsets.all(15.w),
                       child: ElevatedButton(
