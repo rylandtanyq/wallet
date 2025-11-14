@@ -18,7 +18,6 @@ import '../../base/base_page.dart';
 import '../util/HiveStorage.dart';
 import '../hive/Wallet.dart';
 import '../main.dart';
-import 'BackUpHelperPage.dart';
 import '../widget/dialog/UpdateWalletDialog.dart';
 
 /*
@@ -281,18 +280,29 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
     }
 
     final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
-
     if (wallets.isEmpty) return;
 
     int idx = wallets.indexWhere((e) => e.address.toLowerCase() == _wallet.address.toLowerCase());
     if (idx == -1) return;
 
     wallets[idx].avatarImagePath = savedPath;
-    // 同步 currentSelectWallet
-    // _wallet.avatarImagePath = savedPath;
-
     await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
-    // await HiveStorage().putObject<Wallet>('currentSelectWallet', _wallet, boxName: boxWallet);
+
+    final selectedAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+
+    if (selectedAddr == wallets[idx].address.toLowerCase()) {
+      final current = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
+      if (current != null && current.address.toLowerCase() == wallets[idx].address.toLowerCase()) {
+        current.avatarImagePath = savedPath;
+        await HiveStorage().putObject<Wallet>('currentSelectWallet', current, boxName: boxWallet);
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _wallet.avatarImagePath = savedPath;
+      });
+    }
 
     Navigator.of(context).pop();
     debugPrint('avatar saved: $savedPath');
