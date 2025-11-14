@@ -222,16 +222,12 @@ class _UpdateWalletDialogState extends State<SettingWalletUpdateWalletDialogFrag
       return;
     }
 
-    // 读列表 & 当前选中
     final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
-    // final current = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
-
     if (wallets.isEmpty) {
       Navigator.of(context).pop(false);
       return;
     }
 
-    // 找到当前钱包在列表中的位置
     int idx = wallets.indexWhere((e) => e.address.toLowerCase() == widget.wallet.address.toLowerCase());
     if (idx == -1) {
       idx = wallets.indexWhere((e) => e.address == widget.wallet.address);
@@ -243,15 +239,18 @@ class _UpdateWalletDialogState extends State<SettingWalletUpdateWalletDialogFrag
     }
 
     wallets[idx].name = newName;
-
-    // 同步 currentSelectWallet
-    // widget.wallet.name = newName;
-
-    // 先写列表，再写当前选中
     await HiveStorage().putList<Wallet>('wallets_data', wallets, boxName: boxWallet);
-    // await HiveStorage().putObject<Wallet>('currentSelectWallet', widget.wallet, boxName: boxWallet);
 
-    // 关闭弹窗并通知刷新
+    final selectedAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim().toLowerCase();
+
+    if (selectedAddr == wallets[idx].address.toLowerCase()) {
+      final current = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
+      if (current != null && current.address.toLowerCase() == wallets[idx].address.toLowerCase()) {
+        current.name = newName;
+        await HiveStorage().putObject<Wallet>('currentSelectWallet', current, boxName: boxWallet);
+      }
+    }
+
     Navigator.of(context).pop(true);
   }
 }

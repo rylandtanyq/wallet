@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:untitled1/constants/app_colors.dart';
+import 'package:untitled1/hive/tokens.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/pages/add_tokens_page/index.dart';
+import 'package:untitled1/util/toFixedTrunc.dart';
+import 'package:untitled1/widget/tokenIcon.dart';
 
-import '../entity/FinancialItem.dart';
+class HomePageFinancialDataViewFragments extends StatelessWidget {
+  final List<Tokens> items;
 
-class FinancialDataPage extends StatelessWidget {
-  final List<FinancialItem> items;
-
-  const FinancialDataPage({super.key, required this.items});
+  const HomePageFinancialDataViewFragments({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -22,26 +25,29 @@ class FinancialDataPage extends StatelessWidget {
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
           // padding: EdgeInsets.all(8),
-          itemCount: items.length > 5 ? 5 : items.length,
+          itemCount: items.length.clamp(0, 5).toInt(),
           itemBuilder: (context, index) => _buildItemRow(items[index], context),
         ),
-        SizedBox(
-          width: 100.w,
-          height: 32.h,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.onSecondary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-              padding: EdgeInsets.symmetric(vertical: 5),
-              side: BorderSide(color: AppColors.color_286713, width: 1.0),
-            ),
-            onPressed: () => {},
-            child: Text(
-              t.home.view_all,
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+        if (items.length > 5)
+          SizedBox(
+            width: 100.w,
+            height: 32.h,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.onSecondary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                side: const BorderSide(color: AppColors.color_286713, width: 1.0),
+              ),
+              onPressed: () {
+                Get.to(() => const AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+              },
+              child: Text(
+                t.home.view_all,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -110,34 +116,33 @@ class FinancialDataPage extends StatelessWidget {
     );
   }
 
-  Widget _buildItemRow(FinancialItem item, BuildContext context) {
+  Widget _buildItemRow(Tokens item, BuildContext context) {
+    final number = double.tryParse(item.number);
+    final price = double.tryParse(item.price);
+    final totalPrice = number! * price!;
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.h),
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       child: Row(
         children: [
+          ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(item.image, size: 40)),
+          SizedBox(width: 10.w),
           Expanded(
-            flex: 2,
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipOval(
-                  child: Image.asset('assets/images/ic_home_bit_coin.png', width: 40.w, height: 40.w, fit: BoxFit.cover),
-                ),
-                SizedBox(width: 10.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Text(item.name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 4),
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
-                        children: [
-                          TextSpan(text: item.amount),
-                          if (item.time.isNotEmpty) TextSpan(text: '  ${item.time}'),
-                        ],
-                      ),
+                    Text(
+                      // 'USDT',
+                      item.title,
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
                     ),
+                    SizedBox(width: 6),
                   ],
+                ),
+                Text(
+                  '\$${toFixedTrunc(item.price)}',
+                  style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -145,9 +150,14 @@ class FinancialDataPage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(item.price, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
-              Text(item.change, style: TextStyle(fontSize: 12, color: item.isPositive ? Colors.green : Colors.red)),
+              Text(
+                toFixedTrunc(item.number, digits: 2),
+                style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground),
+              ),
+              Text(
+                '\$${toFixedTrunc((totalPrice).toString(), digits: 2)}',
+                style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ],
