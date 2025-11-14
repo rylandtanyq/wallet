@@ -9,7 +9,6 @@ import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/hint_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/shimmer_fragments.dart';
 import 'package:untitled1/pages/add_tokens_page/fragments/token_item_fragments.dart';
-import 'package:untitled1/pages/add_tokens_page/models/add_tokens_model.dart';
 import 'package:untitled1/pages/add_tokens_page/models/search_token_model.dart';
 import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
@@ -284,12 +283,12 @@ class _AddingTokensState extends ConsumerState<AddingTokens> {
                 final SearchTokenItemModel item = items[index];
                 return TokenItemFragments(
                   image: item.logoUrl ?? '',
-                  name: item.name,
-                  symbol: item.symbol,
+                  name: item.name ?? "",
+                  symbol: item.symbol ?? "",
                   price: item.currentPriceUsd ?? '',
                   num: '0.00',
                   action: TokenTrailingAction.add,
-                  onTap: () => _addedToken(item.name, item.symbol, item.logoUrl ?? '', item.token),
+                  onTap: () => _addedToken(item.name ?? "", item.symbol ?? "", item.logoUrl ?? '', item.token ?? ''),
                 );
               },
               separatorBuilder: (BuildContext context, int index) {
