@@ -33,8 +33,9 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
   late Future<String> _totalFuture;
   late Future<Wallet> _wallet;
-  late StreamSubscription _hiveSub;
-  late StreamSubscription _hiveWallet;
+  StreamSubscription? _hiveSub;
+  StreamSubscription? _hiveWallet;
+  List<Tokens> _tokenList = [];
   String tokensListKey(String address) => 'tokens_$address';
 
   @override
@@ -60,9 +61,9 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
 
   @override
   void dispose() {
+    _hiveSub?.cancel();
+    _hiveWallet?.cancel();
     super.dispose();
-    _hiveSub.cancel();
-    _hiveWallet.cancel();
   }
 
   Future<String> computeTotalFromHive2dp() async {
@@ -70,6 +71,7 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
     final key = tokensListKey(reqAddr);
     final raw = await HiveStorage().getList<Map>(key, boxName: boxTokens) ?? const <Map>[];
     final tokens = raw.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
+    if (mounted) setState(() => _tokenList = tokens);
     final sum = tokens.fold<double>(
       0.0,
       (acc, t) => acc + (double.tryParse(t.price.replaceAll(',', '').trim()) ?? 0.0) * (double.tryParse(t.number.replaceAll(',', '').trim()) ?? 0.0),
@@ -117,7 +119,7 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
                   //   scrollDuration: Duration(seconds: 3),
                   // ),
                   HomePageEarnCoinsFragments(),
-                  HomePageFullChainRankingFragments(),
+                  HomePageFullChainRankingFragments(tokesList: _tokenList),
                   HomePageTrendingTokensFragments(),
                   SizedBox(height: 15.h),
                   HomePageTradingContractFragments(),
