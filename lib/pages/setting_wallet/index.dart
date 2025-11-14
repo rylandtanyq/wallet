@@ -10,15 +10,17 @@ import 'package:untitled1/constants/app_value_notifier.dart';
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddWalletPage.dart';
-import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:path/path.dart' as p;
-import 'package:untitled1/widget/wallet_avatar_smart.dart';
+import 'package:untitled1/pages/setting_wallet/fragments/setting_wallet_build_back_button_fragments.dart';
+import 'package:untitled1/pages/setting_wallet/fragments/setting_wallet_header_content_fragments.dart';
+import 'package:untitled1/pages/setting_wallet/common/setting_wallet_list_item.dart';
+import 'package:untitled1/pages/setting_wallet/screen/view_private_key_screen.dart';
 
-import '../../base/base_page.dart';
-import '../util/HiveStorage.dart';
-import '../hive/Wallet.dart';
-import '../main.dart';
-import '../widget/dialog/UpdateWalletDialog.dart';
+import '../../../base/base_page.dart';
+import '../../util/HiveStorage.dart';
+import '../../hive/Wallet.dart';
+import '../../main.dart';
+import 'fragments/setting_wallet_update_wallet_dialog_fragments.dart';
 
 /*
  * 设置钱包
@@ -88,7 +90,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
               pinned: true, // 固定在顶部
               leadingWidth: 80,
               automaticallyImplyLeading: false, // 禁用默认返回按钮
-              leading: _buildIOSBackButton(),
+              leading: SettingWalletBuildBackButtonFragments(),
               flexibleSpace: _showExpandedTitle
                   ? FlexibleSpaceBar(
                       centerTitle: true,
@@ -101,7 +103,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
                         ),
                       ),
                     )
-                  : _buildHeaderContent(),
+                  : SettingWalletHeaderContentFragments(wallet: _wallet),
             ),
 
             // 列表内容
@@ -109,19 +111,43 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
               delegate: SliverChildListDelegate([
                 Column(
                   children: [
-                    _buildListItem(
+                    SettingWalletListItem(
                       icon: '',
                       mainTitle: t.wallet.edit_wallet_name,
                       subTitle: _wallet.name,
                       isVerify: false,
                       onTap: () => showUpdateWalletDialog(_wallet),
                     ),
-                    _buildListItem(icon: '', mainTitle: t.wallet.change_avatar, subTitle: "", isVerify: false, onTap: () => _albumPermissions()),
-                    _buildListItem(icon: '', mainTitle: t.wallet.view_private_key, subTitle: "", isVerify: false, onTap: () {}),
+                    SettingWalletListItem(
+                      icon: '',
+                      mainTitle: t.wallet.change_avatar,
+                      subTitle: "",
+                      isVerify: false,
+                      onTap: () => _albumPermissions(),
+                    ),
+                    SettingWalletListItem(
+                      icon: '',
+                      mainTitle: t.wallet.view_private_key,
+                      subTitle: "",
+                      isVerify: false,
+                      onTap: () {
+                        Get.to(
+                          () => ViewPrivateKeyScreen(privateKey: _wallet.privateKey),
+                          transition: Transition.rightToLeft,
+                          duration: const Duration(milliseconds: 300),
+                        );
+                      },
+                    ),
                     Divider(height: 0.5, color: AppColors.color_E8E8E8),
-                    _buildListItem(icon: '', mainTitle: t.wallet.google_verification, subTitle: t.wallet.not_bound, isVerify: false, onTap: () {}),
-                    _buildListItem(icon: '', mainTitle: t.wallet.authorization_check, subTitle: "", isVerify: false, onTap: () {}),
-                    _buildListItem(icon: '', mainTitle: t.wallet.node_settings, subTitle: "", isVerify: false, onTap: () {}),
+                    SettingWalletListItem(
+                      icon: '',
+                      mainTitle: t.wallet.google_verification,
+                      subTitle: t.wallet.not_bound,
+                      isVerify: false,
+                      onTap: () {},
+                    ),
+                    SettingWalletListItem(icon: '', mainTitle: t.wallet.authorization_check, subTitle: "", isVerify: false, onTap: () {}),
+                    SettingWalletListItem(icon: '', mainTitle: t.wallet.node_settings, subTitle: "", isVerify: false, onTap: () {}),
                     Padding(
                       padding: EdgeInsets.all(15.w),
                       child: ElevatedButton(
@@ -151,102 +177,11 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
     );
   }
 
-  Widget _buildIOSBackButton() {
-    return IconButton(
-      icon: Icon(
-        Icons.arrow_back_ios_new, // iOS样式箭头
-        size: 20,
-        color: Colors.black,
-      ),
-      onPressed: () => Navigator.pop(context),
-    );
-  }
-
-  Widget _buildHeaderContent() {
-    return Container(
-      margin: EdgeInsets.only(top: 30.h),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          WalletAvatarSmart(address: _wallet.address, avatarImagePath: _wallet.avatarImagePath, size: 60.w),
-          SizedBox(height: 8.h),
-          Text(
-            _wallet.name,
-            style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8.h),
-          GestureDetector(
-            onTap: () {},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'ID: deed...27dc',
-                  style: TextStyle(fontSize: 12.sp, color: AppColors.color_757F7F),
-                ),
-                SizedBox(width: 8.w),
-                Image.asset('assets/images/ic_wallet_copy.png', width: 13.w, height: 13.w),
-              ],
-            ),
-          ),
-          SizedBox(width: 8.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                t.wallet.security_level_low,
-                style: TextStyle(fontSize: 12.sp, color: AppColors.color_A5B1B1),
-              ),
-              SizedBox(width: 2.w),
-              Image.asset('assets/images/ic_wallet_safety_error.png', width: 14.w, height: 14.w),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildListItem({
-    required String icon,
-    required String mainTitle,
-    required String subTitle,
-    required bool isVerify,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      splashColor: Colors.grey.withOpacity(0.1), // 点击效果
-      child: Padding(
-        padding: EdgeInsets.all(20.w),
-        child: Row(
-          children: [
-            // 主副标题
-            Expanded(
-              child: Text(mainTitle, style: TextStyle(fontSize: 16.sp)),
-            ),
-            if (isVerify) Image.asset('assets/images/ic_wallet_reminder.png', width: 19.w, height: 19.w),
-            SizedBox(width: 5.w),
-            if (subTitle.isNotEmpty)
-              Text(
-                subTitle,
-                style: TextStyle(fontSize: 15.sp, color: isVerify ? Colors.black : AppColors.color_757F7F),
-              ),
-            SizedBox(width: 13.w),
-            // 右侧箭头
-            Icon(Icons.arrow_forward_ios, size: 12.w, color: Colors.grey[400]),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> showUpdateWalletDialog(Wallet wallet) async {
     final result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => UpdateWalletDialog(wallet: wallet),
+      builder: (ctx) => SettingWalletUpdateWalletDialogFragments(wallet: wallet),
     );
     if (result != null) {
       Navigator.of(context).pop(true);

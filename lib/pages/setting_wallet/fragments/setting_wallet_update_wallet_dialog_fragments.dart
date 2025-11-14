@@ -7,17 +7,17 @@ import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/util/HiveStorage.dart';
 
-import '../CustomTextField.dart';
+import '../../../widget/CustomTextField.dart';
 
-class UpdateWalletDialog extends StatefulWidget {
+class SettingWalletUpdateWalletDialogFragments extends StatefulWidget {
   final Wallet wallet;
-  const UpdateWalletDialog({super.key, required this.wallet});
+  const SettingWalletUpdateWalletDialogFragments({super.key, required this.wallet});
 
   @override
-  State<UpdateWalletDialog> createState() => _UpdateWalletDialogState();
+  State<SettingWalletUpdateWalletDialogFragments> createState() => _UpdateWalletDialogState();
 }
 
-class _UpdateWalletDialogState extends State<UpdateWalletDialog> {
+class _UpdateWalletDialogState extends State<SettingWalletUpdateWalletDialogFragments> {
   bool _isDIYNameMode = false; // 是否是自定义名字
   String _diyWalletName = '';
   final TextEditingController _textController = TextEditingController();

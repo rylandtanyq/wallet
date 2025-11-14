@@ -270,7 +270,12 @@
         "unknown_error_please_try_again_later": "未知錯誤，請稍後重試",
         "searched_token": "搜索的代幣",
         "switching_wallet": "正在切換錢包",
-        "refreshing_wallet_info": "正在刷新錢包資訊"
+        "refreshing_wallet_info": "正在刷新錢包資訊",
+        "private_key_warning": "請確保沒有被錄影，請勿將其洩露給任何人。",
+        "address_copied": "地址已複製",
+        "done": "完成",
+        "ensure_not_being_watched": "請確保你沒有被旁觀或錄影",
+        "hide_mnemonic": "隱藏助記詞"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "選擇轉帳幣種",

@@ -270,7 +270,12 @@
         "unknown_error_please_try_again_later": "Неизвестная ошибка, повторите попытку позже",
         "searched_token": "Искомый токен",
         "switching_wallet": "Переключение кошелька",
-        "refreshing_wallet_info": "Обновление информации о кошельке"
+        "refreshing_wallet_info": "Обновление информации о кошельке",
+        "private_key_warning": "Убедитесь, что вас не записывают, и не раскрывайте ключ никому.",
+        "address_copied": "Адрес скопирован",
+        "done": "Готово",
+        "ensure_not_being_watched": "Убедитесь, что за вами не наблюдают и не ведут запись",
+        "hide_mnemonic": "Скрыть мнемоническую фразу"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Выбрать монету",
