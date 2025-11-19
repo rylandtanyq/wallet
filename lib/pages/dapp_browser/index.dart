@@ -38,26 +38,65 @@ class _DAppPageState extends State<DAppPage> {
   final String _solanaProviderJs = r'''
     (function() {
       if (window._flutter_solana_provider_injected) return;
-      window._flutter_solana_provider_injected = true;
+        window._flutter_solana_provider_injected = true;
 
-      const _events = {};
-      let _publicKey = null;
-      let _isConnected = false;
-      const _injectionStartMs = performance.now();
+        // 包装 console，展开对象，方便在 Flutter 日志里看
+        (function() {
+          const rawLog = console.log.bind(console);
+          const rawError = console.error.bind(console);
 
-      function _callFlutter(handlerName, arg) {
-        if (!window.flutter_inappwebview || !window.flutter_inappwebview.callHandler) {
-          console.error("flutter_inappwebview not available for handler:", handlerName);
-          return Promise.reject('flutter_inappwebview not available');
+          function _formatArg(arg) {
+            try {
+              // Error 对象：优先 stack / message
+              if (arg instanceof Error) {
+                return arg.stack || arg.message || String(arg);
+              }
+              // 普通对象：尝试转成 JSON
+              if (typeof arg === 'object') {
+                return JSON.stringify(arg);
+              }
+              // 其他类型：转成字符串
+              return String(arg);
+            } catch (e) {
+              try {
+                return JSON.stringify(arg);
+              } catch (_) {
+                return String(arg);
+              }
+            }
+          }
+
+          console.log = function(...args) {
+            const formatted = args.map(_formatArg);
+            rawLog.apply(console, formatted);
+          };
+
+          console.error = function(...args) {
+            const formatted = args.map(_formatArg);
+            rawError.apply(console, formatted);
+          };
+        })();
+
+        const _events = {};
+        // 专门给 AnchorProvider 用的钱包地址（base58 字符串）
+        let _publicKeyBase58 = null;
+        // Phantom 风格的公钥对象（有 toBase58 / toString），只给 DApp 用
+        let _phantomPublicKey = null;
+        let _isConnected = false;
+        const _injectionStartMs = performance.now();
+
+        function _callFlutter(handlerName, arg) {
+          if (!window.flutter_inappwebview || !window.flutter_inappwebview.callHandler) {
+            console.error("flutter_inappwebview not available for handler:", handlerName);
+            return Promise.reject('flutter_inappwebview not available');
+          }
+          try {
+            const res = window.flutter_inappwebview.callHandler(handlerName, arg);
+            return Promise.resolve(res);
+          } catch (e) {
+            return Promise.reject(e);
+          }
         }
-        try {
-          const res = window.flutter_inappwebview.callHandler(handlerName, arg);
-          // callHandler already returns a Promise-like on the webview bridge
-          return Promise.resolve(res);
-        } catch (e) {
-          return Promise.reject(e);
-        }
-      }
 
       function _emit(event, ...args) {
         const handlers = _events[event];
@@ -71,24 +110,111 @@ class _DAppPageState extends State<DAppPage> {
         } catch (e) { /* ignore */ }
       }
 
-      function _makePubkeyObj(pubkey) {
-        if (!pubkey) return null;
+            // ===== 新版：带 toBuffer 的公钥对象（兼容 Anchor / PublicKey） =====
+            // ===== 新版 publicKey 工具：优先用 anchor.web3.PublicKey，失败再自己实现 =====
+      const _B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+      const _B58_MAP = {};
+      for (let i = 0; i < _B58_ALPHABET.length; i++) {
+        _B58_MAP[_B58_ALPHABET[i]] = i;
+      }
+
+      function _base58ToBytes(str) {
+        if (!str || typeof str !== 'string') return new Uint8Array([]);
+        const bytes = [0]; // base256 big integer, little-endian
+        for (let i = 0; i < str.length; i++) {
+          const ch = str[i];
+          const val = _B58_MAP[ch];
+          if (val === undefined) throw new Error("Invalid base58 character");
+          let carry = val;
+          for (let j = 0; j < bytes.length; j++) {
+            const x = bytes[j] * 58 + carry;
+            bytes[j] = x & 0xff;
+            carry = x >> 8;
+          }
+          while (carry > 0) {
+            bytes.push(carry & 0xff);
+            carry >>= 8;
+          }
+        }
+        // 处理前导 '1' -> 前导 0
+        for (let k = 0; k < str.length && str[k] === '1'; k++) {
+          bytes.push(0);
+        }
+        return new Uint8Array(bytes.reverse());
+      }
+
+      function _makePubkeyObj(pubkeyBase58) {
+        if (!pubkeyBase58) return null;
+
+        // 1) 尝试直接用 DApp 里已经加载的 anchor.web3.PublicKey
+        try {
+          if (window.anchor && window.anchor.web3 && typeof window.anchor.web3.PublicKey === 'function') {
+            const realPk = new window.anchor.web3.PublicKey(pubkeyBase58);
+            console.log('[FlutterWallet] use real anchor.web3.PublicKey', realPk.toBase58());
+            return realPk;  // 直接返回真实 PublicKey 实例（跟 Phantom 一样）
+          }
+        } catch (e) {
+          console.warn('[FlutterWallet] create anchor.web3.PublicKey failed, fallback to custom object', e);
+        }
+
+        // 2) fallback：自己实现一个带 toBuffer 的“类 PublicKey”
+        let bytes = null;
+        try {
+          bytes = _base58ToBytes(pubkeyBase58);
+        } catch (e) {
+          console.error("[FlutterWallet] base58 decode failed for pubkey", e);
+        }
+
         return {
-          toString: function() { return pubkey; },
-          toBase58: function() { return pubkey; },
+          _b58: pubkeyBase58,
+          _bytes: bytes,
+          toString: function() { return this._b58; },
+          toBase58: function() { return this._b58; },
           toBytes: function() {
+            return this._bytes ? this._bytes.slice() : null;
+          },
+          // 关键：Anchor 在 associatedAddress 里会调用 owner.toBuffer()
+          toBuffer: function() {
+            if (this._bytes == null) return null;
+            if (typeof Buffer !== 'undefined') {
+              return Buffer.from(this._bytes);
+            }
+            return Uint8Array.from(this._bytes);
+          },
+          equals: function(other) {
             try {
-              return new TextEncoder().encode(pubkey);
-            } catch (e) { return null; }
+              let otherBytes;
+              if (other && typeof other.toBytes === 'function') {
+                otherBytes = other.toBytes();
+              } else {
+                otherBytes = _base58ToBytes(String(other));
+              }
+              const a = this._bytes;
+              const b = otherBytes;
+              if (!a || !b || a.length !== b.length) return false;
+              for (let i = 0; i < a.length; i++) {
+                if (a[i] !== b[i]) return false;
+              }
+              return true;
+            } catch (_) {
+              return false;
+            }
           }
         };
       }
+
+      let _lastCancelSignTxMessageBase64 = null;
+      let _lastCancelSignTxAt = 0;  // ms 时间戳
 
       const provider = {
         isPhantom: true,
 
         get isConnected() { return _isConnected; },
-        get publicKey() { return _publicKey; },
+
+        // ⚠ 这里是 Anchor 会用到的钱包公钥
+        get publicKey() {
+          return _phantomPublicKey;
+        },
 
         _events: _events,
         _injectionStartMs: _injectionStartMs,
@@ -98,10 +224,15 @@ class _DAppPageState extends State<DAppPage> {
         connect: function(opts) {
           return _callFlutter('solana_connect', opts).then((pubkeyBase58) => {
             if (pubkeyBase58) {
-              _publicKey = _makePubkeyObj(pubkeyBase58);
+              _publicKeyBase58 = pubkeyBase58;          // 记录字符串
+              _phantomPublicKey = _makePubkeyObj(pubkeyBase58);  // 创建“类 PublicKey 对象”
               _isConnected = true;
-              _emit('connect', _publicKey);
-              return { publicKey: _publicKey };
+
+              // 事件里发对象，跟 Phantom 行为一致
+              _emit('connect', _phantomPublicKey);
+
+              // connect 返回 { publicKey: <PublicKey对象> }
+              return { publicKey: _phantomPublicKey };
             } else {
               return Promise.reject('no_pubkey_returned');
             }
@@ -137,62 +268,137 @@ class _DAppPageState extends State<DAppPage> {
         // Signing APIs - permissive about returned formats
         // === REPLACE: signTransaction ===
         signTransaction: async function (tx) {
-          // 1) 拿到要签名的 message 字节
+          console.log('[wallet] signTransaction called, tx =', tx);
+
           let messageBytes, setSignatureBack;
+
           try {
-            // v0 VersionedTransaction: tx.message.serialize()
-            if (tx && tx.message && typeof tx.message.serialize === 'function' && typeof tx.serialize === 'function') {
-              messageBytes = tx.message.serialize(); // Uint8Array
-              // 写回签名（首签：feePayer）
-              setSignatureBack = (sigBytes /* List<int> */, _pubkeyBase58) => {
-                // v0 结构：signatures 是 Uint8Array[]
-                // Anchor 会按 header.signerKeys 对齐，通常 index 0 是 feePayer
-                tx.signatures = tx.signatures || [];
-                tx.signatures[0] = Uint8Array.from(sigBytes);
-              };
+            // 1. clone 交易，避免 Anchor 内部状态坑
+            let txToUse = tx;
+
+            try {
+              const AnchorWeb3 = (window.anchor && window.anchor.web3) ? window.anchor.web3 : null;
+              if (AnchorWeb3 && typeof tx.serialize === 'function' && typeof AnchorWeb3.Transaction?.from === 'function') {
+                console.log('[wallet] signTransaction clone tx via Transaction.from');
+                const raw = tx.serialize({ requireAllSignatures: false });
+                txToUse = AnchorWeb3.Transaction.from(raw);
+              } else {
+                console.log('[wallet] signTransaction: cannot clone, use original tx');
+              }
+            } catch (cloneErr) {
+              console.warn('[wallet] signTransaction clone failed, use original tx', cloneErr);
+              txToUse = tx;
             }
-            // legacy Transaction: tx.serializeMessage()
-            else if (tx && typeof tx.serializeMessage === 'function') {
-              messageBytes = tx.serializeMessage(); // Uint8Array
-              setSignatureBack = (sigBytes /* List<int> */, pubkeyBase58) => {
-                // 尝试直接写回第 0 个签名位
-                if (tx.signatures && tx.signatures.length > 0 && tx.signatures[0] && 'publicKey' in tx.signatures[0]) {
-                  // 大多数情况下 signatures[0].publicKey 已经是 feePayer
-                  tx.signatures[0].signature = Uint8Array.from(sigBytes);
-                } else if (typeof tx.addSignature === 'function') {
-                  // 兜底：用 feePayer（已是 PublicKey 实例）来 addSignature
-                  // 注：legacy 里 addSignature 需要 (PublicKey, Buffer)
-                  const toBuf = (arr) => {
-                    if (typeof Buffer !== 'undefined') return Buffer.from(arr);
-                    return new Uint8Array(arr); // 没有 Buffer 也能被大多数实现接受
-                  };
-                  tx.addSignature(tx.feePayer, toBuf(sigBytes));
+
+            // 2. legacy Transaction
+            if (txToUse && typeof txToUse.serializeMessage === 'function') {
+              console.log('[wallet] signTransaction treat as legacy Transaction (cloned)');
+
+              messageBytes = txToUse.serializeMessage();
+
+              setSignatureBack = (sigBytes, _pubkeyBase58) => {
+                if (txToUse.signatures && txToUse.signatures.length > 0 && txToUse.signatures[0]) {
+                  txToUse.signatures[0].signature = Uint8Array.from(sigBytes);
+                } else if (typeof txToUse.addSignature === 'function') {
+                  const feePayer = txToUse.feePayer || (txToUse.signatures && txToUse.signatures[0] && txToUse.signatures[0].publicKey);
+                  if (!feePayer) throw new Error('cannot find feePayer to set signature');
+                  const toBuf = (arr) => (typeof Buffer !== 'undefined' ? Buffer.from(arr) : new Uint8Array(arr));
+                  txToUse.addSignature(feePayer, toBuf(sigBytes));
                 } else {
                   throw new Error('cannot set legacy signature back');
                 }
+
+                try {
+                  if (tx && tx !== txToUse) {
+                    tx.signatures = txToUse.signatures;
+                  }
+                } catch (e) {
+                  console.warn('[wallet] sync signatures back to original tx failed', e);
+                }
               };
-            } else {
-              throw new Error('Unsupported transaction object');
             }
+
+            // 3. v0 VersionedTransaction
+            else if (txToUse && txToUse.message && typeof txToUse.message.serialize === 'function' && typeof txToUse.serialize === 'function') {
+              console.log('[wallet] signTransaction treat as v0 VersionedTransaction (cloned)');
+              messageBytes = txToUse.message.serialize();
+
+              setSignatureBack = (sigBytes, _pubkeyBase58) => {
+                txToUse.signatures = txToUse.signatures || [];
+                txToUse.signatures[0] = Uint8Array.from(sigBytes);
+
+                try {
+                  if (tx && tx !== txToUse) {
+                    tx.signatures = txToUse.signatures;
+                  }
+                } catch (e) {
+                  console.warn('[wallet] sync v0 signatures back to original tx failed', e);
+                }
+              };
+            }
+
+            // 4. 都不是，直接抛错
+            else {
+              console.error('[wallet] signTransaction unsupported tx object, keys =', Object.keys(txToUse || {}));
+              throw { code: 4000, message: 'Unsupported transaction object in signTransaction' };
+            }
+
           } catch (e) {
-            return Promise.reject({ code: 4000, message: 'serialize_failed' });
+            console.error('[wallet] signTransaction serialize_failed detail =', e, e?.stack);
+            throw { code: 4000, message: 'serialize_failed' };
           }
 
-          // 2) 发给 Flutter 要求“只签 message”
-          const res = await _callFlutter('solana_signTransaction', {
-            messageBase64: btoa(String.fromCharCode(...messageBytes))
-          });
+          try {
+            const base64Msg = btoa(String.fromCharCode(...messageBytes));
+            console.log('[wallet] signTransaction messageBase64 length =', base64Msg.length);
 
-          // 3) 规范返回并写回签名
-          if (!res || !res.signature || !res.publicKey) {
-            return Promise.reject({ code: 4000, message: 'signTransaction_failed' });
+            // ⭐ 关键：防止“刚取消就立刻又弹一次”的情况
+            const now = Date.now();
+            if (
+              _lastCancelSignTxMessageBase64 === base64Msg &&
+              now - _lastCancelSignTxAt < 3000  // 3 秒内重复同一条 message
+            ) {
+              console.log('[wallet] signTransaction: suppress repeated popup after user rejection');
+              throw { code: 4001, message: 'User rejected the request.' };
+            }
+
+            const res = await _callFlutter('solana_signTransaction', {
+              messageBase64: base64Msg,
+            });
+
+            console.log('[wallet] signTransaction got res from Flutter =', res);
+
+            // 1. Flutter 返回 { code: xxx }（包括用户取消）
+            if (res && typeof res === 'object' && 'code' in res && !('signature' in res)) {
+              if (res.code === 4001) {
+                _lastCancelSignTxMessageBase64 = base64Msg;
+                _lastCancelSignTxAt = Date.now();
+              }
+              throw res;
+            }
+
+            // 2. 其它异常（没有 signature）
+            if (!res || !res.signature || !res.publicKey) {
+              console.error('[wallet] signTransaction_failed, res =', res);
+              throw { code: 4000, message: 'signTransaction_failed' };
+            }
+
+            // 3. 正常签名
+            setSignatureBack(res.signature, res.publicKey);
+
+            // 成功了就清掉取消记录
+            _lastCancelSignTxMessageBase64 = null;
+            _lastCancelSignTxAt = 0;
+
+            console.log('[wallet] signTransaction done, tx (original) =', tx);
+            return tx;
+          } catch (e) {
+            console.error('[wallet] signTransaction error when calling Flutter =', e);
+            throw e;
           }
-          // 把签名填回 tx 对象（很关键，Anchor 需要拿这个已签名 tx 去广播）
-          setSignatureBack(res.signature, res.publicKey);
-
-          // 4) 返回“已签名”的 tx 对象给 DApp/Anchor
-          return tx;
         },
+
+
 
         // === REPLACE: signAllTransactions ===
         signAllTransactions: async function (txs) {
@@ -204,31 +410,38 @@ class _DAppPageState extends State<DAppPage> {
         },
 
 
-        signAndSendTransaction: function (tx, opts) {
-          let messageBytes, txBytes;
+        signAndSendTransaction: async function (tx, opts) {
+          // 1) 先走我们自己实现的 signTransaction
+          const signedTx = await this.signTransaction(tx);  // 会触发 Flutter 的 solana_signTransaction + 弹窗
 
-          try {
-            // VersionedTransaction v0
-            if (tx.serialize && tx.message && tx.message.serialize) {
-              messageBytes = tx.message.serialize();            // Uint8Array (message)
-              txBytes = tx.serialize();                         // Uint8Array (full signed or unsigned)
-            } else if (tx.serializeMessage) {
-              // legacy Transaction
-              messageBytes = tx.serializeMessage();             // Uint8Array
-              txBytes = tx.serialize({requireAllSignatures:false, verifySignatures:false});
-            } else {
-              throw new Error('Unsupported tx object');
-            }
-          } catch (e) {
-            return Promise.reject({ code: 4000, message: 'serialize_failed' });
+          // 2) 序列化“已签名交易” → base64
+          let signedBytes;
+          if (signedTx && typeof signedTx.serialize === 'function') {
+            signedBytes = signedTx.serialize(); // Uint8Array
+          } else if (tx && typeof tx.serialize === 'function') {
+            // 保险起见：有些实现 signTransaction 直接改原 tx，返回的还是旧引用
+            signedBytes = tx.serialize();
+          } else {
+            throw new Error('serialize signed tx failed');
           }
 
-          const payload = {
-            messageBase64: btoa(String.fromCharCode(...messageBytes)),
-            txBase64: btoa(String.fromCharCode(...txBytes)),
+          const signedTxBase64 = btoa(String.fromCharCode(...signedBytes));
+
+          // 3) 交给 Flutter 的 solana_sendTransaction 去广播
+          const res = await _callFlutter('solana_sendTransaction', {
+            signedTxBase64,
             opts: opts || {}
-          };
-          return _callFlutter('solana_signAndSendTransaction', payload);
+          });
+
+          // 4) 为了和 Phantom 行为对齐：返回 { signature }
+          if (res && typeof res === 'object' && 'signature' in res) {
+            return { signature: res.signature };
+          }
+          // 兜底：DApp 直接拿字符串也能用
+          if (typeof res === 'string') {
+            return { signature: res };
+          }
+          return res;
         },
 
         signAndSendAllTransactions: function(txs, opts) {
@@ -386,17 +599,111 @@ class _DAppPageState extends State<DAppPage> {
         window.phantom.solana = provider;
       }
 
+
+      (function waitAndPatchAnchorForFlutterWallet() {
+        function tryPatch() {
+          try {
+            const anchorGlobal = window.anchor;
+            if (!anchorGlobal || !anchorGlobal.AnchorProvider) {
+              // 还没加载到 anchor，继续等
+              // console.log('[FlutterWallet] wait patch: no window.anchor.AnchorProvider yet');
+              return false;
+            }
+
+            const AP = anchorGlobal.AnchorProvider;
+            if (AP.__flutterPatched) {
+              return true; // 已经打过补丁了
+            }
+
+            const oldSendAndConfirm = AP.prototype.sendAndConfirm;
+
+            AP.prototype.sendAndConfirm = async function (tx, signers, opts) {
+              const wallet = this.wallet || window.solana;
+
+              // 如果是我们这个 Phantom 风格的钱包，**只走 signAndSendTransaction 这一条路**
+              if (wallet && wallet.isPhantom && typeof wallet.signAndSendTransaction === 'function') {
+                try {
+                  // （可选）补 feePayer / recentBlockhash，跟你原来的一样
+                  try {
+                    if (tx && typeof tx.serialize === 'function' && !tx.recentBlockhash) {
+                      const latest = await this.connection.getLatestBlockhash(
+                        (opts && opts.preflightCommitment) ||
+                        (this.opts && this.opts.preflightCommitment) ||
+                        'confirmed'
+                      );
+                      tx.recentBlockhash = latest.blockhash;
+                    }
+                    if (tx && typeof tx.serialize === 'function' && !tx.feePayer && wallet.publicKey) {
+                      tx.feePayer = wallet.publicKey;
+                    }
+                  } catch (e) {
+                    console.warn('[FlutterWallet] prepare tx in patched sendAndConfirm failed', e);
+                  }
+
+                  const res = await wallet.signAndSendTransaction(tx, opts || this.opts || {});
+                  return typeof res === 'string' ? res : res.signature;
+                } catch (e) {
+                  console.error('[FlutterWallet] patched sendAndConfirm error from wallet.signAndSendTransaction', e);
+
+                  // ⭐⭐ 关键点：用户取消 / 没有钱包这类错误，直接往上抛，**不要再 fallback **
+                  if (e && typeof e === 'object' && 'code' in e && (e.code === 4001 || e.code === 4100)) {
+                    throw e;
+                  }
+
+                  // 其它错误（比如你想保留老逻辑兜底，可以选择 fallback，或者也直接抛）
+                  // 建议一开始先直接抛，方便调试：
+                  throw e;
+
+                  // 如果你以后想对网络问题兜底，可以在这里再按情况调用 oldSendAndConfirm
+                  // return await oldSendAndConfirm.call(this, tx, signers, opts);
+                }
+              }
+
+              // 只有在不是我们这种 Phantom 风格钱包时，才走 Anchor 原来的 sendAndConfirm
+              return await oldSendAndConfirm.call(this, tx, signers, opts);
+            };
+
+            AP.__flutterPatched = true;
+            console.log('[FlutterWallet] AnchorProvider.sendAndConfirm patched for Flutter wallet');
+            return true;
+          } catch (e) {
+            console.error('[FlutterWallet] waitAndPatchAnchorForFlutterWallet failed', e);
+            return true; // 发生异常就别重复试了
+          }
+        }
+
+        // 先尝试一次
+        if (tryPatch()) return;
+
+        // anchor 可能还没挂到 window 上，隔 200ms 试一次，最多 50 次（10 秒）
+        let count = 0;
+        const timer = setInterval(() => {
+          if (tryPatch() || ++count > 50) {
+            clearInterval(timer);
+          }
+        }, 200);
+      })();
+
+
       // allow Flutter to inject events into the page (connect/disconnect/other)
       window._flutter_injectEvent = function(event, data) {
         if (event === 'connect') {
-          _publicKey = _makePubkeyObj(data);
+          // data 是 base58 字符串
+          _publicKeyBase58 = data;
+          _phantomPublicKey = _makePubkeyObj(data);
           _isConnected = true;
+          _emit('connect', _phantomPublicKey);
         } else if (event === 'disconnect') {
-          _publicKey = null;
+          _publicKeyBase58 = null;
+          _phantomPublicKey = null;
           _isConnected = false;
+          _emit('disconnect');
+        } else {
+          _emit(event, data);
         }
-        _emit(event, data);
       };
+
+
     })();
   ''';
 
@@ -420,7 +727,6 @@ class _DAppPageState extends State<DAppPage> {
   Future<void> _ensureWalletReady() async {
     final rawNet = await HiveStorage().getObject<Map>('currentNetwork');
     final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
-
     _wallet = wallet;
     _currentNetwork = (rawNet == null) ? {'id': 'Solana', 'path': 'assets/images/solana.png'} : Map<String, dynamic>.from(rawNet);
 
@@ -483,7 +789,7 @@ class _DAppPageState extends State<DAppPage> {
             backgroundColor: Colors.black,
             appBar: AppBar(title: const Text("dapp")),
             body: InAppWebView(
-              initialUrlRequest: URLRequest(url: WebUri(normalizeUrl(widget.dappUrl))),
+              initialUrlRequest: URLRequest(url: WebUri(normalizeUrl('http://172.20.157.158:3301/'))),
               initialSettings: InAppWebViewSettings(
                 javaScriptEnabled: true,
                 javaScriptCanOpenWindowsAutomatically: true,
@@ -526,16 +832,16 @@ class _DAppPageState extends State<DAppPage> {
                 );
 
                 // connect
-                // controller.addJavaScriptHandler(
-                //   handlerName: 'solana_connect',
-                //   callback: (args) async {
-                //     // 兜底：如果 initState 的异步还没完成，这里再确保一次
-                //     if (_wallet == null || _currentPubkey == null) await _ensureWalletReady();
-                //     final pk = _currentPubkey ?? '';
-                //     if (pk.isEmpty) return {'code': 4100, 'message': 'no_wallet_connected'};
-                //     return pk; // 只返回字符串，JS 会包成 { publicKey }
-                //   },
-                // );
+                controller.addJavaScriptHandler(
+                  handlerName: 'solana_connect',
+                  callback: (args) async {
+                    // 兜底：如果 initState 的异步还没完成，这里再确保一次
+                    if (_wallet == null || _currentPubkey == null) await _ensureWalletReady();
+                    final pk = _currentPubkey ?? '';
+                    if (pk.isEmpty) return {'code': 4100, 'message': 'no_wallet_connected'};
+                    return pk; // 只返回字符串，JS 会包成 { publicKey }
+                  },
+                );
 
                 // signMessage
                 controller.addJavaScriptHandler(
@@ -577,11 +883,10 @@ class _DAppPageState extends State<DAppPage> {
                         try {
                           final u8 = (sigAny as dynamic).bytes as List<int>;
                           sigBytes = u8;
-                        } catch (_) {
+                        } catch (e) {
                           return {'code': 4000, 'message': 'unsupported_signature_type'};
                         }
                       }
-
                       // 返回给 DApp：必须是 “字节数组”
                       return {'signature': sigBytes};
                     } catch (e, st) {
@@ -595,6 +900,7 @@ class _DAppPageState extends State<DAppPage> {
                 controller.addJavaScriptHandler(
                   handlerName: 'solana_signAndSendTransaction',
                   callback: (args) async {
+                    debugPrint('solana_signAndSendTransaction prints');
                     try {
                       // 1) 会话/钱包就绪
                       if (_wallet == null || _currentPubkey == null || _hdKeypair == null) {
@@ -639,12 +945,20 @@ class _DAppPageState extends State<DAppPage> {
                 controller.addJavaScriptHandler(
                   handlerName: 'solana_signTransaction',
                   callback: (args) async {
+                    debugPrint('===> solana_signTransaction called, args: $args');
+
                     try {
-                      await _ensureWalletReady();
+                      // 1) 确保钱包 & keypair 准备好（支持助记词 / 私钥导入）
+                      if (_wallet == null || _currentPubkey == null || _hdKeypair == null) {
+                        await _ensureWalletReady();
+                      }
+                      debugPrint('after _ensureWalletReady: pubkey=$_currentPubkey, hdKeypair null? ${_hdKeypair == null}');
+
                       if (_hdKeypair == null || _currentPubkey == null) {
-                        return {'code': 4100, 'message': 'no_wallet_connected'};
+                        return {'code': 4100, 'message': 'no_wallet_connected_or_no_keypair'};
                       }
 
+                      // 2) 解析 message
                       final body = (args.isNotEmpty ? args[0] : {}) as Map;
                       final messageBase64 = body['messageBase64'] as String?;
                       if (messageBase64 == null || messageBase64.isEmpty) {
@@ -652,22 +966,35 @@ class _DAppPageState extends State<DAppPage> {
                       }
                       final msg = base64Decode(messageBase64);
 
-                      // （可选）弹确认弹窗，展示 program/金额等
+                      // 3) 拉起「确认转账」弹窗
+                      if (!mounted) {
+                        return {'code': 4000, 'message': 'page_not_mounted'};
+                      }
+
                       final ok = await _solanaConnectShowModalBottomSheetWidget(
                         _wallet!,
                         _currentNetwork ?? {'id': 'Solana', 'path': 'assets/images/solana.png'},
-                        'DApp 请求签名交易',
+                        'DApp 请求发送交易', // 这里后面可以改成解析好的 ProgramId/金额文案
                       );
-                      if (ok != true) return {'code': 4001, 'message': 'User rejected the request.'};
+                      if (ok != true) {
+                        return {'code': 4001, 'message': 'User rejected the request.'};
+                      }
 
-                      // （可选）校验助记词派生地址与 connect 地址一致
+                      // 4) 校验当前 address 和派生地址一致（可选安全检查）
                       if (_hdKeypair!.address != _currentPubkey) {
                         return {'code': 4000, 'message': 'public_key_mismatch'};
                       }
 
-                      final sig = await _hdKeypair!.sign(msg); // Uint8List(64) -> 可直接作为 List<int> 返回
-                      return {'publicKey': _currentPubkey, 'signature': sig};
-                    } catch (e) {
+                      // 5) 真正签名
+                      final sig = await _hdKeypair!.sign(msg); // Uint8List(64)
+
+                      // 6) 把签名返回给 JS（签名必须是 List<int>）
+                      return {
+                        'publicKey': _currentPubkey,
+                        'signature': sig, // Uint8List 在桥上会按 List<int> 传过去
+                      };
+                    } catch (e, st) {
+                      debugPrint('signTransaction error: $e\n$st');
                       return {'code': 4000, 'message': 'internal_error'};
                     }
                   },
@@ -677,6 +1004,7 @@ class _DAppPageState extends State<DAppPage> {
                 controller.addJavaScriptHandler(
                   handlerName: 'solana_sendTransaction',
                   callback: (args) async {
+                    debugPrint('solana_sendTransaction');
                     try {
                       final body = (args.isNotEmpty ? args[0] : {}) as Map;
                       final signedTxBase64 = body['signedTxBase64'] as String?;
@@ -824,19 +1152,10 @@ class _DAppPageState extends State<DAppPage> {
                 } else {
                   setState(() => _progress = 1.0);
                 }
+              },
 
-                if (_currentPubkey != null) {
-                  await controller.evaluateJavascript(
-                    source:
-                        """
-                        if (window.solana && !window.solana.isConnected) {
-                          window.solana.publicKey = { toString: function() { return '${_currentPubkey}'; } };
-                          window.solana.isConnected = true;
-                          try { window.dispatchEvent(new CustomEvent('solana:connect', {detail: ['${_currentPubkey}']})); } catch(e) {}
-                        }
-                      """,
-                  );
-                }
+              onConsoleMessage: (controller, consoleMessage) {
+                debugPrint('DAPP console [${consoleMessage.messageLevel}] ${consoleMessage.message}');
               },
 
               onReceivedError: (controller, request, error) {
