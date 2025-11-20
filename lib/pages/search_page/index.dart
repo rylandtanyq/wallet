@@ -439,7 +439,7 @@ Widget _buildCurrencyWidget() {
 
 /// 合约
 Widget _buildContractWidget(BuildContext context) {
-  return Text('合约');
+  return Text("asd");
 }
 
 /// DApp
