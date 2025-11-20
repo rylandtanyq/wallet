@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled1/i18n/strings.g.dart';
-import 'package:untitled1/pages/dapp_page/index.dart';
+import 'package:untitled1/pages/dapp_browser/index.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/widget/StickyTabBarDelegate.dart';
 
@@ -439,7 +439,7 @@ Widget _buildCurrencyWidget() {
 
 /// 合约
 Widget _buildContractWidget(BuildContext context) {
-  return Text('合约');
+  return Text("asd");
 }
 
 /// DApp
