@@ -324,5 +324,27 @@
         "dapp": "DApp",
         "token": "币种",
         "contract": "合约"
+    },
+    "dapp_browser": {
+        "signatureInfo": "签名信息",
+        "requestSignature": "请求签名",
+        "requestFromUrl(rich)": {
+            "text(rich)": "来自 $url 的请求"
+        },
+        "wallet": "钱包",
+        "network": "网络",
+        "cancel": "取消",
+        "sign": "签名",
+        "contractInteraction": "合约交互",
+        "requestContractInteraction": "请求合约交互",
+        "recipient": "接收方",
+        "sender": "发送方",
+        "amount": "数量",
+        "estimatedGasFee": "预估 Gas 费",
+        "currentBalance": "当前余额",
+        "insufficientGasFeeDetail": "Gas 费不足，无法完成交易，请先充值少量 SOL 再重试",
+        "transaction": "交易",
+        "insufficientGas": "Gas 不足",
+        "estimating": "估算中..."
     }
 }

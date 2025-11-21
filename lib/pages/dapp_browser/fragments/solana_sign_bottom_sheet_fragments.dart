@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/hive/Wallet.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:untitled1/widget/wallet_avatar_smart.dart';
 
 class SolanaSignBottomSheetFragments extends StatelessWidget {
   final Wallet wallet;
@@ -49,7 +51,7 @@ class SolanaSignBottomSheetFragments extends StatelessWidget {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text("签名信息", style: AppTextStyles.headline3.copyWith(color: theme.colorScheme.onBackground))],
+                  children: [Text(t.dapp_browser.signatureInfo, style: AppTextStyles.headline3.copyWith(color: theme.colorScheme.onBackground))],
                 ),
                 Positioned(
                   top: 0,
@@ -71,23 +73,16 @@ class SolanaSignBottomSheetFragments extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('请求签名', style: AppTextStyles.headline4.copyWith(color: theme.colorScheme.onBackground)),
+                Text(t.dapp_browser.requestSignature, style: AppTextStyles.headline4.copyWith(color: theme.colorScheme.onBackground)),
                 SizedBox(height: 8.w),
                 Text.rich(
-                  TextSpan(
-                    text: "来自 ",
-                    style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onSurface),
-                    children: [
-                      TextSpan(
-                        text: dappName,
-                        style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onBackground),
-                      ),
-                      TextSpan(
-                        text: " 的请求",
-                        style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onSurface),
-                      ),
-                    ],
+                  t.dapp_browser.requestFromUrl.text(
+                    url: TextSpan(
+                      text: dappName,
+                      style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onBackground),
+                    ),
                   ),
+                  style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onSurface),
                 ),
                 SizedBox(height: 16.w),
 
@@ -107,10 +102,16 @@ class SolanaSignBottomSheetFragments extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Wallet", style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onSurface)),
+                    Text(t.dapp_browser.wallet, style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onSurface)),
                     Row(
                       children: [
-                        Image.asset('assets/images/ic_clip_photo.png', width: 20, height: 20),
+                        WalletAvatarSmart(
+                          address: wallet.address,
+                          avatarImagePath: wallet.avatarImagePath,
+                          size: 30,
+                          radius: 30 / 2,
+                          defaultAsset: 'assets/images/ic_clip_photo.png',
+                        ),
                         SizedBox(width: 8.w),
                         Text(wallet.name, style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onBackground)),
                       ],
@@ -123,7 +124,7 @@ class SolanaSignBottomSheetFragments extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Network", style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onSurface)),
+                    Text(t.dapp_browser.network, style: AppTextStyles.labelMedium.copyWith(color: theme.colorScheme.onSurface)),
                     Row(
                       children: [
                         if (network["path"] != null) Image.asset(network["path"], width: 20, height: 20),
@@ -150,7 +151,7 @@ class SolanaSignBottomSheetFragments extends StatelessWidget {
                             border: Border.all(width: 1, color: theme.colorScheme.onBackground),
                             borderRadius: BorderRadius.circular(50.r),
                           ),
-                          child: Text("取消", style: AppTextStyles.headline4.copyWith(color: theme.colorScheme.onBackground)),
+                          child: Text(t.dapp_browser.cancel, style: AppTextStyles.headline4.copyWith(color: theme.colorScheme.onBackground)),
                         ),
                       ),
                     ),
@@ -164,7 +165,7 @@ class SolanaSignBottomSheetFragments extends StatelessWidget {
                           height: 60,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(color: theme.colorScheme.primary, borderRadius: BorderRadius.circular(50.r)),
-                          child: Text("签名", style: AppTextStyles.headline4.copyWith(color: theme.colorScheme.onPrimary)),
+                          child: Text(t.dapp_browser.sign, style: AppTextStyles.headline4.copyWith(color: theme.colorScheme.onPrimary)),
                         ),
                       ),
                     ),

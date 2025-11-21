@@ -324,5 +324,27 @@
         "dapp": "DApp",
         "token": "トークン",
         "contract": "コントラクト"
+    },
+    "dapp_browser": {
+        "signatureInfo": "署名情報",
+        "requestSignature": "署名リクエスト",
+        "requestFromUrl(rich)": {
+            "text(rich)": "$url からのリクエスト"
+        },
+        "wallet": "ウォレット",
+        "network": "ネットワーク",
+        "cancel": "キャンセル",
+        "sign": "署名する",
+        "contractInteraction": "コントラクト実行",
+        "requestContractInteraction": "コントラクト実行リクエスト",
+        "recipient": "受取先",
+        "sender": "送信元",
+        "amount": "数量",
+        "estimatedGasFee": "推定ガス手数料",
+        "currentBalance": "現在の残高",
+        "insufficientGasFeeDetail": "ガス手数料が不足しているため、トランザクションを完了できません。少量の SOL をチャージしてから、もう一度お試しください。",
+        "transaction": "トランザクション",
+        "insufficientGas": "ガス不足",
+        "estimating": "Calculando..."
     }
 }

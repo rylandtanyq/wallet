@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/hive/Wallet.dart';
+import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/widget/wallet_avatar_smart.dart';
 
@@ -67,7 +68,10 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                   width: double.infinity,
                   height: 40.h,
                   alignment: Alignment.center,
-                  child: Text("合约交互", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                  child: Text(
+                    t.dapp_browser.contractInteraction,
+                    style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                  ),
                 ),
                 Positioned(
                   top: 0,
@@ -89,40 +93,36 @@ class SolanaContractInteractionFragments extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("请求合约交互", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                  Text(
+                    t.dapp_browser.requestContractInteraction,
+                    style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                  ),
                   SizedBox(height: 8.w),
                   Text.rich(
-                    TextSpan(
-                      text: "来自 ",
-                      style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                      children: [
-                        TextSpan(
-                          text: dappUrl,
-                          style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground),
-                        ),
-                        TextSpan(
-                          text: " 的请求",
-                          style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                        ),
-                      ],
+                    t.dapp_browser.requestFromUrl.text(
+                      url: TextSpan(
+                        text: dappUrl,
+                        style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                      ),
                     ),
+                    style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
                   ),
                   SizedBox(height: 8.w),
                   Text(
-                    "Program: $programId",
+                    "${t.dapp_browser.recipient}: $programId",
                     style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(.7)),
                   ),
                   if (feePayer.isNotEmpty) ...[
                     SizedBox(height: 4),
                     Text(
-                      "Fee Payer: $feePayer",
+                      "${t.dapp_browser.sender}: $feePayer",
                       style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(.7)),
                     ),
                   ],
                   if (instructionCount > 0) ...[
                     SizedBox(height: 4),
                     Text(
-                      "指令数量: $instructionCount",
+                      "${t.dapp_browser.amount}: $instructionCount",
                       style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(.7)),
                     ),
                   ],
@@ -153,7 +153,7 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                   ),
                   SizedBox(width: 10),
                   Expanded(
-                    child: Text("Wpos.pro", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                    child: Text(dappUrl, style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                   ),
                 ],
               ),
@@ -166,7 +166,7 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Wallet", style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                      Text(t.dapp_browser.wallet, style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -187,7 +187,7 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Network", style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                      Text(t.dapp_browser.network, style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                       Text(wallet.network, style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                     ],
                   ),
@@ -195,9 +195,9 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("预估 Gas 费", style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                      Text(t.dapp_browser.estimatedGasFee, style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                       Text(
-                        feeSol != null ? "${feeSol.toStringAsFixed(6)} SOL" : "估算中...",
+                        feeSol != null ? "${feeSol.toStringAsFixed(6)} SOL" : t.dapp_browser.estimating,
                         style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
                       ),
                     ],
@@ -207,7 +207,7 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("当前余额", style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                        Text(t.dapp_browser.currentBalance, style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                         Text(
                           "${walletSol.toStringAsFixed(6)} SOL",
                           style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
@@ -231,7 +231,7 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          "Gas费不足，无法完成交易，请先充值少量 SOL 再重试。",
+                          t.dapp_browser.insufficientGasFeeDetail,
                           style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.error),
                         ),
                       ),
@@ -256,7 +256,10 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                           border: Border.all(width: 1, color: Theme.of(context).colorScheme.onBackground),
                           borderRadius: BorderRadius.circular(50),
                         ),
-                        child: Text("取消", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                        child: Text(
+                          t.dapp_browser.transaction,
+                          style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                        ),
                       ),
                     ),
                   ),
@@ -271,7 +274,7 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(50)),
                           child: Text(
-                            gasEnough ? "交易" : "Gas不足",
+                            gasEnough ? t.dapp_browser.transaction : t.dapp_browser.insufficientGas,
                             style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary),
                           ),
                         ),
