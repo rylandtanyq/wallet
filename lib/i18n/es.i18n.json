@@ -324,5 +324,27 @@
         "dapp": "DApp",
         "token": "Token",
         "contract": "Contrato"
+    },
+    "dapp_browser": {
+        "signatureInfo": "Información de la firma",
+        "requestSignature": "Solicitud de firma",
+        "requestFromUrl(rich)": {
+            "text(rich)": "Solicitud de $url"
+        },
+        "wallet": "Billetera",
+        "network": "Red",
+        "cancel": "Cancelar",
+        "sign": "Firmar",
+        "contractInteraction": "Interacción con el contrato",
+        "requestContractInteraction": "Solicitud de interacción con el contrato",
+        "recipient": "Destinatario",
+        "sender": "Remitente",
+        "amount": "Cantidad",
+        "estimatedGasFee": "Comisión de gas estimada",
+        "currentBalance": "Saldo actual",
+        "insufficientGasFeeDetail": "Comisión de gas insuficiente. No se puede completar la transacción. Recarga una pequeña cantidad de SOL y vuelve a intentarlo.",
+        "transaction": "Transacción",
+        "insufficientGas": "Gas insuficiente",
+        "estimating": "見積もり中..."
     }
 }
