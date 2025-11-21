@@ -329,14 +329,22 @@ class AdvancedMultiChainWallet {
 
   // 获取钱包信息
   Future<Map<String, String>> _getWalletInfo() async {
-    // final balance = await getNativeBalance();
     final blockchain = _currentNetwork?.name ?? '';
     var address = _addresses[_currentNetwork?.id] ?? _addresses[_currentNetwork?.name] ?? '';
-    // final balance =  await getNativeBalanceByAddress(blockchain,address);
     if (_currentNetwork?.id == 'solana' && _addresses['solana'] != null) {
       address = _addresses['solana']!;
     }
-    return {'mnemonic': _mnemonic ?? '', 'balance': '0.00', 'privateKey': _privateKey ?? '', 'currentNetwork': blockchain, 'currentAddress': address};
+
+    final isSolana = _currentNetwork?.id == 'solana';
+
+    return {
+      'mnemonic': _mnemonic ?? '',
+      'balance': '0.00',
+      // Solana 用 Base58 64B secretKey，EVM 用 32B hex
+      'privateKey': isSolana ? _solanaSecretKeyBase58 ?? '' : _privateKey ?? '',
+      'currentNetwork': blockchain,
+      'currentAddress': address,
+    };
   }
 
   // 切换网络
