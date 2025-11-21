@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'dart:collection';
 
@@ -15,19 +16,20 @@ import 'package:untitled1/pages/dapp_browser/fragments/loading_fragments.dart';
 import 'package:untitled1/pages/dapp_browser/fragments/solana_contract_interaction_fragments.dart';
 import 'package:untitled1/pages/dapp_browser/fragments/solana_provide_js_fragments.dart';
 import 'package:untitled1/pages/dapp_browser/fragments/solana_sign_bottom_sheet_fragments.dart';
+import 'package:untitled1/state/app_provider.dart';
 
 import 'package:untitled1/util/HiveStorage.dart';
 import 'package:cryptography/cryptography.dart' show Signature; // 为了识别类型
 
-class DAppPage extends StatefulWidget {
+class DAppPage extends ConsumerStatefulWidget {
   final String dappUrl;
   const DAppPage({super.key, required this.dappUrl});
 
   @override
-  State<DAppPage> createState() => _DAppPageState();
+  ConsumerState<DAppPage> createState() => _DAppPageState();
 }
 
-class _DAppPageState extends State<DAppPage> {
+class _DAppPageState extends ConsumerState<DAppPage> {
   InAppWebViewController? _inAppWebViewController;
   bool _isLoading = true;
   double _progress = 0.0;
@@ -139,7 +141,8 @@ class _DAppPageState extends State<DAppPage> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(widget.dappUrl);
+    ref.watch(localeProvider);
+
     return SafeArea(
       child: Stack(
         children: [
