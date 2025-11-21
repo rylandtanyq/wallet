@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'dart:collection';
 
 import 'package:solana/solana.dart' as sol;
+import 'package:solana_web3/solana_web3.dart' as bs58;
+import 'package:solana_web3/solana_web3.dart' as convert;
 import 'package:untitled1/constants/hive_boxes.dart';
 import 'package:untitled1/hive/Wallet.dart';
 import 'package:untitled1/pages/dapp_browser/fragments/loading_fragments.dart';
@@ -51,17 +53,59 @@ class _DAppPageState extends State<DAppPage> {
     _wallet = wallet;
     _currentNetwork = (rawNet == null) ? {'id': 'Solana', 'path': 'assets/images/solana.png'} : Map<String, dynamic>.from(rawNet);
 
-    // 用助记词派生密钥对与地址
-    if (wallet?.mnemonic != null && wallet!.mnemonic!.isNotEmpty) {
-      final mnemonic = wallet.mnemonic!.join(' ');
-      _hdKeypair = await sol.Ed25519HDKeyPair.fromMnemonic(
-        mnemonic,
-        account: 0,
-        change: 0, // m/44'/501'/0'/0'
-      );
-      _derivedAddress = _hdKeypair!.address; // base58
+    _hdKeypair = null;
+    _derivedAddress = null;
+
+    if (wallet != null) {
+      if (wallet.mnemonic != null && wallet.mnemonic!.isNotEmpty) {
+        final mnemonic = wallet.mnemonic!.join(' ');
+        _hdKeypair = await sol.Ed25519HDKeyPair.fromMnemonic(
+          mnemonic,
+          account: 0,
+          change: 0, // m/44'/501'/0'/0'
+        );
+        _derivedAddress = _hdKeypair!.address; // base58
+      } else if (wallet.privateKey.isNotEmpty) {
+        try {
+          final pkStr = wallet.privateKey.trim();
+
+          Uint8List seed32;
+
+          // 判断是不是纯 hex（0-9a-fA-F），且长度是偶数
+          final isHex = RegExp(r'^[0-9a-fA-F]+$').hasMatch(pkStr) && pkStr.length % 2 == 0;
+
+          if (isHex) {
+            // hex 私钥
+            final bytes = Uint8List.fromList(convert.hex.decode(pkStr));
+            if (bytes.length == 32) {
+              seed32 = bytes;
+            } else if (bytes.length == 64) {
+              seed32 = bytes.sublist(0, 32);
+            } else {
+              throw Exception('hex private key must be 32 or 64 bytes, got ${bytes.length}');
+            }
+          } else {
+            // base58 私钥: 跟 Phantom 一样
+            final bytes = Uint8List.fromList(bs58.base58Decode(pkStr));
+            if (bytes.length == 32) {
+              seed32 = bytes;
+            } else if (bytes.length == 64) {
+              // Solana 常见：64 字节 secretKey = 32 seed + 32 publicKey
+              seed32 = bytes.sublist(0, 32);
+            } else {
+              throw Exception('base58 private key must be 32 or 64 bytes, got ${bytes.length}');
+            }
+          }
+
+          _hdKeypair = await sol.Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: seed32);
+          _derivedAddress = _hdKeypair!.address;
+        } catch (e, st) {
+          debugPrint('init from privateKey failed: $e\n$st');
+        }
+      }
     }
 
+    // 3️⃣ 最终对外暴露的公钥
     _currentPubkey = _derivedAddress ?? wallet?.address;
 
     if (mounted) setState(() {});
