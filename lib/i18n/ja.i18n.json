@@ -41,7 +41,9 @@
         "all": "すべて",
         "open_link_below": "以下のリンクを開く",
         "search_history": "検索履歴",
-        "no_matching_results": "一致する結果がありません"
+        "no_matching_results": "一致する結果がありません",
+        "verifyIdentity": "本人確認を行ってください",
+        "identityVerifyFailed": "本人確認に失敗しました。もう一度お試しください"
     },
     "Mysettings": {
         "go_backup": "バックアップへ",

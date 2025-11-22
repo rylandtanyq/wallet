@@ -1,9 +1,6 @@
 package com.example.ai.wallet
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity(){
-//    init {
-//        System.loadLibrary("TrustWalletCore")
-//    }
+class MainActivity: FlutterFragmentActivity() {
 }

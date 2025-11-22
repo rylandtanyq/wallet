@@ -41,7 +41,9 @@
         "all": "全部",
         "open_link_below": "打开以下链接",
         "search_history": "搜索历史",
-        "no_matching_results": "无匹配结果"
+        "no_matching_results": "无匹配结果",
+        "verifyIdentity": "请校验身份",
+        "identityVerifyFailed": "身份校验失败，请重试"
     },
     "Mysettings": {
         "go_backup": "去备份",

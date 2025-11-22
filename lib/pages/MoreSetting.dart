@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
 import 'package:untitled1/widget/CustomSwitch.dart';
 
 /// 更多设置
-class Moresetting extends StatefulWidget {
+class Moresetting extends ConsumerStatefulWidget {
   const Moresetting({super.key});
 
   @override
-  State<Moresetting> createState() => _MoresettingState();
+  ConsumerState<Moresetting> createState() => _MoresettingState();
 }
 
-class _MoresettingState extends State<Moresetting> {
+class _MoresettingState extends ConsumerState<Moresetting> {
   bool _unlockApp = false;
-  bool _faceID = false;
   bool _passwordFreePayment = false;
 
   @override
   Widget build(BuildContext context) {
+    final biometricState = ref.watch(getBioMetricsProvide);
+    final biometricNotifier = ref.read(getBioMetricsProvide.notifier);
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 40,
@@ -56,12 +59,13 @@ class _MoresettingState extends State<Moresetting> {
             title: t.Mysettings.face_fingerprint_payment,
             iconWidget: false,
             trailing: CustomSwitch(
-              value: _faceID,
+              value: biometricState,
               onChanged: (val) {
                 setState(() {
                   Feedback.forTap(context);
                   HapticFeedback.heavyImpact();
-                  _faceID = val;
+                  // _faceID = val;
+                  biometricNotifier.toggleBiometrics();
                 });
               },
             ),
