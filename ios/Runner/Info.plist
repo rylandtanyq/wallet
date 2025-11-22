@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>用于人脸识别解锁您的账户/钱包</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>需要访问您的相册以选择图片</string>
 	<key>NSCameraUsageDescription</key>

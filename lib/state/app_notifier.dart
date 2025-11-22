@@ -115,3 +115,25 @@ class GetWalletSearchTokenNotifier extends StateNotifier<AsyncValue<SearchTokenM
     }
   }
 }
+
+class BiometricsNotifier extends StateNotifier<bool> {
+  static const _preBiometricKey = 'biometric';
+  BiometricsNotifier() : super(true) {
+    loadBiometrics();
+  }
+
+  Future<void> loadBiometrics() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getBool(_preBiometricKey);
+    if (value != null) {
+      state = value;
+    }
+  }
+
+  Future<void> toggleBiometrics() async {
+    final newState = !state;
+    state = newState;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_preBiometricKey, newState);
+  }
+}

@@ -41,7 +41,9 @@
         "all": "Todo",
         "open_link_below": "Abrir el enlace a continuación",
         "search_history": "Historial de búsqueda",
-        "no_matching_results": "No hay resultados coincidentes"
+        "no_matching_results": "No hay resultados coincidentes",
+        "verifyIdentity": "Por favor, verifica tu identidad",
+        "identityVerifyFailed": "La verificación de identidad ha fallado, inténtalo de nuevo"
     },
     "Mysettings": {
         "go_backup": "Ir a copia de seguridad",

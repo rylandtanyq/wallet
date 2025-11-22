@@ -41,7 +41,9 @@
         "all": "Все",
         "open_link_below": "Откройте ссылку ниже",
         "search_history": "История поиска",
-        "no_matching_results": "Совпадений не найдено"
+        "no_matching_results": "Совпадений не найдено",
+        "verifyIdentity": "Пожалуйста, подтвердите свою личность",
+        "identityVerifyFailed": "Не удалось подтвердить личность, попробуйте ещё раз"
     },
     "Mysettings": {
         "go_backup": "Перейти к резервному копированию",

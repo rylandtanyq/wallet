@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -12,7 +13,9 @@ import 'package:untitled1/hive/transaction_record.dart';
 import 'package:untitled1/i18n/strings.g.dart';
 import 'package:untitled1/pages/AddressbookAndMywallet.dart';
 import 'package:untitled1/pages/CameraScan.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/util/HiveStorage.dart';
+import 'package:untitled1/util/biometric_service.dart';
 import 'package:untitled1/util/fetchTokenBalances.dart';
 import 'package:untitled1/widget/CustomAppBar.dart';
 import 'package:untitled1/widget/CustomTextField.dart';
@@ -25,7 +28,7 @@ import '../../base/base_page.dart';
 /*
  * 转账
  */
-class TransferPage extends StatefulWidget {
+class TransferPage extends ConsumerStatefulWidget {
   final String currency;
   final String tokenAddress;
   final String network;
@@ -33,10 +36,10 @@ class TransferPage extends StatefulWidget {
   const TransferPage({super.key, required this.currency, required this.tokenAddress, required this.network, required this.image});
 
   @override
-  State<StatefulWidget> createState() => _TransferPageState();
+  ConsumerState<TransferPage> createState() => _TransferPageState();
 }
 
-class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>, AutomaticKeepAliveClientMixin {
+class _TransferPageState extends ConsumerState<TransferPage> with BasePage<TransferPage>, AutomaticKeepAliveClientMixin {
   String? _diyWalletName;
   String? _transferAmount;
   String? _gasFees;
@@ -79,6 +82,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final biometricState = ref.watch(getBioMetricsProvide);
 
     return Scaffold(
       appBar: CustomAppBar(title: ''),
@@ -224,7 +228,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
                     textStyle: TextStyle(fontSize: 18.sp),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27.5.r)),
                   ),
-                  onPressed: () => _onTransferPressed(widget.currency),
+                  onPressed: () => _onTransferPressed(widget.currency, biometricState),
                   child: Text(t.transfer_receive_payment.confirm),
                 ),
               ),
@@ -264,7 +268,7 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
   }
 
   // 执行转账逻辑
-  Future<void> _onTransferPressed(String currency) async {
+  Future<void> _onTransferPressed(String currency, bool biometricState) async {
     if (_isSubmitting) return; // 防连点
 
     // 取输入框里的值
@@ -302,6 +306,24 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
 
     try {
       String tx;
+
+      if (biometricState) {
+        final result = await BiometricService.instance.authenticate(reason: t.common.verifyIdentity);
+
+        if (result != true) {
+          Fluttertoast.showToast(
+            msg: t.common.identityVerifyFailed,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
+            fontSize: 16.0,
+          );
+          return;
+        }
+      }
+
       if (currency == 'SOL') {
         tx = await sendSol(receiverAddress: "$_diyWalletName", mnemonic: '$_currentWalletMnemonic', amount: double.parse("$_transferAmount"));
         await saveTransaction(tx, _transferAmount!);
@@ -327,7 +349,9 @@ class _TransferPageState extends State<TransferPage> with BasePage<TransferPage>
       _showSnack(t.transfer_receive_payment.transferSubmitted);
     } catch (e) {
       debugPrint('转账错误: $e');
-      if (mounted) _showSnack(t.transfer_receive_payment.unknown_error_please_try_again_later);
+      if (mounted) {
+        _showSnack(t.transfer_receive_payment.unknown_error_please_try_again_later);
+      }
     } finally {
       _hideLoading();
       _isSubmitting = false;

@@ -41,7 +41,9 @@
         "all": "All",
         "open_link_below": "Open the link below",
         "search_history": "Search History",
-        "no_matching_results": "No matching results"
+        "no_matching_results": "No matching results",
+        "verifyIdentity": "Please verify your identity",
+        "identityVerifyFailed": "Identity verification failed, please try again"
     },
     "Mysettings": {
         "go_backup": "Go Backup",

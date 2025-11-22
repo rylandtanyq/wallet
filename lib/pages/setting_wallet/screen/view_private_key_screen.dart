@@ -2,24 +2,28 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:untitled1/i18n/strings.g.dart';
+import 'package:untitled1/state/app_provider.dart';
 import 'package:untitled1/theme/app_textStyle.dart';
+import 'package:untitled1/util/biometric_service.dart';
 
-class ViewPrivateKeyScreen extends StatefulWidget {
+class ViewPrivateKeyScreen extends ConsumerStatefulWidget {
   final String privateKey;
   const ViewPrivateKeyScreen({super.key, required this.privateKey});
 
   @override
-  State<ViewPrivateKeyScreen> createState() => _ViewPrivateKeyScreenState();
+  ConsumerState<ViewPrivateKeyScreen> createState() => _ViewPrivateKeyScreenState();
 }
 
-class _ViewPrivateKeyScreenState extends State<ViewPrivateKeyScreen> {
+class _ViewPrivateKeyScreenState extends ConsumerState<ViewPrivateKeyScreen> {
   bool _blueBool = true;
 
   @override
   Widget build(BuildContext context) {
+    final biometricState = ref.watch(getBioMetricsProvide);
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 40,
@@ -97,7 +101,26 @@ class _ViewPrivateKeyScreenState extends State<ViewPrivateKeyScreen> {
                                       ),
                                       SizedBox(height: 16.h),
                                       GestureDetector(
-                                        onTap: () => setState(() => _blueBool = false),
+                                        onTap: () async {
+                                          if (biometricState) {
+                                            final result = await BiometricService.instance.authenticate(reason: t.common.verifyIdentity);
+                                            if (result == true) {
+                                              setState(() => _blueBool = false);
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                msg: t.common.identityVerifyFailed,
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.CENTER,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                                textColor: Theme.of(context).colorScheme.onPrimary,
+                                                fontSize: 16.0,
+                                              );
+                                            }
+                                            return;
+                                          }
+                                          setState(() => _blueBool = false);
+                                        },
                                         child: Container(
                                           padding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
                                           decoration: BoxDecoration(

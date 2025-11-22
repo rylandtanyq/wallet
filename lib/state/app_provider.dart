@@ -28,3 +28,7 @@ final getWalletTokensPriceProvide = StateNotifierProvider.family<GetWalletTokens
 final getWalletSearchTokenProvide = StateNotifierProvider.family<GetWalletSearchTokenNotifier, AsyncValue<SearchTokenModel>, String>((ref, name) {
   return GetWalletSearchTokenNotifier();
 });
+
+final getBioMetricsProvide = StateNotifierProvider<BiometricsNotifier, bool>((ref) {
+  return BiometricsNotifier();
+});

@@ -41,7 +41,9 @@
         "all": "全部",
         "open_link_below": "打開以下連結",
         "search_history": "搜尋歷史",
-        "no_matching_results": "無匹配結果"
+        "no_matching_results": "無匹配結果",
+        "verifyIdentity": "請驗證身份",
+        "identityVerifyFailed": "身份驗證失敗，請重試"
     },
     "Mysettings": {
         "go_backup": "去備份",
