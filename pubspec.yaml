@@ -125,6 +125,8 @@ dependencies:
     path: ./packages/feature_main
   feature_browser:
     path: ./packages/feature_browser
+  shared_setting:
+    path: ./packages/shared_setting
 
 dev_dependencies:
   flutter_test:

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'package:shared_utils/hive_boxes.dart';
 import 'package:shared_utils/image_cache_repo.dart';
@@ -20,7 +21,6 @@ import 'package:feature_wallet/src/wallet_page/index.dart';
 import 'package:feature_wallet/src/add_wallet_page.dart';
 import 'package:shared_ui/theme/app_theme.dart';
 import 'package:shared_utils/check_upgrade.dart';
-import 'package:shared_utils/state/app_provider.dart';
 import 'package:shared_utils/app_routes.dart';
 
 void main() async {
