@@ -1,6 +1,5 @@
 // 全局按钮样式
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 const ButtonStyle appFilledButtonStyle = ButtonStyle(
   backgroundColor: MaterialStatePropertyAll(Colors.white),

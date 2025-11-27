@@ -115,6 +115,16 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   cryptography: ^2.7.0
+  shared_ui:
+    path: ./packages/shared_ui
+  shared_utils:
+    path: ./packages/shared_utils
+  feature_wallet:
+    path: ./packages/feature_wallet
+  feature_main:
+    path: ./packages/feature_main
+  feature_browser:
+    path: ./packages/feature_browser
 
 dev_dependencies:
   flutter_test:

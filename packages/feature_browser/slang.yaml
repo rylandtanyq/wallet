@@ -1,0 +1,7 @@
+base_locale: en
+input_directory: lib/i18n
+output_directory: lib/i18n
+flutter_integration: true
+
+translation_class:
+  generate_dynamic_keys: true

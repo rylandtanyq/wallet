@@ -7,7 +7,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:untitled1/i18n/strings.g.dart';
+import '../packages/shared_setting/lib/i18n/strings.g.dart';
 
 import 'package:untitled1/main.dart';
 
