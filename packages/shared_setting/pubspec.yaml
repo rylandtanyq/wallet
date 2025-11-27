@@ -11,8 +11,8 @@ environment:
 # Add regular dependencies here.
 dependencies:
   # path: ^1.8.0
-  slang: ^4.9.0
-  slang_flutter: ^4.9.0
+  slang: ^4.11.0
+  slang_flutter: ^4.11.0
   flutter_riverpod: ^2.5.1
   shared_preferences: ^2.3.2
   shared_utils:
@@ -23,5 +23,5 @@ dev_dependencies:
   test: ^1.24.0
   build_runner: ^2.4.0
   json_serializable: ^6.7.1
-  slang_build_runner: ^4.8.1
+  slang_build_runner: ^4.11.0
   freezed: ^2.5.2  

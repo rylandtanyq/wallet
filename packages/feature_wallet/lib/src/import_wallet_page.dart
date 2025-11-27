@@ -172,7 +172,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
       OneShotFlag.value.value = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Get.offAll(() => Get.offAllNamed(AppRoutes.main, arguments: 4), arguments: {'refrensh': true});
+        Get.offAllNamed(AppRoutes.main, arguments: {'tabIndex': 4, 'refresh': true});
       });
     }
   }

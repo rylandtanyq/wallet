@@ -57,7 +57,7 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
   Future<void> _initWalletData() async {
     await _getCurrentSelectedWalletInformation();
     final tokenBalance = await fetchTokenBalance(ownerAddress: _currentWalletAdderss!, mintAddress: widget.tokenAddress);
-    setState(() => balance = double.parse(tokenBalance));
+    if (mounted) setState(() => balance = double.parse(tokenBalance));
   }
 
   // 获取当前选中的钱包信息

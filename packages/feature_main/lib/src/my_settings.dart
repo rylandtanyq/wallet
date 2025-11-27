@@ -31,6 +31,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
     final riseAndFallKey = ref.watch(riseAndFallCycleProvide);
     final riseAndFallNotifier = ref.read(riseAndFallCycleProvide.notifier);
     ref.watch(localeProvider);
+
     final appLocale = LocaleSettings.currentLocale;
     String selectedRiseAndFallCycleText = riseAndFallKey == t.Mysettings.zero_clock_change
         ? t.Mysettings.zero_clock_change
@@ -178,6 +179,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
     if (selected != null) {
       final locale = languageLocaleMap[selected];
       if (locale != null) {
+        // ✅ 这里传的就是 shared_setting 的 AppLocale
         ref.read(localeProvider.notifier).changeLocale(locale);
       }
     }
