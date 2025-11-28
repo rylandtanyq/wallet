@@ -258,7 +258,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
       _wallets.add(walletEntity);
       await HiveStorage().putList<Wallet>('wallets_data', _wallets, boxName: boxWallet);
       dismissLoading();
-      Get.offAllNamed(AppRoutes.main, arguments: 4);
+      Get.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4});
     }
   }
 

@@ -37,7 +37,8 @@ class WalletPage extends ConsumerStatefulWidget {
   ConsumerState<WalletPage> createState() => _WalletPageState();
 }
 
-class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPage>, TickerProviderStateMixin, WidgetsBindingObserver {
+class _WalletPageState extends ConsumerState<WalletPage>
+    with AutomaticKeepAliveClientMixin, BasePage<WalletPage>, TickerProviderStateMixin, WidgetsBindingObserver {
   // ignore: constant_identifier_names
   static const String kSOL_KEY = 'SOL';
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
@@ -425,6 +426,7 @@ class _WalletPageState extends ConsumerState<WalletPage> with BasePage<WalletPag
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     ref.watch(localeProvider);
     final List<String> categories = [t.wallet.token, 'DeFi', 'NFT', t.wallet.bankCard];
     final id = _currentNetwork['id'] ?? 'allNetworks';

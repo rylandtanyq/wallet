@@ -93,7 +93,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
               flexibleSpace: _showExpandedTitle
                   ? FlexibleSpaceBar(
                       centerTitle: true,
-                      titlePadding: EdgeInsets.only(right: 40, left: 40, top: 10), // 补偿右侧按钮宽度
+                      titlePadding: EdgeInsets.only(right: 40, left: 40, top: 10),
                       title: Container(
                         alignment: Alignment.center,
                         child: Text(
@@ -249,7 +249,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
       final String selectedAddress = await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '';
       final List<Wallet> wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet) ?? <Wallet>[];
 
-      // 找到要删的钱包下标（不区分大小写）
+      // 找到要删的钱包下标 不区分大小写
       final int idx = wallets.indexWhere((w) => (w.address).toLowerCase() == (_wallet.address).toLowerCase());
 
       if (idx == -1) {
@@ -258,15 +258,15 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
         return;
       }
 
-      // 先保存目标项信息，再删除，避免越界/错位
+      // 先保存目标项信息, 再删除, 避免越界/错位
       final Wallet target = wallets[idx];
       final String targetAddress = target.address;
       final String? targetAvatarPath = target.avatarImagePath;
 
-      // 删除目标钱包（使用下标删除，避免大小写不一致导致 removeWhere 失败）
+      // 删除目标钱包, 使用下标删除，避免大小写不一致导致 removeWhere 失败
       wallets.removeAt(idx);
 
-      // 头像清理：仅当没有其他钱包引用同一路径时才删除
+      // 头像清理: 仅当没有其他钱包引用同一路径时才删除
       if (targetAvatarPath != null && targetAvatarPath.isNotEmpty) {
         final bool stillUsed = wallets.any((w) => (w.avatarImagePath ?? '') == targetAvatarPath);
         if (!stillUsed) {
@@ -279,7 +279,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
         }
       }
 
-      // 计算新的选中地址（删除的是当前选中时，把第一个设为选中；否则保持不变）
+      // 计算新的选中地址, 删除的是当前选中时，把第一个设为选中: 否则保持不变
       if (wallets.isNotEmpty) {
         final bool isDeletingSelected = selectedAddress.isNotEmpty && selectedAddress.toLowerCase() == targetAddress.toLowerCase();
         final String nextSelected = isDeletingSelected ? wallets.first.address : selectedAddress;
@@ -292,14 +292,12 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
         final Wallet nextWallet = wallets.firstWhere((w) => w.address.toLowerCase() == nextSelected.toLowerCase(), orElse: () => wallets.first);
         await HiveStorage().putObject<Wallet>('currentSelectWallet', nextWallet, boxName: boxWallet);
 
-        // 关闭 loading 再跳转（避免同帧清空路由栈导致断言）
         dismissLoading();
         OneShotFlag.value.value = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Get.offAllNamed(AppRoutes.main, arguments: 4);
+          Get.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4});
         });
       } else {
-        // 清空所有与“当前选中钱包”相关的键
         await HiveStorage().putList<Wallet>('wallets_data', <Wallet>[], boxName: boxWallet);
         await HiveStorage().putValue('selected_address', '', boxName: boxWallet);
         await HiveStorage().delete('currentSelectWallet', boxName: boxWallet);

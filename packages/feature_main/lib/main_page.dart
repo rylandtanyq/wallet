@@ -53,10 +53,11 @@ class _MyHomePageState extends ConsumerState<MainPage> {
   @override
   void initState() {
     super.initState();
-    final args = Get.arguments;
-    final fromArgs = (args is int) ? args : null;
-    _selectedItemIndex = widget.initialPageIndex;
-    _pageController = PageController(initialPage: widget.initialPageIndex);
+    final args = Get.arguments as Map<String, dynamic>?;
+    final initIndex = (args?['initialPageIndex'] as int?) ?? 0;
+
+    _selectedItemIndex = initIndex;
+    _pageController = PageController(initialPage: initIndex);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppUpdater.checkUpdate(context);
     });
