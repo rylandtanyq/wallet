@@ -263,17 +263,18 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
                     debugPrint('===> solana_signTransaction called, args: $args');
 
                     try {
-                      // 确保钱包 & keypair 准备好
                       if (_wallet == null || _currentPubkey == null || _hdKeypair == null) {
                         await _ensureWalletReady();
                       }
-                      debugPrint('after _ensureWalletReady: pubkey=$_currentPubkey, hdKeypair null? ${_hdKeypair == null}');
+                      debugPrint(
+                        'after _ensureWalletReady: pubkey=$_currentPubkey, '
+                        'hdKeypair null? ${_hdKeypair == null}',
+                      );
 
                       if (_hdKeypair == null || _currentPubkey == null) {
                         return {'code': 4100, 'message': 'no_wallet_connected_or_no_keypair'};
                       }
 
-                      // 解析 message & preview
                       final body = (args.isNotEmpty ? args[0] : {}) as Map;
                       final messageBase64 = body['messageBase64'] as String?;
                       final txPreview = (body['preview'] as Map?) ?? const {};
@@ -283,7 +284,6 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
                       }
                       final msg = base64Decode(messageBase64);
 
-                      // 拉起「合约交互」弹窗
                       if (!mounted) {
                         return {'code': 4000, 'message': 'page_not_mounted'};
                       }
@@ -293,19 +293,14 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
                         return {'code': 4001, 'message': 'User rejected the request.'};
                       }
 
-                      // 安全检查：当前 address 必须和 keypair 一致
                       if (_hdKeypair!.address != _currentPubkey) {
                         return {'code': 4000, 'message': 'public_key_mismatch'};
                       }
 
-                      // 真正签名
-                      final sig = await _hdKeypair!.sign(msg); // Uint8List(64)
+                      final rawSig = await _hdKeypair!.sign(msg);
+                      final sigBytes = _signatureToBytes(rawSig);
 
-                      // 返回给 JS
-                      return {
-                        'publicKey': _currentPubkey,
-                        'signature': sig, // 会自动变 List<int>
-                      };
+                      return {'publicKey': _currentPubkey, 'signature': sigBytes};
                     } catch (e, st) {
                       debugPrint('signTransaction error: $e\n$st');
                       return {'code': 4000, 'message': 'internal_error'};

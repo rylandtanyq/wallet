@@ -40,19 +40,14 @@ class SolanaContractInteractionFragments extends StatelessWidget {
     final walletSol = walletBalanceLamports != null ? walletBalanceLamports / 1e9 : null;
 
     // 判断 Gas 是否足够
-    bool gasEnough = true;
-    if (feeLamports != null) {
-      // 确保余额字段不为空
-      if (walletBalanceLamports == null) {
-        gasEnough = false;
-      } else {
-        // 余额 < 预估 fee
-        gasEnough = walletBalanceLamports >= (feeLamports * 1.5);
-      }
-    } else {
-      // fee 估不出来, 暂时放行
-      gasEnough = true; // 暂时先放行
-    }
+    // final int minSafeLamports = (0.001 * 1e9).toInt();
+
+    const int kAtaRentLamports = 2039280; // 大约 0.00203928 SOL
+    const int kDefaultFeeLamports = 5000; // 预估 tx fee, 估不到就用这个
+
+    final int requiredLamports = (feeLamports ?? kDefaultFeeLamports) + kAtaRentLamports;
+
+    bool gasEnough = walletBalanceLamports != null && walletBalanceLamports >= requiredLamports;
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),

@@ -3,7 +3,7 @@ final String kSolanaProviderJs = r'''
       if (window._flutter_solana_provider_injected) return;
         window._flutter_solana_provider_injected = true;
 
-        // 包装 console，展开对象，方便在 Flutter 日志里看
+        // 包装 console, 展开对象, 方便在 Flutter 日志里看
         (function() {
           const rawLog = console.log.bind(console);
           const rawError = console.error.bind(console);
@@ -41,9 +41,9 @@ final String kSolanaProviderJs = r'''
         })();
 
         const _events = {};
-        // 专门给 AnchorProvider 用的钱包地址（base58 字符串）
+        // 专门给 AnchorProvider 用的钱包地址 base58 字符串
         let _publicKeyBase58 = null;
-        // Phantom 风格的公钥对象（有 toBase58 / toString），只给 DApp 用
+        // Phantom 风格的公钥对象有 toBase58 / toString只给 DApp 用
         let _phantomPublicKey = null;
         let _isConnected = false;
         const _injectionStartMs = performance.now();
@@ -120,7 +120,7 @@ final String kSolanaProviderJs = r'''
           console.warn('[FlutterWallet] create anchor.web3.PublicKey failed, fallback to custom object', e);
         }
 
-        // fallback：自己实现一个带 toBuffer 的"类 PublicKey"
+        // fallback 自己实现一个带 toBuffer 的"类 PublicKey"
         let bytes = null;
         try {
           bytes = _base58ToBytes(pubkeyBase58);
@@ -499,8 +499,15 @@ final String kSolanaProviderJs = r'''
           });
 
           // 4 为了和 Phantom 行为对齐：返回 { signature }
-          if (res && typeof res === 'object' && 'signature' in res) {
-            return { signature: res.signature };
+          if (res && typeof res === 'object') {
+            // 例如 { code: 4000, message: 'rpc_error', details: {...} }
+            if ('code' in res && !('signature' in res)) {
+              throw res;
+            }
+
+            if ('signature' in res) {
+              return { signature: res.signature };
+            }
           }
           // 兜底: DApp 直接拿字符串也能用
           if (typeof res === 'string') {
@@ -710,21 +717,21 @@ final String kSolanaProviderJs = r'''
                 } catch (e) {
                   console.error('[FlutterWallet] patched sendAndConfirm error from wallet.signAndSendTransaction', e);
 
-                  // 关键点：用户取消 / 没有钱包这类错误，直接往上抛，**不要再 fallback **
+                  // 关键点：用户取消 / 没有钱包这类错误，直接往上抛，不要再 fallback
                   if (e && typeof e === 'object' && 'code' in e && (e.code === 4001 || e.code === 4100)) {
                     throw e;
                   }
 
-                  // 其它错误(比如你想保留老逻辑兜底，可以选择 fallback, 或者也直接抛)
+                  // 其它错误, 保留老逻辑兜底, 可以选择 fallback, 或者也直接抛
                   // 建议一开始先直接抛，方便调试：
                   throw e;
 
-                  // 如果你以后想对网络问题兜底，可以在这里再按情况调用 oldSendAndConfirm
+                  // 对网络问题兜底，可以在这里再按情况调用 oldSendAndConfirm
                   // return await oldSendAndConfirm.call(this, tx, signers, opts);
                 }
               }
 
-              // 只有在不是我们这种 Phantom 风格钱包时，才走 Anchor 原来的 sendAndConfirm
+              // 只有在不是 Phantom 风格钱包时，才走 Anchor 原来的 sendAndConfirm
               return await oldSendAndConfirm.call(this, tx, signers, opts);
             };
 
@@ -733,14 +740,14 @@ final String kSolanaProviderJs = r'''
             return true;
           } catch (e) {
             console.error('[FlutterWallet] waitAndPatchAnchorForFlutterWallet failed', e);
-            return true; // 发生异常就别重复试了
+            return true; // 发生异常禁止重复
           }
         }
 
         // 先尝试一次
         if (tryPatch()) return;
 
-        // anchor 还没挂到 window 上，隔 200ms 试一次，最多 50 次(10 秒)
+        // anchor 还没挂到 window 上, 隔 200ms 试一次, 最多 50 次(10 秒)
         let count = 0;
         const timer = setInterval(() => {
           if (tryPatch() || ++count > 50) {
