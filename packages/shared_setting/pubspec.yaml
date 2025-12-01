@@ -1,0 +1,27 @@
+name: shared_setting
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+publish_to: none
+
+environment:
+  sdk: ^3.8.1
+
+# Add regular dependencies here.
+dependencies:
+  # path: ^1.8.0
+  slang: ^4.11.0
+  slang_flutter: ^4.11.0
+  flutter_riverpod: ^2.5.1
+  shared_preferences: ^2.3.2
+  shared_utils:
+    path: ../shared_utils
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.24.0
+  build_runner: ^2.4.0
+  json_serializable: ^6.7.1
+  slang_build_runner: ^4.11.0
+  freezed: ^2.5.2  

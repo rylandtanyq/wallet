@@ -1,0 +1,24 @@
+{
+    "dapp_browser": {
+        "signatureInfo": "Signature Details",
+        "requestSignature": "Signature Request",
+        "requestFromUrl(rich)": {
+            "text(rich)": "Request from $url"
+        },
+        "wallet": "Wallet",
+        "network": "Network",
+        "cancel": "Cancel",
+        "sign": "Sign",
+        "contractInteraction": "Contract Interaction",
+        "requestContractInteraction": "Contract Interaction Request",
+        "recipient": "Recipient",
+        "sender": "Sender",
+        "amount": "Amount",
+        "estimatedGasFee": "Estimated Gas Fee",
+        "currentBalance": "Current Balance",
+        "insufficientGasFeeDetail": "Insufficient gas fee. The transaction cannot be completed. Please top up a small amount of SOL and try again.",
+        "transaction": "Transaction",
+        "insufficientGas": "Insufficient Gas",
+        "estimating": "Estimating..."
+    }
+}

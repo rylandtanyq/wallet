@@ -1,0 +1,24 @@
+{
+    "dapp_browser": {
+        "signatureInfo": "簽名資訊",
+        "requestSignature": "請求簽名",
+        "requestFromUrl(rich)": {
+            "text(rich)": "來自 $url 的請求"
+        },
+        "wallet": "錢包",
+        "network": "網路",
+        "cancel": "取消",
+        "sign": "簽名",
+        "contractInteraction": "合約互動",
+        "requestContractInteraction": "請求合約互動",
+        "recipient": "接收方",
+        "sender": "發送方",
+        "amount": "數量",
+        "estimatedGasFee": "預估 Gas 費",
+        "currentBalance": "當前餘額",
+        "insufficientGasFeeDetail": "Gas 費不足，無法完成交易，請先儲值少量 SOL 再重試",
+        "transaction": "交易",
+        "insufficientGas": "Gas 不足",
+        "estimating": "估算中..."
+    }
+}

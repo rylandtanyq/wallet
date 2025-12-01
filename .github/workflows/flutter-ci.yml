@@ -6,7 +6,8 @@ on:
     tags:
       - "v*"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
 
 permissions:
   contents: write
@@ -25,10 +26,42 @@ jobs:
           flutter-version: "3.32.7"
           channel: stable
 
-      - name: Flutter pub get
+      - name: Flutter pub get (root)
         run: flutter pub get
 
-      - name: Generate code
+      - name: Generate code (root)
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Flutter pub get (shared_setting)
+        working-directory: packages/shared_setting
+        run: flutter pub get
+
+      - name: Generate code (shared_setting)
+        working-directory: packages/shared_setting
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Flutter pub get (feature_main)
+        working-directory: packages/feature_main
+        run: flutter pub get
+
+      - name: Generate code (feature_main)
+        working-directory: packages/feature_main
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Flutter pub get (feature_wallet)
+        working-directory: packages/feature_wallet
+        run: flutter pub get
+
+      - name: Generate code (feature_wallet)
+        working-directory: packages/feature_wallet
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Flutter pub get (feature_browser)
+        working-directory: packages/feature_browser
+        run: flutter pub get
+
+      - name: Generate code (feature_browser)
+        working-directory: packages/feature_browser
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Analyze
@@ -45,7 +78,7 @@ jobs:
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 7
+          retention-days: 3
 
   release:
     needs: build-and-test
