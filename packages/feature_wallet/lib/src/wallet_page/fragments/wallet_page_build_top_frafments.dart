@@ -10,11 +10,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:feature_wallet/hive/Wallet.dart';
 import 'package:feature_wallet/hive/tokens.dart';
-// import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:feature_wallet/src/wallet_page/fragments/wallet_page_action_fragments.dart';
-import 'package:shared_setting/i18n/strings.g.dart';
 import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:feature_wallet/i18n/strings.g.dart';
 
 class WalletPageBuildTopFrafments extends ConsumerStatefulWidget {
   final Wallet wallet;
@@ -27,7 +26,6 @@ class WalletPageBuildTopFrafments extends ConsumerStatefulWidget {
 }
 
 class _WalletPageBuildTopFrafmentsState extends ConsumerState<WalletPageBuildTopFrafments> {
-  final List<String> titles = [t.transfer_receive_payment.transfer, t.home.receive, t.home.finance, t.home.getGas, t.home.transaction_history];
   final List<Widget> _navIcons = [
     Image.asset('assets/images/ic_wallet_transfer.png', width: 48.w, height: 48.w),
     Image.asset('assets/images/ic_home_grid_collection.png', width: 48.w, height: 48.w),
@@ -38,9 +36,16 @@ class _WalletPageBuildTopFrafmentsState extends ConsumerState<WalletPageBuildTop
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(localeProvider);
     final hasMnemonic = widget.wallet.mnemonic?.isNotEmpty ?? false;
     final showBackupCTA = !widget.wallet.isBackUp && hasMnemonic;
-    ref.watch(localeProvider);
+    final List<String> titles = [
+      t.transfer_receive_payment.transfer,
+      t.wallet.receive,
+      t.wallet.finance,
+      t.wallet.getGas,
+      t.wallet.transaction_history,
+    ];
     return Container(
       padding: EdgeInsets.only(top: 10.h),
       child: Column(
@@ -218,7 +223,7 @@ class _WalletPageBuildTopFrafmentsState extends ConsumerState<WalletPageBuildTop
     return SizedBox(
       width: 40.w,
       child: Text(
-        t.Mysettings.go_backup,
+        t.wallet.go_backup,
         style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

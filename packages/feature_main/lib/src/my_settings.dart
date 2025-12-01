@@ -5,13 +5,15 @@ import 'package:feature_main/src/usage_guidelines.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:shared_setting/i18n/strings.g.dart';
+// import 'package:shared_setting/i18n/strings.g.dart';
 import 'package:shared_setting/state/app_notifier.dart';
 import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_utils/constants/app_colors.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:feature_main/i18n/strings.g.dart';
+import 'package:shared_setting/i18n/strings.g.dart' as gt;
 
 class Mysettings extends ConsumerStatefulWidget {
   const Mysettings({super.key});
@@ -47,12 +49,12 @@ class _MysettingsState extends ConsumerState<Mysettings> {
     ];
 
     final languageLocaleMap = {
-      t.common.english: AppLocale.en,
-      t.common.simplified_Chinese: AppLocale.zhHans,
-      t.common.traditional_Chinese: AppLocale.zhHant,
-      t.common.spanish: AppLocale.es,
-      t.common.japanese: AppLocale.ja,
-      t.common.russian: AppLocale.ru,
+      t.common.english: gt.AppLocale.en,
+      t.common.simplified_Chinese: gt.AppLocale.zhHans,
+      t.common.traditional_Chinese: gt.AppLocale.zhHant,
+      t.common.spanish: gt.AppLocale.es,
+      t.common.japanese: gt.AppLocale.ja,
+      t.common.russian: gt.AppLocale.ru,
     };
 
     final trailingText =
@@ -167,7 +169,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
   }
 
   /// 语言
-  void _onSelectLanguage(List<String> languages, Map<String, AppLocale> languageLocaleMap, String trailingText) async {
+  void _onSelectLanguage(List<String> languages, Map<String, gt.AppLocale> languageLocaleMap, String trailingText) async {
     HapticFeedback.heavyImpact();
     final selected = await _showModalBottomSheet<String>(
       context: context,
@@ -179,7 +181,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
     if (selected != null) {
       final locale = languageLocaleMap[selected];
       if (locale != null) {
-        // ✅ 这里传的就是 shared_setting 的 AppLocale
+        // 这里传的就是 shared_setting 的 AppLocale
         ref.read(localeProvider.notifier).changeLocale(locale);
       }
     }

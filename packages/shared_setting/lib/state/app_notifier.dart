@@ -66,7 +66,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
 class RiseAndFallCycleNotifier extends StateNotifier<String> {
   static const _prefKey = "riseAndFallCycleKey";
 
-  RiseAndFallCycleNotifier() : super(t.Mysettings.zero_clock_change) {
+  RiseAndFallCycleNotifier() : super(t.zero_clock_change) {
     loadRiseAndFallCycle();
   }
 
