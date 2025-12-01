@@ -14,12 +14,20 @@ import 'package:feature_wallet/src/wallet_page/fragments/wallet_page_action_frag
 import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
+import 'package:animated_flip_counter/animated_flip_counter.dart';
 
 class WalletPageBuildTopFrafments extends ConsumerStatefulWidget {
+  final Key balanceKey;
   final Wallet wallet;
   final List<Tokens> fillteredTokensList;
   final WalletActions actions;
-  const WalletPageBuildTopFrafments({super.key, required this.wallet, required this.fillteredTokensList, required this.actions});
+  const WalletPageBuildTopFrafments({
+    super.key,
+    required this.wallet,
+    required this.fillteredTokensList,
+    required this.actions,
+    required this.balanceKey,
+  });
 
   @override
   ConsumerState<WalletPageBuildTopFrafments> createState() => _WalletPageBuildTopFrafmentsState();
@@ -86,9 +94,14 @@ class _WalletPageBuildTopFrafmentsState extends ConsumerState<WalletPageBuildTop
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        '\$${widget.wallet.balance}',
-                        style: TextStyle(fontSize: 40.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                      child: AnimatedFlipCounter(
+                        key: widget.balanceKey,
+                        value: double.tryParse(widget.wallet.balance) ?? 0,
+                        duration: Duration(milliseconds: 800),
+                        fractionDigits: 2, // decimal precision
+                        prefix: "\$",
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        textStyle: TextStyle(fontSize: 40.sp, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                       ),
                     ),
                     showBackupCTA

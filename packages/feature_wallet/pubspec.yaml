@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  animated_flip_counter: ^0.3.4
   path_provider: ^2.1.4
   fluttertoast: ^9.0.0
   json_annotation: ^4.8.1
