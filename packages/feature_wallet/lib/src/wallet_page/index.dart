@@ -53,6 +53,7 @@ class _WalletPageState extends ConsumerState<WalletPage>
   late List<String> _addresses = [];
   late final WalletActions actions;
   late TabController _tabController;
+  Key _balanceKey = UniqueKey();
   String? tokensSearchContent;
   int _selectedNetWorkIndex = 0; // 存储选中的索引
   Wallet _wallet = Wallet.empty();
@@ -616,7 +617,7 @@ class _WalletPageState extends ConsumerState<WalletPage>
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
-          child: WalletPageBuildTopFrafments(wallet: _wallet, fillteredTokensList: _fillteredTokensList, actions: actions),
+          child: WalletPageBuildTopFrafments(balanceKey: _balanceKey, wallet: _wallet, fillteredTokensList: _fillteredTokensList, actions: actions),
         ),
         SliverPersistentHeader(
           pinned: true,
@@ -663,6 +664,7 @@ class _WalletPageState extends ConsumerState<WalletPage>
   void _onRefresh() async {
     await _refreshRequest();
     await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
+    if (mounted) setState(() => _balanceKey = UniqueKey());
     _refreshController.finishRefresh();
   }
 
