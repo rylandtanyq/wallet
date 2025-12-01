@@ -1,4 +1,4 @@
-import 'package:feature_wallet/src/add_wallet_page.dart';
+import 'package:feature_wallet/add_wallet_page.dart';
 import 'package:feature_wallet/src/back_up_helper_one_page.dart';
 import 'package:feature_wallet/src/setting_wallet/index.dart';
 import 'package:feature_wallet/utils/calcTotalBalanceReadable.dart';

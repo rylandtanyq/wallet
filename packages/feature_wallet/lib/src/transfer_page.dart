@@ -8,7 +8,7 @@ import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_ui/widget/base_page.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'package:shared_utils/solana_servise.dart';
-import 'package:shared_utils/tokenIcon.dart';
+import 'package:shared_utils/token_icon.dart';
 import 'package:shared_utils/constants/app_colors.dart';
 import 'package:shared_utils/hive_boxes.dart';
 import 'package:feature_wallet/hive/Wallet.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_utils/tokenIcon.dart';
+import 'package:shared_utils/token_icon.dart';
 import 'package:feature_wallet/hive/tokens.dart';
 import 'package:feature_wallet/src/wallet_page/fragments/wallet_page_skeleton_fragments.dart';
 import 'package:feature_wallet/src/wallet_page/models/token_price_model.dart';

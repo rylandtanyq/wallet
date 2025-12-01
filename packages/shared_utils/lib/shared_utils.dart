@@ -14,7 +14,7 @@ export 'crypto_input_validator.dart';
 export 'common_utils.dart';
 export 'check_upgrade.dart';
 export 'image_cache_repo.dart';
-export 'tokenIcon.dart';
+export 'token_icon.dart';
 
 export 'constants/app_colors.dart';
 export 'constants/app_value_notifier.dart';

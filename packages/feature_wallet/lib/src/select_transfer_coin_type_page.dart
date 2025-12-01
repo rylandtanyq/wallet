@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_utils/constants/app_colors.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'package:shared_utils/hive_boxes.dart';
-import 'package:shared_utils/tokenIcon.dart';
+import 'package:shared_utils/token_icon.dart';
 import 'package:feature_wallet/hive/tokens.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:feature_wallet/src/transfer_page.dart';

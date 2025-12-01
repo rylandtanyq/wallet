@@ -13,7 +13,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  fluttertoast: ^9.0.0
   flutter_screenutil: ^5.8.4
   random_avatar: ^0.0.8
   flutter_svg: ^2.0.10+1

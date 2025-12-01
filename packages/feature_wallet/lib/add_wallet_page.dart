@@ -13,7 +13,7 @@ import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'observe_wallet_page.dart';
+import 'src/observe_wallet_page.dart';
 
 /*
  * 添加钱包

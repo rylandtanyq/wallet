@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:feature_wallet/src/add_wallet_page.dart';
+import 'package:feature_wallet/add_wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

@@ -1,4 +1,5 @@
 import 'package:feature_main/main_page.dart';
+import 'package:feature_wallet/add_wallet_page.dart';
 import 'package:feature_wallet/hive/Wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -12,7 +13,6 @@ import 'package:shared_utils/hive_boxes.dart';
 import 'package:shared_utils/image_cache_repo.dart';
 import 'package:feature_wallet/hive/tokens.dart';
 import 'package:feature_wallet/hive/transaction_record.dart';
-import 'package:feature_wallet/src/add_wallet_page.dart';
 import 'package:shared_ui/theme/app_theme.dart';
 import 'package:shared_utils/app_routes.dart';
 import 'package:shared_setting/i18n/strings.g.dart' as core_i18n;

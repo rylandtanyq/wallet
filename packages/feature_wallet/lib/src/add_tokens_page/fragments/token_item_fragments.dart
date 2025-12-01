@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_utils/tokenIcon.dart';
+import 'package:shared_utils/token_icon.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_utils/to_fixed_trunc.dart';
 

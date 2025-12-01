@@ -2,12 +2,11 @@ import 'package:feature_main/i18n/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:shared_utils/tokenIcon.dart';
+import 'package:shared_utils/token_icon.dart';
 import 'package:shared_utils/constants/app_colors.dart';
 import 'package:feature_wallet/hive/tokens.dart';
 import 'package:feature_wallet/src/add_tokens_page/index.dart';
 import 'package:shared_utils/to_fixed_trunc.dart';
-// import 'package:untitled1/widget/tokenIcon.dart';
 
 class HomePageFinancialDataViewFragments extends StatelessWidget {
   final List<Tokens> items;

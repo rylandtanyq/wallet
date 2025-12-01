@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  solana: ^0.31.0+1
   slang: ^4.11.0
   slang_flutter: ^4.11.0
   flutter_screenutil: ^5.8.4
