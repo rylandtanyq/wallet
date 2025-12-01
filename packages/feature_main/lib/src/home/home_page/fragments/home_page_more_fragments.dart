@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:feature_main/i18n/strings.g.dart';
 import 'package:feature_wallet/src/select_transfer_coin_type_page.dart';
-import 'package:feature_wallet/src/selected_payee_Page.dart';
+import 'package:feature_wallet/src/selected_payee_page.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 
 class HomePageMoreFragments extends StatelessWidget {
