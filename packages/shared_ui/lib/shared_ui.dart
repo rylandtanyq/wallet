@@ -1,16 +1,16 @@
 library shared_ui;
 
-export 'widget/custom_appbar.dart';
-export 'widget/custom_switch.dart';
-export 'widget/custom_text_field.dart';
-export 'widget/sliver_header_delegate.dart';
-export 'widget/sticky_tabbar_delegate.dart';
-export 'widget/vertical_marquee.dart';
-export 'widget/wallet_avatar_smart.dart';
-export 'widget/base_page.dart';
+export 'widget/custom_appbar.dart' show CustomAppBar;
+export 'widget/custom_switch.dart' show CustomSwitch;
+export 'widget/custom_text_field.dart' show CustomTextField;
+export 'widget/sliver_header_delegate.dart' show SliverHeaderDelegate;
+export 'widget/sticky_tabbar_delegate.dart' show StickyTabBarDelegate;
+export 'widget/vertical_marquee.dart' show VerticalMarquee;
+export 'widget/wallet_avatar_smart.dart' show WalletAvatarSmart;
+export 'widget/base_page.dart' show BasePage;
 
-export 'dialog/full_screen_state_dialog.dart';
+export 'dialog/full_screen_state_dialog.dart' show FullScreenDialog;
 
-export 'theme/app_colors.dart';
-export 'theme/app_textStyle.dart';
-export 'theme/app_theme.dart';
+export 'theme/app_colors.dart' show AppColor;
+export 'theme/app_textStyle.dart' show AppTextStyles;
+export 'theme/app_theme.dart' show AppTheme;
