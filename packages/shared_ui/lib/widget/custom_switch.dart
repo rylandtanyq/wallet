@@ -19,7 +19,10 @@ class _CustomSwitchState extends State<CustomSwitch> {
         width: 45,
         height: 25,
         padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(color: widget.value ? Colors.green : Colors.grey[300], borderRadius: BorderRadius.circular(12.5)),
+        decoration: BoxDecoration(
+          color: widget.value ? Theme.of(context).colorScheme.primary : Colors.grey[300],
+          borderRadius: BorderRadius.circular(12.5),
+        ),
         child: AnimatedAlign(
           duration: Duration(milliseconds: 200),
           curve: Curves.easeInQuart,
