@@ -167,7 +167,12 @@
         "blockchain_and_token": "ブロックチェーンとトークン",
         "transfer_and_receive": "送金と受取",
         "swap_transaction": "スワップ取引",
-        "support_search_hint": "質問や本文キーワードの検索をサポート"
+        "support_search_hint": "質問や本文キーワードの検索をサポート",
+        "currentVersion": "Versión actual",
+        "appUpdate": "Buscar actualizaciones",
+        "rateApp": "Calificar la aplicación",
+        "changelog": "Registro de cambios",
+        "termsAndPrivacy": "Términos de servicio y política de privacidad"
     },
     "search": {
         "search": "検索",
