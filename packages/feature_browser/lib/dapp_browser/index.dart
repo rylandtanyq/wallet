@@ -321,7 +321,7 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
                         return {'code': 4000, 'message': 'missing_signed_tx_base64'};
                       }
 
-                      final rpcUrl = 'https://purple-capable-crater.solana-mainnet.quiknode.pro/63bde1d4d678bfd3b06aced761d21c282568ef32/';
+                      final rpcUrl = 'https://dry-hardworking-cherry.solana-mainnet.quiknode.pro/d4a233a290e8af774e8007d488aac62582345be5/';
                       final payload = {
                         'jsonrpc': '2.0',
                         'id': 1,
