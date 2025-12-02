@@ -532,7 +532,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
                 Text(t.Mysettings.bind_exchange_account, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 16.w),
-                  decoration: BoxDecoration(color: AppColors.color_286713, borderRadius: BorderRadius.circular(25.r)),
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(25.r)),
                   child: Row(
                     children: [
                       Text(t.Mysettings.go_bind, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.onPrimary)),

@@ -118,7 +118,7 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
                             child: Center(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.color_2B6D16,
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21.5.r)),
                                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 11),
                                 ),

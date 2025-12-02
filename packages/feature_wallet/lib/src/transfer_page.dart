@@ -215,7 +215,7 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
                 padding: EdgeInsets.all(15.w),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.color_286713,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     minimumSize: Size(double.infinity, 42.h),
                     elevation: 0,

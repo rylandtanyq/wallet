@@ -258,7 +258,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.background,
           borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: isSelected ? AppColors.color_286713 : Colors.transparent, width: 1.5.h),
+          border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent, width: 1.5.h),
         ),
         child: Stack(
           children: [

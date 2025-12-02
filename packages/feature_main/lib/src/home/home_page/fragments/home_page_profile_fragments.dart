@@ -95,7 +95,7 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
           minWidth: 175.w,
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45)),
-          color: AppColors.color_2B6D16,
+          color: Theme.of(context).colorScheme.primary,
           textColor: Colors.white,
           child: Text(t.home.recharge, style: TextStyle(fontSize: 17.sp)),
         ),

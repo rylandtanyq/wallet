@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_setting/state/app_provider.dart';
+import 'package:shared_ui/widget/wallet_icon.dart';
 import 'package:shared_utils/check_upgrade.dart';
 
 class MainPage extends ConsumerStatefulWidget {
@@ -26,26 +27,11 @@ class _MyHomePageState extends ConsumerState<MainPage> {
   late PageController _pageController;
 
   final List<Widget> _navIcons = [
-    ColorFiltered(
-      colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn),
-      child: Image.asset('assets/images/ic_tab_home.png', width: 24.w, height: 24.w),
-    ),
-    ColorFiltered(
-      colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn),
-      child: Image.asset('assets/images/ic_tab_situation.png', width: 24.w, height: 24.w),
-    ),
-    ColorFiltered(
-      colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn),
-      child: Image.asset('assets/images/ic_tab_trade.png', width: 24.w, height: 24.w),
-    ),
-    ColorFiltered(
-      colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn),
-      child: Image.asset('assets/images/ic_tab_discovery.png', width: 24.w, height: 24.w),
-    ),
-    ColorFiltered(
-      colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn),
-      child: Image.asset('assets/images/ic_tab_wallet.png', width: 24.w, height: 24.w),
-    ),
+    ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.home, size: 24)),
+    ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.market, size: 24)),
+    ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.transaction, size: 24)),
+    ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.discover, size: 24)),
+    ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.wallet, size: 24)),
   ];
 
   final List<Widget> _pages = [const HomePage(), const SituationPage(), const TradePage(), const DiscoveryPage(), const WalletPage()];
@@ -66,29 +52,20 @@ class _MyHomePageState extends ConsumerState<MainPage> {
   @override
   Widget build(BuildContext context) {
     ref.watch(localeProvider);
-    final List<String> _titles = [t.tabbar.home, t.tabbar.markets, t.tabbar.trade, t.tabbar.discover, t.tabbar.wallet];
+    final List<String> titles = [t.tabbar.home, t.tabbar.markets, t.tabbar.trade, t.tabbar.discover, t.tabbar.wallet];
 
-    final List<Widget> _navIconsActive = [
+    final List<Widget> navIconsActive = [
+      ColorFiltered(colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn), child: Icon(WalletIcon.home, size: 24)),
+      ColorFiltered(colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn), child: Icon(WalletIcon.market, size: 24)),
       ColorFiltered(
-        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-        child: Image.asset('assets/images/ic_tab_home.png', width: 24.w, height: 24.w),
+        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+        child: Icon(WalletIcon.transaction, size: 24),
       ),
       ColorFiltered(
-        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-        child: Image.asset('assets/images/ic_tab_situation.png', width: 24.w, height: 24.w),
+        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+        child: Icon(WalletIcon.discover, size: 24),
       ),
-      ColorFiltered(
-        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-        child: Image.asset('assets/images/ic_tab_trade.png', width: 24.w, height: 24.w),
-      ),
-      ColorFiltered(
-        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-        child: Image.asset('assets/images/ic_tab_discovery.png', width: 24.w, height: 24.w),
-      ),
-      ColorFiltered(
-        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
-        child: Image.asset('assets/images/ic_tab_wallet.png', width: 24.w, height: 24.w),
-      ),
+      ColorFiltered(colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn), child: Icon(WalletIcon.wallet, size: 24)),
     ];
     return Scaffold(
       body: PageView.builder(
@@ -105,20 +82,15 @@ class _MyHomePageState extends ConsumerState<MainPage> {
         unselectedFontSize: 14.sp,
         iconSize: 24.w,
         backgroundColor: Theme.of(context).colorScheme.background,
-        selectedItemColor: Theme.of(context).colorScheme.onBackground,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(context).colorScheme.onSurface,
-        items: _generateBottomNavList(_titles, _navIconsActive),
+        items: _generateBottomNavList(titles, navIconsActive),
         currentIndex: _selectedItemIndex,
         onTap: _onNavItemTapped,
       ),
       floatingActionButton: Transform.translate(
         offset: Offset(0, 4),
-        child: FloatingActionButton(
-          onPressed: () => _onNavItemTapped(2),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          child: Image.asset('assets/images/ic_tab_trade.png', width: 47.w, height: 47.h),
-        ),
+        child: FloatingActionButton(onPressed: () => _onNavItemTapped(2), elevation: 0, child: Icon(WalletIcon.transaction, size: 47)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );

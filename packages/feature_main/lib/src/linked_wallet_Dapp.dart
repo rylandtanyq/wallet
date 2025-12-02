@@ -39,7 +39,7 @@ class _LinkedwalletdappState extends ConsumerState<Linkedwalletdapp> {
               width: 176.w,
               height: 40.h,
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(color: AppColors.color_286713, borderRadius: BorderRadius.circular(25.r)),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(25.r)),
               child: Stack(
                 alignment: Alignment.center,
                 children: [

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColor {
   // 通用颜色, 不随主题变化
-  static const Color primary = Color(0xFF286713);
+  static const Color primary = Color(0xFF145AE1);
 
   // 日间模式颜色
   static const Color lightBackground = Color(0xFFFFFFFF);

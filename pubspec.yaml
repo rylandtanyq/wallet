@@ -78,6 +78,8 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
+    - assets/fonts/iconfont.json
+
     - assets/icon/TT_icon.png
     - assets/icon/app_icon_launch.png
     - assets/images/ic_arrows_right.png
@@ -195,6 +197,11 @@ flutter:
     - assets/images/bg_hangqingjihui.jpg
     - assets/images/bg_hangqingqushi.jpg
     - assets/images/ic_home_center_imge.jpg
+
+  fonts:
+    - family: walletIcon
+      fonts:
+        - asset: assets/fonts/iconfont.ttf
 
 flutter_launcher_icons:
   android: true
