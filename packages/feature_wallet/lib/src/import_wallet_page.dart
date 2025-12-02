@@ -142,38 +142,37 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
   }
 
   Future<void> importWallet(String input) async {
+    bool success = false;
+
     try {
       showLoadingDialog();
       await _advWallet.initialize(networkId: 'solana');
 
-      // 预处理输入：去掉首尾空格
       final cleaned = input.trim();
-      _importKeyValue = cleaned; // 不管是助记词还是私钥，都先存一份
+      _importKeyValue = cleaned;
 
       if (CryptoInputValidator.isMnemonic(cleaned)) {
-        // 助记词导入
         await importWalletByMnemonic(cleaned);
+        success = true;
       } else {
-        // 兜底当做私钥导入
         try {
           await importWalletByPrivateKey();
+          success = true;
         } catch (_) {
           Fluttertoast.showToast(msg: '输入既不是助记词也不是私钥');
         }
       }
-    } catch (e, st) {
-      debugPrint('importWallet error: $e\n$st');
+    } catch (e) {
       Fluttertoast.showToast(msg: '导入失败：$e');
     } finally {
-      if (Get.isDialogOpen == true) {
-        Get.back(); // 关闭 loading 弹窗
+      if (Navigator.of(context, rootNavigator: true).canPop()) {
+        Navigator.of(context, rootNavigator: true).pop();
       }
 
-      OneShotFlag.value.value = true;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (success) {
+        OneShotFlag.value.value = true;
         Get.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4, 'refresh': true});
-      });
+      }
     }
   }
 
