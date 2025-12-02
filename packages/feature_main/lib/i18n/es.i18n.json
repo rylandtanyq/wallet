@@ -167,7 +167,12 @@
         "blockchain_and_token": "Blockchain y tokens",
         "transfer_and_receive": "Transferir y recibir",
         "swap_transaction": "Operación de intercambio (Swap)",
-        "support_search_hint": "Admite buscar preguntas y palabras clave del contenido"
+        "support_search_hint": "Admite buscar preguntas y palabras clave del contenido",
+        "currentVersion": "現在のバージョン",
+        "appUpdate": "バージョン更新",
+        "rateApp": "アプリを評価する",
+        "changelog": "更新履歴",
+        "termsAndPrivacy": "利用規約およびプライバシーポリシー"
     },
     "search": {
         "search": "Buscar",

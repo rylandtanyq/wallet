@@ -1,3 +1,4 @@
+import 'package:feature_main/src/about_us.dart';
 import 'package:flutter/material.dart';
 import 'package:feature_main/src/more_setting.dart';
 import 'package:feature_main/src/rewards_account.dart';
@@ -14,6 +15,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:feature_main/i18n/strings.g.dart';
 import 'package:shared_setting/i18n/strings.g.dart' as gt;
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 class Mysettings extends ConsumerStatefulWidget {
   const Mysettings({super.key});
@@ -26,6 +29,24 @@ class _MysettingsState extends ConsumerState<Mysettings> {
   final _currencyUnit = ["USD", "CNY", "NGN", "IDR", "INR", "BDT", "VND", "PKR", "RUB", "EUR", "UAH"];
   String _selectedCurrencyTralingText = "USD";
   String _selectedThemeModelText = t.Mysettings.follow_system;
+  Version? _appVersion;
+
+  @override
+  void initState() {
+    super.initState();
+    _packageInfo();
+  }
+
+  Future<void> _packageInfo() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String currentVersionStr = packageInfo.version;
+    Version currentVersion = Version.parse(currentVersionStr);
+    if (mounted) {
+      setState(() {
+        _appVersion = currentVersion;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +174,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
                   _SectionTitle(t.Mysettings.join_us),
                   _SettingItem(title: t.Mysettings.global_community, onTap: _onTap),
                   _SettingItem(title: t.Mysettings.career_opportunities, onTap: _onTap),
-                  _SettingItem(title: t.Mysettings.about_us, trailingText: "v 8.32.0", onTap: _onTap),
+                  _SettingItem(title: t.Mysettings.about_us, trailingText: "v $_appVersion", onTap: () => _aboutUs(_appVersion!)),
                 ],
               ),
             ),
@@ -200,7 +221,7 @@ class _MysettingsState extends ConsumerState<Mysettings> {
       setState(() {
         _selectedCurrencyTralingText = selected;
       });
-      print("用户选择了 $_selectedCurrencyTralingText 12货币");
+      debugPrint("用户选择了 $_selectedCurrencyTralingText 12货币");
     }
   }
 
@@ -260,6 +281,15 @@ class _MysettingsState extends ConsumerState<Mysettings> {
   void _usageGuidelines() {
     HapticFeedback.heavyImpact();
     Get.to(Usageguidelines(), transition: Transition.rightToLeft, duration: Duration(milliseconds: 300));
+  }
+
+  void _aboutUs(Version version) {
+    HapticFeedback.heavyImpact();
+    Get.to(
+      AboutUs(version: version),
+      transition: Transition.rightToLeft,
+      duration: Duration(milliseconds: 300),
+    );
   }
 
   /// 多语言 / 货币单位通用弹窗

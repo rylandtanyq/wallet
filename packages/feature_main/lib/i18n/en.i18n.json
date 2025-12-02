@@ -167,7 +167,12 @@
         "blockchain_and_token": "Blockchains & Tokens",
         "transfer_and_receive": "Transfer & Receive",
         "swap_transaction": "Swap Transactions",
-        "support_search_hint": "Support searching questions and content keywords"
+        "support_search_hint": "Support searching questions and content keywords",
+        "currentVersion": "Current Version",
+        "appUpdate": "Check for Updates",
+        "rateApp": "Rate this App",
+        "changelog": "Changelog",
+        "termsAndPrivacy": "Terms of Service & Privacy Policy"
     },
     "search": {
         "search": "Search",

@@ -4,6 +4,14 @@ import java.io.FileInputStream
 // 加载 key.properties
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
+
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+
+val flutterVersionCode = (localProperties["flutter.versionCode"] as String?)?.toInt() ?: 1
+val flutterVersionName = localProperties["flutter.versionName"] as String? ?: "1.0.0"
+
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
@@ -22,8 +30,8 @@ android {
         applicationId = "com.example.ai.wallet"
         minSdk = 23
         targetSdk = 36
-        versionCode = (project.properties["versionCode"] as? Int) ?: 1
-        versionName = (project.properties["versionName"] as? String) ?: "1.0.0"
+        versionCode = flutterVersionCode
+        versionName = flutterVersionName
     }
 
     compileOptions {

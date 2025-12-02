@@ -167,7 +167,12 @@
         "blockchain_and_token": "公鏈與代幣",
         "transfer_and_receive": "轉賬與接收",
         "swap_transaction": "Swap交易",
-        "support_search_hint": "支持搜尋問題、正文關鍵詞"
+        "support_search_hint": "支持搜尋問題、正文關鍵詞",
+        "currentVersion": "當前版本",
+        "appUpdate": "版本更新",
+        "rateApp": "應用評分",
+        "changelog": "更新日誌",
+        "termsAndPrivacy": "服務與隱私聲明"
     },
     "search": {
         "search": "搜尋",
