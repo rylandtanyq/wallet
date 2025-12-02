@@ -72,8 +72,7 @@ class MyApp extends ConsumerWidget {
           builder: FToastBuilder(),
           debugShowCheckedModeBanner: false,
           title: 'Wallet App',
-          home: hasWallets ? const MainPage() : const AddWalletPage(),
-          initialRoute: '/',
+          initialRoute: hasWallets ? AppRoutes.main : AppRoutes.addWallet,
           getPages: [
             GetPage(name: AppRoutes.main, page: () => const MainPage()),
             GetPage(name: AppRoutes.addWallet, page: () => const AddWalletPage()),
