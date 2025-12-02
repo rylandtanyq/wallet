@@ -32,6 +32,8 @@ dependencies:
     path: ../shared_setting
   feature_browser:
     path: ../feature_browser
+  shared_ui:
+    path: ../shared_ui
 
 dev_dependencies:
   flutter_test:

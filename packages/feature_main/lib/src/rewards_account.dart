@@ -126,7 +126,7 @@ class _RewardsaccountState extends State<Rewardsaccount> {
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: TextButton.styleFrom(
-                    backgroundColor: AppColors.color_286713,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     minimumSize: Size(double.infinity, 55),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(25.r)),

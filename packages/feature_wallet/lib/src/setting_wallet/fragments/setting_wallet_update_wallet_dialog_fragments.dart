@@ -112,12 +112,12 @@ class _UpdateWalletDialogState extends State<SettingWalletUpdateWalletDialogFrag
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.background,
-                        foregroundColor: AppColors.color_286713,
+                        foregroundColor: Theme.of(context).colorScheme.primary,
                         minimumSize: Size(double.infinity, 42.h),
                         elevation: 0,
                         shadowColor: Colors.transparent,
                         textStyle: TextStyle(fontSize: 18.sp),
-                        side: BorderSide(color: AppColors.color_286713, width: 1.5),
+                        side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27.5)),
                       ),
                       onPressed: () => Navigator.pop(context),
@@ -128,7 +128,7 @@ class _UpdateWalletDialogState extends State<SettingWalletUpdateWalletDialogFrag
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.color_286713,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
                         minimumSize: Size(double.infinity, 42.h),
                         elevation: 0,

@@ -555,7 +555,7 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
                               SizedBox(width: 3.w),
                               Text(
                                 '${index + 1}.98%APY',
-                                style: TextStyle(fontSize: 11.sp, color: AppColors.color_286713),
+                                style: TextStyle(fontSize: 11.sp, color: Theme.of(context).colorScheme.primary),
                               ),
                             ],
                           ),

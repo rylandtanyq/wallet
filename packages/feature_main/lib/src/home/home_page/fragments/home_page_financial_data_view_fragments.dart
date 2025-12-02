@@ -37,7 +37,7 @@ class HomePageFinancialDataViewFragments extends StatelessWidget {
                 backgroundColor: Theme.of(context).colorScheme.onSecondary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
                 padding: const EdgeInsets.symmetric(vertical: 5),
-                side: const BorderSide(color: AppColors.color_286713, width: 1.0),
+                side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.0),
               ),
               onPressed: () {
                 Get.to(() => const AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
