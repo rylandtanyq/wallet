@@ -1,7 +1,7 @@
 import 'package:feature_main/src/linked_wallet_Dapp.dart';
 import 'package:feature_main/src/my_settings.dart';
 import 'package:feature_main/src/notification_page.dart';
-import 'package:feature_main/src/home/search_page/index.dart';
+import 'package:feature_main/src/search_page/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

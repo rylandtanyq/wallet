@@ -105,7 +105,7 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
                 decoration: BoxDecoration(
                   color: AppColors.color_FBFFF1,
                   borderRadius: BorderRadius.circular(5.r),
-                  border: Border.all(color: Color(0xFF017CFE), width: 0.5),
+                  border: Border.all(color: AppColors.color_B5DE5B, width: 0.5),
                 ),
                 child: Text(t.home.ends_in, style: AppTextStyles.size13.copyWith(color: Theme.of(context).colorScheme.primary)),
               ),
@@ -115,7 +115,7 @@ class _StatefulProductCardState extends State<StatefulProductCard> {
                 decoration: BoxDecoration(
                   color: AppColors.color_FBFFF1,
                   borderRadius: BorderRadius.circular(5.r),
-                  border: Border.all(color: Color(0xFF017CFE), width: 0.5),
+                  border: Border.all(color: AppColors.color_B5DE5B, width: 0.5),
                 ),
                 child: Text('HOT', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12)),
               ),

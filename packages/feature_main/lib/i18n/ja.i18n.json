@@ -180,7 +180,13 @@
         "hotSearch": "人気の検索",
         "dapp": "DApp",
         "token": "トークン",
-        "contract": "コントラクト"
+        "contract": "コントラクト",
+        "leavingToThirdPartySite": "Estás a punto de ir a un sitio web de terceros",
+        "thirdPartyWarning": "Estás accediendo a un enlace de terceros, procede con precaución. TT Wallet no se hace responsable de las aplicaciones y sitios web de terceros que visites o utilices.",
+        "dappAgreementCheckbox": "He leído y acepto el Acuerdo de uso de la DApp",
+        "pleaseAcceptAgreementFirst": "Primero marca que aceptas el acuerdo",
+        "confirm": "Confirmar",
+        "cancel": "Cancelar"
     },
     "situation": {
         "market": "マーケット",

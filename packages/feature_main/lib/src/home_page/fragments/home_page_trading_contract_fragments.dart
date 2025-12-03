@@ -1,4 +1,4 @@
-import 'package:feature_main/src/home/home_page/fragments/home_page_contract_trading_card_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_contract_trading_card_fragments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:feature_main/i18n/strings.g.dart';

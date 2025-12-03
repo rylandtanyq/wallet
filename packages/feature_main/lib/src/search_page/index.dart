@@ -1,6 +1,12 @@
 import 'dart:async';
 import 'package:feature_browser/dapp_browser/index.dart';
 import 'package:feature_main/i18n/strings.g.dart';
+import 'package:feature_main/src/search_page/fragments/search_page_all_fragments.dart';
+import 'package:feature_main/src/search_page/fragments/search_page_contract_fragments.dart';
+import 'package:feature_main/src/search_page/fragments/search_page_currency_fragments.dart';
+import 'package:feature_main/src/search_page/fragments/search_page_dapp_fragments.dart';
+import 'package:feature_main/src/search_page/fragments/search_page_dapp_user_agreement_fragments.dart';
+import 'package:feature_main/src/search_page/fragments/search_page_hint_open_dapp_link_fragments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -60,7 +66,12 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     final hasText = _textEditingController.text.trim().isNotEmpty;
 
     final tabs = <Widget>[if (hasText) Tab(text: t.common.all), Tab(text: t.search.token), Tab(text: t.search.contract), Tab(text: t.search.dapp)];
-    final views = <Widget>[if (hasText) _buildSearchAllWidget(context), _buildCurrencyWidget(), _buildContractWidget(context), _buildDAppWidget()];
+    final views = <Widget>[
+      if (hasText) SearchPageAllFragments(),
+      SearchPageCurrencyFragments(),
+      SearchPageContractFragments(),
+      SearchPageDappFragments(),
+    ];
     _ensureControllerWithLength(tabs.length);
     return Scaffold(
       appBar: AppBar(
@@ -106,7 +117,16 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                 return [
                   SliverToBoxAdapter(child: SizedBox(height: 10)),
                   if (!_showSearchHistoryWidget && _search_history.isNotEmpty) SliverToBoxAdapter(child: _searchHistoryWidget()),
-                  if (_showHintOpenDappLink) SliverToBoxAdapter(child: _hintOpenDappLink()),
+                  if (_showHintOpenDappLink)
+                    SliverToBoxAdapter(
+                      child: SearchPageHintOpenDappLinkFragments(
+                        textEditing: _textEditingController.text,
+                        onTap: () {
+                          _addSearchHistoryList();
+                          _showDappUserAgreementModal(_textEditingController.text);
+                        },
+                      ),
+                    ),
                   SliverToBoxAdapter(child: SizedBox(height: 20)),
                   SliverToBoxAdapter(
                     child: Text(
@@ -334,155 +354,8 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
       ),
     );
   }
-}
 
-Color _handleColor(BuildContext context, int index) {
-  switch (index) {
-    case 1:
-      return Color(0xFFF3607B);
-    case 2:
-      return Color(0xFFFE8300);
-    case 3:
-      return Color(0xFFFEB101);
-    default:
-      return Theme.of(context).colorScheme.onSurface.withOpacity(.5);
+  Future<bool?> _showDappUserAgreementModal(String textEditing) async {
+    return SearchPageDappUserAgreementFragments.show(context, textEditing: textEditing);
   }
-}
-
-Widget _handleAssetImage(int index) {
-  switch (index) {
-    case 1:
-      return Image.asset("assets/images/fiery_first.png");
-    case 2:
-      return Image.asset("assets/images/fiery_second.png");
-    case 3:
-      return Image.asset("assets/images/fiery_third.png");
-    default:
-      return SizedBox();
-  }
-}
-
-/// 所有
-Widget _buildSearchAllWidget(BuildContext context) {
-  return ListView(
-    children: [
-      SizedBox(height: 30),
-      Icon(Icons.search_off_sharp, size: 130, color: Theme.of(context).colorScheme.onSurface),
-      SizedBox(height: 20),
-      Text(
-        t.common.no_matching_results,
-        style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
-        textAlign: TextAlign.center,
-      ),
-    ],
-  );
-}
-
-/// 币种
-Widget _buildCurrencyWidget() {
-  return ListView.separated(
-    shrinkWrap: true,
-    physics: NeverScrollableScrollPhysics(),
-    itemBuilder: (BuildContext context, int index) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.only(top: 7),
-            width: 20,
-            height: 50,
-            child: Column(
-              mainAxisAlignment: _handleAssetImage(index + 1) != null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
-              children: [
-                _handleAssetImage(index + 1),
-                Text(
-                  "${index + 1}",
-                  style: AppTextStyles.labelMedium.copyWith(color: _handleColor(context, index + 1), fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 8),
-          Image.asset("assets/images/ETH.png", width: 50, height: 50),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("VIRTUAL", style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                Text('Virtual Protocol', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text("\$1.7000000000", style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-              Text(
-                "+3.62%",
-                style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          SizedBox(width: 20),
-          Icon(Icons.star, color: Theme.of(context).colorScheme.onSurface.withOpacity(.4)),
-        ],
-      );
-    },
-    separatorBuilder: (BuildContext context, int index) {
-      return SizedBox(height: 20.h);
-    },
-    itemCount: 30,
-  );
-}
-
-/// 合约
-Widget _buildContractWidget(BuildContext context) {
-  return Text("asd");
-}
-
-/// DApp
-Widget _buildDAppWidget() {
-  return ListView.separated(
-    shrinkWrap: true,
-    physics: NeverScrollableScrollPhysics(),
-    itemBuilder: (BuildContext context, int index) {
-      return GestureDetector(
-        onTap: () {},
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.only(top: 7),
-              width: 20,
-              height: 50,
-              child: Column(
-                mainAxisAlignment: _handleAssetImage(index + 1) != null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
-                children: [
-                  _handleAssetImage(index + 1),
-                  Text(
-                    "${index + 1}",
-                    style: AppTextStyles.labelMedium.copyWith(color: _handleColor(context, index + 1), fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 8),
-            Image.asset("assets/images/ETH.png", width: 50, height: 50),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text("VIRTUAL", style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-            ),
-          ],
-        ),
-      );
-    },
-    separatorBuilder: (BuildContext context, int index) {
-      return SizedBox(height: 20.h);
-    },
-    itemCount: 10,
-  );
 }
