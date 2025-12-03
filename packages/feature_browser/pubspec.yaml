@@ -30,6 +30,8 @@ dependencies:
     path: ../feature_wallet
   shared_setting:
     path: ../shared_setting
+  shared_utils:
+    path: ../shared_utils
 
 dev_dependencies:
   flutter_test:

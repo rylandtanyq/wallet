@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:shared_setting/state/app_provider.dart';
+import 'package:shared_utils/app_config.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'package:shared_utils/hive_boxes.dart';
 import 'package:shared_utils/image_cache_repo.dart';
@@ -33,6 +34,7 @@ void main() async {
   final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet);
   final bool hasWallets = wallets != null && wallets.isNotEmpty;
   await ImageCacheRepo.I.init();
+  await AppConfig.load();
 
   runApp(
     ProviderScope(
