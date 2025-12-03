@@ -6,6 +6,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_setting/state/app_provider.dart';
+import 'package:shared_utils/app_config.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'dart:collection';
 
@@ -321,7 +322,7 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
                         return {'code': 4000, 'message': 'missing_signed_tx_base64'};
                       }
 
-                      final rpcUrl = 'https://dry-hardworking-cherry.solana-mainnet.quiknode.pro/d4a233a290e8af774e8007d488aac62582345be5/';
+                      final rpcUrl = AppConfig.solanaRpcUrl;
                       final payload = {
                         'jsonrpc': '2.0',
                         'id': 1,

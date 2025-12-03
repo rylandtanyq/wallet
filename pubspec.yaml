@@ -198,6 +198,8 @@ flutter:
     - assets/images/bg_hangqingqushi.jpg
     - assets/images/ic_home_center_imge.jpg
 
+    - config/index.json
+
   fonts:
     - family: walletIcon
       fonts:

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/rendering.dart';
+import 'package:shared_utils/app_config.dart';
 import 'package:solana/dto.dart';
 import 'package:solana/solana.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -17,10 +18,11 @@ Future<String> sendSol({
   required String mnemonic,
   required String receiverAddress,
   required double amount, // 单位 SOL
-  String rpcUrl = 'https://dry-hardworking-cherry.solana-mainnet.quiknode.pro/d4a233a290e8af774e8007d488aac62582345be5/',
+  String? rpcUrl,
 }) async {
-  // 1. SolanaClient，需要 Uri 类型
-  final client = SolanaClient(rpcUrl: Uri.parse(rpcUrl), websocketUrl: Uri.parse(rpcUrl.replaceFirst('http', 'ws')));
+  final effectiveRpcUrl = rpcUrl ?? AppConfig.solanaRpcUrl;
+  // 1. SolanaClient，需要 Uri 类
+  final client = SolanaClient(rpcUrl: Uri.parse(effectiveRpcUrl), websocketUrl: Uri.parse(effectiveRpcUrl.replaceFirst('http', 'ws')));
 
   // 2. 生成发送方 Keypair，指定派生路径
   final sender = await Ed25519HDKeyPair.fromMnemonic(
@@ -57,9 +59,10 @@ Future<String> sendSPLToken({
   // 测试网 https://api.testnet.solana.com
   // 主网 https://api.mainnet-beta.solana.com
   // 开发网 https://api.devnet.solana.com
-  String rpcUrl = 'https://dry-hardworking-cherry.solana-mainnet.quiknode.pro/d4a233a290e8af774e8007d488aac62582345be5/',
+  String? rpcUrl,
 }) async {
-  final client = SolanaClient(rpcUrl: Uri.parse(rpcUrl), websocketUrl: Uri.parse(rpcUrl.replaceFirst('http', 'ws')));
+  final effectiveRpcUrl = rpcUrl ?? AppConfig.solanaRpcUrl;
+  final client = SolanaClient(rpcUrl: Uri.parse(effectiveRpcUrl), websocketUrl: Uri.parse(effectiveRpcUrl.replaceFirst('http', 'ws')));
 
   final sender = await Ed25519HDKeyPair.fromMnemonic(
     mnemonic,

@@ -1,3 +1,4 @@
+import 'package:shared_utils/app_config.dart';
 import 'package:shared_utils/solana_servise.dart';
 
 /// 统一取余额：
@@ -7,17 +8,10 @@ import 'package:shared_utils/solana_servise.dart';
 Future<String> fetchTokenBalance({required String ownerAddress, String? mintAddress}) async {
   try {
     if (mintAddress == null || mintAddress.trim().isEmpty || mintAddress == 'SOL') {
-      final sol = await getSolBalance(
-        rpcUrl: 'https://dry-hardworking-cherry.solana-mainnet.quiknode.pro/d4a233a290e8af774e8007d488aac62582345be5/',
-        ownerAddress: ownerAddress,
-      );
+      final sol = await getSolBalance(rpcUrl: AppConfig.solanaRpcUrl, ownerAddress: ownerAddress);
       return sol.toString();
     } else {
-      final amt = await getSplTokenBalanceRpc(
-        rpcUrl: 'https://dry-hardworking-cherry.solana-mainnet.quiknode.pro/d4a233a290e8af774e8007d488aac62582345be5/',
-        ownerAddress: ownerAddress,
-        mintAddress: mintAddress,
-      );
+      final amt = await getSplTokenBalanceRpc(rpcUrl: AppConfig.solanaRpcUrl, ownerAddress: ownerAddress, mintAddress: mintAddress);
       return amt.toString();
     }
   } catch (e) {
