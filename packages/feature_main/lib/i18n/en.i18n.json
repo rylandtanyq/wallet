@@ -180,7 +180,13 @@
         "hotSearch": "Hot Searches",
         "dapp": "DApp",
         "token": "Token",
-        "contract": "Contract"
+        "contract": "Contract",
+        "leavingToThirdPartySite": "You are about to visit a third-party website",
+        "thirdPartyWarning": "You are accessing a third-party link. Please proceed with caution. TT Wallet is not responsible for any third-party applications or websites you visit or use.",
+        "dappAgreementCheckbox": "I have read and accept the DApp Terms of Use",
+        "pleaseAcceptAgreementFirst": "Please accept the agreement first",
+        "confirm": "Confirm",
+        "cancel": "Cancel"
     },
     "situation": {
         "market": "Market",

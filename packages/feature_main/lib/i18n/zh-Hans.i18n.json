@@ -180,7 +180,13 @@
         "hotSearch": "热门搜索",
         "dapp": "DApp",
         "token": "币种",
-        "contract": "合约"
+        "contract": "合约",
+        "leavingToThirdPartySite": "即将跳转第三方网站",
+        "thirdPartyWarning": "你正在访问第三方链接，请谨慎操作。TT Wallet 对你访问和使用的第三方应用程序和网站不承担任何责任。",
+        "dappAgreementCheckbox": "我已阅读并接受 Dapp 使用协议",
+        "pleaseAcceptAgreementFirst": "请先勾选协议",
+        "confirm": "确认",
+        "cancel": "取消"
     },
     "situation": {
         "market": "行情",
