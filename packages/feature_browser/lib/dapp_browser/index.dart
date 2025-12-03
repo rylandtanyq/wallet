@@ -150,7 +150,7 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
             backgroundColor: Colors.black,
             appBar: AppBar(title: const Text("dapp")),
             body: InAppWebView(
-              initialUrlRequest: URLRequest(url: WebUri(normalizeUrl('http://172.20.157.158:3301/'))),
+              initialUrlRequest: URLRequest(url: WebUri(normalizeUrl(widget.dappUrl))),
               initialSettings: InAppWebViewSettings(
                 javaScriptEnabled: true,
                 javaScriptCanOpenWindowsAutomatically: true,
@@ -187,8 +187,8 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
 
                 await controller.setSettings(
                   settings: InAppWebViewSettings(
-                    userAgent:
-                        "Mozilla/5.0 (Linux; Android 14; Samsung S24+) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36",
+                    userAgent: null,
+                    // "Mozilla/5.0 (Linux; Android 14; Samsung S24+) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36",
                   ),
                 );
 
@@ -249,7 +249,7 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
                         }
                       }
                       // 返回给 DApp：必须是 "字节数组"
-                      return {'signature': sigBytes};
+                      return {'signature': sigBytes, 'publicKey': _currentPubkey};
                     } catch (e, st) {
                       debugPrint('signMessage error: $e\n$st');
                       return {'code': 4000, 'message': 'internal_error'};
@@ -368,7 +368,12 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
                     final payload = args.isNotEmpty ? args[0] : null;
 
                     if (payload is Map && payload['method'] == 'connect') {
-                      _currentPubkey ??= '6bPZLzFBnYNdZbAkCgkB47j5XyZmgfQaVkNECNZNCRL2';
+                      if (_wallet == null || _currentPubkey == null) {
+                        await _ensureWalletReady();
+                      }
+                      if (_currentPubkey == null) {
+                        return {'code': 4100, 'message': 'no_wallet_connected'};
+                      }
                       return {'publicKey': _currentPubkey};
                     }
 
