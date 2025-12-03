@@ -312,9 +312,9 @@ final String kSolanaProviderJs = r'''
 
         disconnect: function() {
           return _callFlutter('solana_disconnect').then((res) => {
-            // Flutter handler returns true in your code; ignore exact value
             _isConnected = false;
-            _publicKey = null;
+            _publicKeyBase58 = null;
+            _phantomPublicKey = null;
             _emit('disconnect');
             return true;
           });
@@ -520,6 +520,15 @@ final String kSolanaProviderJs = r'''
           return _callFlutter('solana_signAndSendAllTransactions', { txs: txs, opts: opts }).then((res) => res);
         },
 
+        signAllTransactions: async function (txs) {
+          const results = [];
+          for (const tx of txs) {
+            const signedTx = await this.signTransaction(tx);
+            results.push(signedTx);
+          }
+          return results;
+        },
+
         sendTransaction: async function(tx, opts) {
           // 1 拿 message
           let messageBytes;
@@ -584,19 +593,30 @@ final String kSolanaProviderJs = r'''
             } else {
               payload = Array.from(new TextEncoder().encode(JSON.stringify(message)));
             }
-            return _callFlutter('solana_signMessage', { message: payload, encoding: encoding || 'utf8' }).then((res) => {
-              // normalize many possible Flutter responses:
-              // - { signature: 'base58' }
-              // - 'base58' or Uint8Array-like array
-              if (!res) return Promise.reject('no_signature_returned');
-              if (typeof res === 'string') return { signature: res };
-              if (Array.isArray(res)) return { signature: Uint8Array.from(res) };
-              if (res.signature) {
-                // if signature is array -> convert to Uint8Array
-                if (Array.isArray(res.signature)) return { signature: Uint8Array.from(res.signature) };
-                return { signature: res.signature };
+
+            return _callFlutter('solana_signMessage', {
+              message: payload,
+              encoding: encoding || 'utf8'
+            }).then((res) => {
+              if (!res || !res.signature) throw new Error('no_signature_returned');
+
+              let sigBytes;
+              if (Array.isArray(res.signature)) {
+                sigBytes = Uint8Array.from(res.signature);
+              } else if (res.signature instanceof Uint8Array) {
+                sigBytes = res.signature;
+              } else {
+                // 兜底：如果你哪天改成 base58/string，再细化也行
+                const str = String(res.signature);
+                const bytes = [];
+                for (let i = 0; i < str.length; i++) bytes.push(str.charCodeAt(i));
+                sigBytes = new Uint8Array(bytes);
               }
-              return { signature: res };
+
+              return {
+                signature: sigBytes,
+                publicKey: _phantomPublicKey, // 或者 res.publicKey 但一般用当前连接的
+              };
             });
           } catch (e) {
             return Promise.reject(e);
