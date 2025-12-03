@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:feature_wallet/hive/tokens.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_financial_data_view_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_financial_data_view_fragments.dart';
 
 class HomePageFullChainRankingFragments extends StatefulWidget {
   final List<Tokens> tokesList;

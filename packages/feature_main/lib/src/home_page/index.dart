@@ -10,15 +10,15 @@ import 'package:shared_ui/widget/base_page.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'package:shared_utils/hive_boxes.dart';
 import 'package:feature_wallet/hive/tokens.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_appbar_fragments.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_backup_fragments.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_earn_coins_fragments.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_full_chain_ranking_fragments.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_more_fragments.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_profile_fragments.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_trading_contract_fragments.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_trending_tokens_fragments.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_user_guide_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_appbar_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_backup_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_earn_coins_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_full_chain_ranking_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_more_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_profile_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_trading_contract_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_trending_tokens_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_user_guide_fragments.dart';
 import 'package:feature_wallet/hive/Wallet.dart';
 
 class HomePage extends ConsumerStatefulWidget {

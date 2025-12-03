@@ -2,7 +2,7 @@ import 'package:feature_main/i18n/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
-import 'package:feature_main/src/home/home_page/fragments/home_page_product_card_fragments.dart';
+import 'package:feature_main/src/home_page/fragments/home_page_product_card_fragments.dart';
 
 class HomePageEarnCoinsFragments extends StatefulWidget {
   const HomePageEarnCoinsFragments({super.key});
