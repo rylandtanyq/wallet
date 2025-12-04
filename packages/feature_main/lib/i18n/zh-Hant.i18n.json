@@ -207,5 +207,10 @@
         "trade": "交易",
         "discover": "發現",
         "wallet": "錢包"
+    },
+    "trade": {
+        "transaction": "交易",
+        "jingouRadar": "金狗雷達",
+        "contract": "合約"
     }
 }

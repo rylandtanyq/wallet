@@ -207,5 +207,10 @@
         "trade": "Operar",
         "discover": "Descubrir",
         "wallet": "Cartera"
+    },
+    "trade": {
+        "transaction": "Trading",
+        "jingouRadar": "Jingou Radar",
+        "contract": "Contratos"
     }
 }

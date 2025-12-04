@@ -207,5 +207,10 @@
         "trade": "取引",
         "discover": "発見",
         "wallet": "ウォレット"
+    },
+    "trade": {
+        "transaction": "トレード",
+        "jingouRadar": "Jingou Radar",
+        "contract": "コントラクト"
     }
 }

@@ -4,16 +4,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_ui/widget/base_page.dart';
 
 /*
- * 交易子页面
+ * 交易子页面 - 金狗雷达
  */
-class TradeChildPage extends StatefulWidget {
-  const TradeChildPage({super.key});
+class TradeGoldenDogRadarScreen extends StatefulWidget {
+  const TradeGoldenDogRadarScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => _TradeChildPageState();
+  State<StatefulWidget> createState() => _TradeToGoldenDogRadarPageState();
 }
 
-class _TradeChildPageState extends State<TradeChildPage> with BasePage<TradeChildPage>, AutomaticKeepAliveClientMixin {
+class _TradeToGoldenDogRadarPageState extends State<TradeGoldenDogRadarScreen>
+    with BasePage<TradeGoldenDogRadarScreen>, AutomaticKeepAliveClientMixin {
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
 
   @override
@@ -24,7 +25,7 @@ class _TradeChildPageState extends State<TradeChildPage> with BasePage<TradeChil
       controller: _refreshController,
       header: const ClassicHeader(),
       onRefresh: _onRefresh,
-      child: SingleChildScrollView(child: Column(children: [Image.asset('assets/images/bg_jiaoyi.jpg')])),
+      child: SingleChildScrollView(child: Column(children: [Image.asset('assets/images/bg_jingouleida.jpg')])),
     );
   }
 

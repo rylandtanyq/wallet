@@ -4,16 +4,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_ui/widget/base_page.dart';
 
 /*
- * 交易子页面 - 合约
+ * 交易子页面
  */
-class TradeToContractPage extends StatefulWidget {
-  const TradeToContractPage({super.key});
+class TradeScreen extends StatefulWidget {
+  const TradeScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => _TradeToContractPageState();
+  State<StatefulWidget> createState() => _TradeChildPageState();
 }
 
-class _TradeToContractPageState extends State<TradeToContractPage> with BasePage<TradeToContractPage>, AutomaticKeepAliveClientMixin {
+class _TradeChildPageState extends State<TradeScreen> with BasePage<TradeScreen>, AutomaticKeepAliveClientMixin {
   final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
 
   @override
@@ -24,7 +24,7 @@ class _TradeToContractPageState extends State<TradeToContractPage> with BasePage
       controller: _refreshController,
       header: const ClassicHeader(),
       onRefresh: _onRefresh,
-      child: SingleChildScrollView(child: Column(children: [Image.asset('assets/images/bg_jiaoyiheyue.jpg')])),
+      child: SingleChildScrollView(child: Column(children: [Image.asset('assets/images/bg_jiaoyi.jpg')])),
     );
   }
 
