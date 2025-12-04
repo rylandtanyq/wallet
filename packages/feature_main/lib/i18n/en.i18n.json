@@ -207,5 +207,10 @@
         "trade": "Trade",
         "discover": "Discover",
         "wallet": "Wallet"
+    },
+    "trade": {
+        "transaction": "Trade",
+        "jingouRadar": "Jingou Radar",
+        "contract": "Contracts"
     }
 }
