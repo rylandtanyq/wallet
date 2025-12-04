@@ -186,7 +186,9 @@
         "dappAgreementCheckbox": "我已阅读并接受 Dapp 使用协议",
         "pleaseAcceptAgreementFirst": "请先勾选协议",
         "confirm": "确认",
-        "cancel": "取消"
+        "cancel": "取消",
+        "iHaveReadAndAccept": "我已阅读并接受 ",
+        "dappTermsOfUse": "Dapp 使用协议"
     },
     "situation": {
         "market": "行情",

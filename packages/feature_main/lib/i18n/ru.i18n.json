@@ -186,7 +186,9 @@
         "dappAgreementCheckbox": "Я прочитал(а) и принимаю соглашение об использовании DApp",
         "pleaseAcceptAgreementFirst": "Сначала отметьте, что вы согласны с соглашением",
         "confirm": "Подтвердить",
-        "cancel": "Отмена"
+        "cancel": "Отмена",
+        "iHaveReadAndAccept": "Я прочитал(а) и принимаю ",
+        "dappTermsOfUse": "условия использования DApp"
     },
     "situation": {
         "market": "Рынок",
