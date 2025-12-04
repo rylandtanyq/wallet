@@ -601,7 +601,7 @@ class _WalletPageState extends ConsumerState<WalletPage>
           _fillteredTokensList = [];
           _addresses = [];
         });
-        await _loadingTokens(); // ← 关键：先把新地址的代币列表加载到内存
+        await _loadingTokens(); // 先把新地址的代币列表加载到内存
         await _initWalletAndNetwork();
         await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
       } catch (e) {
