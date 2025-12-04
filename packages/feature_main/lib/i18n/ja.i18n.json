@@ -168,11 +168,11 @@
         "transfer_and_receive": "送金と受取",
         "swap_transaction": "スワップ取引",
         "support_search_hint": "質問や本文キーワードの検索をサポート",
-        "currentVersion": "Versión actual",
-        "appUpdate": "Buscar actualizaciones",
-        "rateApp": "Calificar la aplicación",
-        "changelog": "Registro de cambios",
-        "termsAndPrivacy": "Términos de servicio y política de privacidad"
+        "currentVersion": "現在のバージョン",
+        "appUpdate": "バージョン更新",
+        "rateApp": "アプリを評価する",
+        "changelog": "更新履歴",
+        "termsAndPrivacy": "利用規約およびプライバシーポリシー"
     },
     "search": {
         "search": "検索",
@@ -181,12 +181,14 @@
         "dapp": "DApp",
         "token": "トークン",
         "contract": "コントラクト",
-        "leavingToThirdPartySite": "Estás a punto de ir a un sitio web de terceros",
-        "thirdPartyWarning": "Estás accediendo a un enlace de terceros, procede con precaución. TT Wallet no se hace responsable de las aplicaciones y sitios web de terceros que visites o utilices.",
-        "dappAgreementCheckbox": "He leído y acepto el Acuerdo de uso de la DApp",
-        "pleaseAcceptAgreementFirst": "Primero marca que aceptas el acuerdo",
-        "confirm": "Confirmar",
-        "cancel": "Cancelar"
+        "leavingToThirdPartySite": "サードパーティサイトへ遷移しようとしています",
+        "thirdPartyWarning": "現在サードパーティのリンクにアクセスしています。操作には十分ご注意ください。TT Wallet は、あなたがアクセス・利用する第三者のアプリやウェブサイトに対して一切の責任を負いません。",
+        "dappAgreementCheckbox": "DApp 利用規約を読み、同意しました",
+        "pleaseAcceptAgreementFirst": "先に規約に同意してください",
+        "confirm": "確認",
+        "cancel": "キャンセル",
+        "iHaveReadAndAccept": "既に読み、同意しました ",
+        "dappTermsOfUse": "DApp 利用規約"
     },
     "situation": {
         "market": "マーケット",

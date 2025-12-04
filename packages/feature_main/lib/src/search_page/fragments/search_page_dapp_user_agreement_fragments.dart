@@ -1,5 +1,6 @@
 import 'package:feature_browser/dapp_browser/index.dart';
 import 'package:feature_main/i18n/strings.g.dart';
+import 'package:feature_main/src/search_page/screen/dapp_user_agreement_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -42,31 +43,42 @@ class _SearchPageDappUserAgreementFragmentsState extends State<SearchPageDappUse
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.search.leavingToThirdPartySite, style: AppTextStyles.headline2.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+            Text(t.search.leavingToThirdPartySite, style: AppTextStyles.headline3.copyWith(color: Theme.of(context).colorScheme.onBackground)),
             SizedBox(height: 14.h),
             Text(widget.textEditing, style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onBackground)),
             SizedBox(height: 6.h),
             Text(
               t.search.thirdPartyWarning,
-              style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+              style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 14.h),
-
-            /// 勾选协议
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                setState(() {
-                  _agree = !_agree;
-                });
-              },
-              child: Row(
-                children: [
-                  Icon(_agree ? Icons.check_box : Icons.check_box_outline_blank, color: Theme.of(context).colorScheme.primary),
-                  SizedBox(width: 4.w),
-                  Text(t.search.dappAgreementCheckbox, style: AppTextStyles.bodySmall.copyWith(color: Theme.of(context).colorScheme.onBackground)),
-                ],
-              ),
+            Row(
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    setState(() {
+                      _agree = !_agree;
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Icon(_agree ? Icons.check_box : Icons.check_box_outline_blank, color: Theme.of(context).colorScheme.primary),
+                      SizedBox(width: 4.w),
+                      Text(t.search.iHaveReadAndAccept, style: AppTextStyles.bodySmall.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Get.to(DappUserAgreementScreen(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+                  },
+                  child: Text(
+                    t.search.dappTermsOfUse,
+                    style: AppTextStyles.bodySmall.copyWith(color: Theme.of(context).colorScheme.onBackground, decoration: TextDecoration.underline),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 14.h),
             Row(

@@ -186,7 +186,9 @@
         "dappAgreementCheckbox": "I have read and accept the DApp Terms of Use",
         "pleaseAcceptAgreementFirst": "Please accept the agreement first",
         "confirm": "Confirm",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "iHaveReadAndAccept": "I have read and accept ",
+        "dappTermsOfUse": "DApp Terms of Use"
     },
     "situation": {
         "market": "Market",
