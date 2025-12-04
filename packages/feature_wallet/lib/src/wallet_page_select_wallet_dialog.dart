@@ -333,7 +333,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                           : SizedBox(),
                     ],
                   ),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 10.h),
                   Row(
                     children: [
                       Text(
