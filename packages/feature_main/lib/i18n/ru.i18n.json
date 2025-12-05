@@ -211,6 +211,13 @@
     "trade": {
         "transaction": "Торговля",
         "jingouRadar": "Jingou Radar",
-        "contract": "Контракты"
+        "contract": "Контракты",
+        "quickSwap": "Быстрый обмен",
+        "limitOrder": "Лимитный ордер",
+        "buy": "Купить",
+        "sell": "Продать",
+        "expectedOrderPrice": "Ожидаемая цена ордера",
+        "enterPrice": "Введите цену",
+        "confirm": "Подтвердить"
     }
 }

@@ -1,16 +1,23 @@
 {
-  "id": "",
-  "name": "",
+  "id": "5078058",
+  "name": "wallet",
   "font_family": "iconfont",
   "css_prefix_text": "icon-",
   "description": "",
   "glyphs": [
     {
+      "icon_id": "40626176",
+      "name": "上下切换",
+      "font_class": "shangxiaqiehuan",
+      "unicode": "e8c1",
+      "unicode_decimal": 59585
+    },
+    {
       "icon_id": "985",
       "name": "理财",
       "font_class": "licai",
-      "unicode": "f0038",
-      "unicode_decimal": 983096
+      "unicode": "e600",
+      "unicode_decimal": 58880
     },
     {
       "icon_id": "6366598",
