@@ -211,6 +211,13 @@
     "trade": {
         "transaction": "交易",
         "jingouRadar": "金狗雷達",
-        "contract": "合約"
+        "contract": "合約",
+        "quickSwap": "快捷闪兑",
+        "limitOrder": "现价委托",
+        "buy": "买入",
+        "sell": "卖出",
+        "expectedOrderPrice": "预期挂单价格",
+        "enterPrice": "填入价格",
+        "confirm": "确认"
     }
 }

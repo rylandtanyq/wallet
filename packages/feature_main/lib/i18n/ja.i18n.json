@@ -211,6 +211,13 @@
     "trade": {
         "transaction": "トレード",
         "jingouRadar": "Jingou Radar",
-        "contract": "コントラクト"
+        "contract": "コントラクト",
+        "quickSwap": "クイックスワップ",
+        "limitOrder": "指値注文",
+        "buy": "買い",
+        "sell": "売り",
+        "expectedOrderPrice": "予想注文価格",
+        "enterPrice": "価格を入力",
+        "confirm": "確認"
     }
 }

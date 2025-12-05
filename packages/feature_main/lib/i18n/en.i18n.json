@@ -211,6 +211,13 @@
     "trade": {
         "transaction": "Trade",
         "jingouRadar": "Jingou Radar",
-        "contract": "Contracts"
+        "contract": "Contracts",
+        "quickSwap": "Quick Swap",
+        "limitOrder": "Limit Order",
+        "buy": "Buy",
+        "sell": "Sell",
+        "expectedOrderPrice": "Expected order price",
+        "enterPrice": "Enter price",
+        "confirm": "Confirm"
     }
 }
