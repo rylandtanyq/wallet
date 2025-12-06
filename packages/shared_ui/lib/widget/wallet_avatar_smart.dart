@@ -21,7 +21,7 @@ class WalletAvatarSmart extends StatelessWidget {
     required this.avatarImagePath,
     this.size = 48,
     this.radius = 999,
-    this.defaultAsset = 'assets/images/default_avatar.png',
+    this.defaultAsset = 'assets/images/default_profile_picture.png',
     this.fit = BoxFit.cover,
   });
 

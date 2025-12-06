@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:feature_browser/dapp_browser/fragments/toggle_wallet_dialog_fragments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_setting/state/app_provider.dart';
+import 'package:shared_ui/widget/wallet_avatar_smart.dart';
 import 'package:shared_utils/app_config.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'dart:collection';
@@ -38,6 +41,7 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
   String? _currentPubkey;
   Wallet? _wallet;
   Map<dynamic, dynamic>? _currentNetwork;
+  String _pageTitle = '';
 
   // 缓存派生出来的密钥对
   sol.Ed25519HDKeyPair? _hdKeypair;
@@ -143,13 +147,39 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
   Widget build(BuildContext context) {
     ref.watch(localeProvider);
 
-    return SafeArea(
-      child: Stack(
-        children: [
-          Scaffold(
-            backgroundColor: Colors.black,
-            appBar: AppBar(title: const Text("dapp")),
-            body: InAppWebView(
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            centerTitle: true,
+            automaticallyImplyLeading: false,
+            title: Text(_pageTitle),
+            leading: GestureDetector(
+              onTap: () {
+                Feedback.forTap(context);
+                Navigator.of(context).pop();
+              },
+              child: Icon(Icons.arrow_back_ios_new, size: 20.w, color: Theme.of(context).colorScheme.onBackground),
+            ),
+            actions: [
+              GestureDetector(
+                onTap: () async {
+                  final result = await _toggleWalletShowModalBottomSheetWidget();
+                  if (result != null) {
+                    setState(() {
+                      _wallet = result;
+                    });
+                    _inAppWebViewController!.loadUrl(urlRequest: URLRequest(url: WebUri(normalizeUrl(widget.dappUrl))));
+                  }
+                },
+                child: WalletAvatarSmart(address: _wallet?.address, avatarImagePath: _wallet?.avatarImagePath, size: 30.w),
+              ),
+              SizedBox(width: 14.w),
+            ],
+          ),
+          body: SafeArea(
+            child: InAppWebView(
               initialUrlRequest: URLRequest(url: WebUri(normalizeUrl(widget.dappUrl))),
               initialSettings: InAppWebViewSettings(
                 javaScriptEnabled: true,
@@ -423,6 +453,13 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
                 );
               },
 
+              onTitleChanged: (controller, title) {
+                debugPrint('DApp title changed: $title');
+                setState(() {
+                  _pageTitle = (title ?? '').trim();
+                });
+              },
+
               onLoadStart: (controller, url) {
                 // 仅第一次加载显示 loading
                 if (!_firstLoadCompleted) {
@@ -466,9 +503,9 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
               },
             ),
           ),
-          if (_isLoading) LoadingFragments(progress: _progress),
-        ],
-      ),
+        ),
+        if (_isLoading) LoadingFragments(progress: _progress),
+      ],
     );
   }
 
@@ -478,5 +515,9 @@ class _DAppPageState extends ConsumerState<DappBrowser> {
 
   Future<bool?> _solanaContractInteractionBottomSheetWidget(Map<dynamic, dynamic> txPreview, Wallet wallet, String dappUrl) {
     return SolanaContractInteractionFragments.show(context, txPreview: txPreview, wallet: wallet, dappUrl: dappUrl);
+  }
+
+  Future<Wallet?> _toggleWalletShowModalBottomSheetWidget() async {
+    return ToggleWalletDialogFragments.show(context);
   }
 }
