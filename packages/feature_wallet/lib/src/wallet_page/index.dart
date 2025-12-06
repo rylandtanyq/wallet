@@ -439,8 +439,6 @@ class _WalletPageState extends ConsumerState<WalletPage>
           _fillteredTokensList = [];
           _addresses = [];
         });
-
-        loader.show(context, message: t.wallet.switching_wallet);
         try {
           await _loadingTokens();
           await _initWalletAndNetwork();
