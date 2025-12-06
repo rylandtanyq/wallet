@@ -32,22 +32,31 @@ class SolanaContractInteractionFragments extends StatelessWidget {
 
     final programId = txPreview['programId']?.toString() ?? 'Unknown Program';
     final feePayer = txPreview['feePayer']?.toString() ?? '';
-    final feeLamports = (txPreview['feeLamports'] as num?)?.toInt();
-    final walletBalanceLamports = (txPreview['walletBalanceLamports'] as num?)?.toInt();
+
+    // 从 preview 里拿数据
+    final num? feeLamportsRaw = txPreview['feeLamports'] as num?;
+    final num? walletBalanceRaw = txPreview['walletBalanceLamports'] as num?;
     final instructionCount = (txPreview['instructionCount'] as num?)?.toInt() ?? 0;
 
-    final feeSol = feeLamports != null ? feeLamports / 1e9 : null;
-    final walletSol = walletBalanceLamports != null ? walletBalanceLamports / 1e9 : null;
+    // 没拿到就用 5000 lamports 兜底（Solana base fee）
+    const int kBaseFeeLamports = 5000;
+    final int feeLamports = (feeLamportsRaw ?? kBaseFeeLamports).toInt();
 
-    // 判断 Gas 是否足够
-    // final int minSafeLamports = (0.001 * 1e9).toInt();
+    // 余额直接用 JS 传来的 lamports
+    final int? walletBalanceLamports = walletBalanceRaw?.toInt();
 
-    const int kAtaRentLamports = 2039280; // 大约 0.00203928 SOL
-    const int kDefaultFeeLamports = 5000; // 预估 tx fee, 估不到就用这个
+    // 如果暂时不算 ATA / 账户租金，就先不加：required = 纯网络 fee
+    final int requiredLamports = feeLamports;
 
-    final int requiredLamports = (feeLamports ?? kDefaultFeeLamports) + kAtaRentLamports;
+    final bool gasEnough = walletBalanceLamports != null && walletBalanceLamports >= requiredLamports;
 
-    bool gasEnough = walletBalanceLamports != null && walletBalanceLamports >= requiredLamports;
+    final double feeSol = feeLamports / 1e9;
+    final double? walletSol = walletBalanceLamports != null ? walletBalanceLamports / 1e9 : null;
+
+    debugPrint(
+      'feeLamports=$feeLamports, wallet=$walletBalanceLamports, '
+      'required=$requiredLamports, gasEnough=$gasEnough',
+    );
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
