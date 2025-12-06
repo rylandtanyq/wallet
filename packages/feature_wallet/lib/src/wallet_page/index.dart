@@ -60,6 +60,7 @@ class _WalletPageState extends ConsumerState<WalletPage>
   ProviderSubscription<AsyncValue<TokenPriceModel>>? _priceSub;
   Timer? _timer;
   bool _hadLocalTokens = false; // 本地有没有 token, 用于判定是否显示空态
+  bool _isCheckingWalletChange = false;
   Map<String, String> _lastPriceMap = {};
   double _parseNum(String s) {
     // 兼容 "1,234.56" 这类字符串；空值返回 0
@@ -425,6 +426,35 @@ class _WalletPageState extends ConsumerState<WalletPage>
     }
   }
 
+  Future<void> _checkWalletChanged() async {
+    if (_isCheckingWalletChange) return;
+    _isCheckingWalletChange = true;
+    try {
+      final newWallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
+
+      if (newWallet.address != _wallet.address) {
+        setState(() {
+          _wallet = newWallet;
+          _tokenList = [];
+          _fillteredTokensList = [];
+          _addresses = [];
+        });
+        try {
+          await _loadingTokens();
+          await _initWalletAndNetwork();
+          await Future.wait([_refreshTokenPrice(), _refreshTokenAmounts()]);
+        } finally {
+          loader.hide();
+          if (mounted) setState(() {});
+        }
+      }
+    } catch (e, st) {
+      debugPrint('_checkWalletChanged error: $e\n$st');
+    } finally {
+      _isCheckingWalletChange = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -450,6 +480,11 @@ class _WalletPageState extends ConsumerState<WalletPage>
       // {"id": "Arbitrum", "path": "assets/images/BTC.png", "netName": t.common.Arbitrum},
       // {"id": "Sui", "path": "assets/images/BTC.png", "netName": t.common.Sui},
     ];
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _checkWalletChanged();
+    });
 
     return Scaffold(
       appBar: AppBar(

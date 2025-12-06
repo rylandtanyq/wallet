@@ -107,7 +107,7 @@ class _SearchPageDappUserAgreementFragmentsState extends State<SearchPageDappUse
                       }
                       Navigator.of(context).pop(true);
                       Get.to(
-                        DappBrowser(dappUrl: widget.textEditing),
+                        () => DappBrowser(dappUrl: widget.textEditing),
                         transition: Transition.rightToLeft,
                         duration: const Duration(milliseconds: 300),
                       );
