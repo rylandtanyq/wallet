@@ -33,28 +33,33 @@ class SolanaContractInteractionFragments extends StatelessWidget {
     final programId = txPreview['programId']?.toString() ?? 'Unknown Program';
     final feePayer = txPreview['feePayer']?.toString() ?? '';
 
-    // 从 preview 里拿数据
+    // 预览数据（链上）
     final num? feeLamportsRaw = txPreview['feeLamports'] as num?;
     final num? walletBalanceRaw = txPreview['walletBalanceLamports'] as num?;
     final instructionCount = (txPreview['instructionCount'] as num?)?.toInt() ?? 0;
 
-    // 没拿到就用 5000 lamports 兜底（Solana base fee）
+    // 手续费：链上估算 + 兜底 5000 lamports
     const int kBaseFeeLamports = 5000;
     final int feeLamports = (feeLamportsRaw ?? kBaseFeeLamports).toInt();
-
-    // 余额直接用 JS 传来的 lamports
-    final int? walletBalanceLamports = walletBalanceRaw?.toInt();
-
-    // 如果暂时不算 ATA / 账户租金，就先不加：required = 纯网络 fee
     final int requiredLamports = feeLamports;
 
-    final bool gasEnough = walletBalanceLamports != null && walletBalanceLamports >= requiredLamports;
+    // 余额：只用链上的 lamports
+    final int? walletBalanceLamports = walletBalanceRaw != null ? walletBalanceRaw.toInt() : null;
 
+    // UI 展示的 SOL 值（如果拿不到链上余额，就不展示）
     final double feeSol = feeLamports / 1e9;
     final double? walletSol = walletBalanceLamports != null ? walletBalanceLamports / 1e9 : null;
 
+    // gasEnough：
+    //   - 拿到了链上余额：严格比较
+    //   - 没拿到（null）：视为“未知”，不拦截（让链上自己报错）
+    final bool gasEnough = walletBalanceLamports == null || walletBalanceLamports >= requiredLamports;
+
+    // 只有“明确知道余额 < 手续费”时才提示不足
+    final bool showInsufficientTip = walletBalanceLamports != null && walletBalanceLamports < requiredLamports;
+
     debugPrint(
-      'feeLamports=$feeLamports, wallet=$walletBalanceLamports, '
+      'feeLamports=$feeLamports, walletLamports=$walletBalanceLamports, '
       'required=$requiredLamports, gasEnough=$gasEnough',
     );
 
@@ -201,7 +206,7 @@ class SolanaContractInteractionFragments extends StatelessWidget {
                     children: [
                       Text(t.dapp_browser.estimatedGasFee, style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
                       Text(
-                        feeSol != null ? "${feeSol.toStringAsFixed(6)} SOL" : t.dapp_browser.estimating,
+                        "${feeSol.toStringAsFixed(6)} SOL",
                         style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
                       ),
                     ],
@@ -223,7 +228,7 @@ class SolanaContractInteractionFragments extends StatelessWidget {
               ),
             ),
 
-            if (!gasEnough)
+            if (showInsufficientTip)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 child: Container(

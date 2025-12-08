@@ -239,17 +239,39 @@ final String kSolanaProviderJs = r'''
             }
           }
 
-          // 查 feePayer 余额(SOL)
+          // ===== 关键改动：为余额查询做兜底 =====
           try {
             const anchorWeb3 = anchorGlobal?.web3;
-            if (conn && anchorWeb3 && feePayer) {
-              const feePayerPk = new anchorWeb3.PublicKey(feePayer);
-              const bal = await conn.getBalance(feePayerPk);
+            let balanceOwner = feePayer;
+
+            // 1) 交易里没带 feePayer，就用当前连接的钱包地址兜底
+            if (!balanceOwner && _publicKeyBase58) {
+              balanceOwner = _publicKeyBase58;
+            } else if (!balanceOwner && provider?.wallet?.publicKey?.toBase58) {
+              balanceOwner = provider.wallet.publicKey.toBase58();
+            }
+
+            // 2) 有可用地址时，查链上余额
+            if (conn && anchorWeb3 && balanceOwner) {
+              const ownerPk = new anchorWeb3.PublicKey(balanceOwner);
+              const bal = await conn.getBalance(ownerPk);
               walletBalanceLamports = bal ?? null;
+
+              // 如果原来没有 feePayer，就同步成 balanceOwner，方便 Flutter 显示 sender
+              if (!feePayer) {
+                feePayer = balanceOwner;
+              }
+
+              console.log('[FlutterWallet] _buildTxPreview balanceOwner =', balanceOwner,
+                'walletBalanceLamports =', walletBalanceLamports);
+            } else {
+              console.log('[FlutterWallet] skip getBalance: conn?', !!conn,
+                'anchorWeb3?', !!anchorWeb3, 'balanceOwner=', balanceOwner);
             }
           } catch (e) {
-            console.warn('[FlutterWallet] getBalance for feePayer failed', e);
+            console.warn('[FlutterWallet] getBalance for feePayer/balanceOwner failed', e);
           }
+          // ===== 关键改动结束 =====
 
           const preview = {
             programId,
