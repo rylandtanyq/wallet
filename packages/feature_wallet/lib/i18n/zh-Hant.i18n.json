@@ -136,7 +136,9 @@
         "Arbitrum": "Arbitrum",
         "Sui": "Sui",
         "searchNetwork": "搜尋網路",
-        "bankCard": "銀行卡"
+        "bankCard": "銀行卡",
+        "viewMnemonic": "查看助記詞",
+        "hidePrivateKey": "隱藏私鑰"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "選擇轉帳幣種",

@@ -136,7 +136,9 @@
         "Arbitrum": "Arbitrum",
         "Sui": "Sui",
         "searchNetwork": "Поиск сети",
-        "bankCard": "Карта"
+        "bankCard": "Карта",
+        "viewMnemonic": "Показать мнемоническую фразу",
+        "hidePrivateKey": "Скрыть приватный ключ"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Выбрать монету",

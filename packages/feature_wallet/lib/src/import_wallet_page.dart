@@ -192,7 +192,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
         network: wallet['currentNetwork'] ?? 'Solana',
         address: currentAddress ?? '',
         privateKey: _importKeyValue,
-        isBackUp: true,
+        isBackUp: false,
       );
       // 保存回 Hive
       await HiveStorage().putObject('currentSelectWallet', newWallet, boxName: boxWallet);

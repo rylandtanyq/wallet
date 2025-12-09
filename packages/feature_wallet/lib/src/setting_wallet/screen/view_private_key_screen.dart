@@ -11,8 +11,10 @@ import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_utils/biometric_service.dart';
 
 class ViewPrivateKeyScreen extends ConsumerStatefulWidget {
+  final String title;
   final String privateKey;
-  const ViewPrivateKeyScreen({super.key, required this.privateKey});
+  final String hideContent;
+  const ViewPrivateKeyScreen({super.key, required this.privateKey, required this.title, required this.hideContent});
 
   @override
   ConsumerState<ViewPrivateKeyScreen> createState() => _ViewPrivateKeyScreenState();
@@ -43,7 +45,7 @@ class _ViewPrivateKeyScreenState extends ConsumerState<ViewPrivateKeyScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      t.wallet.view_private_key,
+                      widget.title,
                       style: TextStyle(fontSize: 30, color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 10),
@@ -159,7 +161,7 @@ class _ViewPrivateKeyScreenState extends ConsumerState<ViewPrivateKeyScreen> {
                                   Icon(Icons.visibility_off_rounded, size: 18),
                                   SizedBox(width: 6.w),
                                   Text(
-                                    t.wallet.hide_mnemonic,
+                                    widget.hideContent,
                                     style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
                                   ),
                                 ],

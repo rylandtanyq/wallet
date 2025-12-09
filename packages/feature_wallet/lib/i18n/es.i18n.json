@@ -136,7 +136,9 @@
         "Arbitrum": "Arbitrum",
         "Sui": "Sui",
         "searchNetwork": "Buscar Red",
-        "bankCard": "Tarjeta"
+        "bankCard": "Tarjeta",
+        "viewMnemonic": "Ver frase mnemotécnica",
+        "hidePrivateKey": "Ocultar clave privada"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Seleccionar moneda",

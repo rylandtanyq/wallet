@@ -136,7 +136,9 @@
         "Arbitrum": "Arbitrum",
         "Sui": "Sui",
         "searchNetwork": "ネットワーク検索",
-        "bankCard": "カード"
+        "bankCard": "カード",
+        "viewMnemonic": "ニーモニックフレーズを表示",
+        "hidePrivateKey": "秘密鍵を非表示にする"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "送金通貨を選択",
