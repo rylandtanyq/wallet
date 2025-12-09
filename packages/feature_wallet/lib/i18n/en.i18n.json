@@ -136,7 +136,9 @@
         "Arbitrum": "Arbitrum",
         "Sui": "Sui",
         "searchNetwork": "Search Net",
-        "bankCard": "Card"
+        "bankCard": "Card",
+        "viewMnemonic": "View mnemonic phrase",
+        "hidePrivateKey": "Hide private key"
     },
     "transfer_receive_payment": {
         "selectTransferCoin": "Select Coin",
