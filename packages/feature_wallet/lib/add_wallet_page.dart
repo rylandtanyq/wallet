@@ -95,18 +95,18 @@ class _AddWalletPageState extends ConsumerState<AddWalletPage> with BasePage<Add
         'subTitle': t.wallet.importExistingWallet,
         'action': () => Get.toNamed('/profile'),
       },
-      {
-        'icon': 'assets/images/ic_wallet_hardware.png',
-        'mainTitle': t.wallet.connectHardwareWallet,
-        'subTitle': t.wallet.connectHardwareWalletByQr,
-        'action': () => Get.to(LinkHardwareWalletPage()),
-      },
-      {
-        'icon': 'assets/images/ic_wallet_observe.png',
-        'mainTitle': t.wallet.useWatchWallet,
-        'subTitle': t.wallet.trackWalletAssets,
-        'action': () => Get.to(ObserveWalletPage()),
-      },
+      // {
+      //   'icon': 'assets/images/ic_wallet_hardware.png',
+      //   'mainTitle': t.wallet.connectHardwareWallet,
+      //   'subTitle': t.wallet.connectHardwareWalletByQr,
+      //   'action': () => Get.to(LinkHardwareWalletPage()),
+      // },
+      // {
+      //   'icon': 'assets/images/ic_wallet_observe.png',
+      //   'mainTitle': t.wallet.useWatchWallet,
+      //   'subTitle': t.wallet.trackWalletAssets,
+      //   'action': () => Get.to(ObserveWalletPage()),
+      // },
     ];
 
     return Scaffold(
