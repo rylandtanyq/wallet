@@ -1,6 +1,10 @@
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:feature_main/src/search_page/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_ui/widget/base_page.dart';
 
 /*
@@ -24,7 +28,34 @@ class _DiscoveryDAppPageState extends State<DiscoveryDAppPage> with BasePage<Dis
       controller: _refreshController,
       header: const ClassicHeader(),
       onRefresh: _onRefresh,
-      child: SingleChildScrollView(child: Column(children: [Image.asset('assets/images/dapp.jpg'), SizedBox(height: 300)])),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsetsGeometry.symmetric(horizontal: 14.w),
+              child: GestureDetector(
+                onTap: () => Get.to(SearchPage(), transition: Transition.rightToLeft, popGesture: true),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(19.r)),
+                  padding: EdgeInsets.all(10),
+                  height: 37.h,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
+                      SizedBox(width: 8.w),
+                      Text('BTC/USDT', style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Image.asset('assets/images/dapp.jpg'),
+            SizedBox(height: 300),
+          ],
+        ),
+      ),
     );
   }
 
