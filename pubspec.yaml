@@ -189,6 +189,9 @@ flutter:
     - assets/images/fartcoin_right.png
     - assets/images/fartcoin_left.png
     - assets/images/contract_Increase.png
+    - assets/images/market.png
+    - assets/images/Chance.png
+    - assets/images/dapp.jpg
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg

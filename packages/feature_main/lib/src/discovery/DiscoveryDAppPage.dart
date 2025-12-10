@@ -24,7 +24,7 @@ class _DiscoveryDAppPageState extends State<DiscoveryDAppPage> with BasePage<Dis
       controller: _refreshController,
       header: const ClassicHeader(),
       onRefresh: _onRefresh,
-      child: SingleChildScrollView(child: Column(children: [Image.asset('assets/images/bg_marking_coin.jpg')])),
+      child: SingleChildScrollView(child: Column(children: [Image.asset('assets/images/dapp.jpg'), SizedBox(height: 300)])),
     );
   }
 
