@@ -30,10 +30,7 @@ class _SituationToChancePageState extends State<SituationToChancePage> with Base
       controller: _refreshController,
       header: const ClassicHeader(),
       onRefresh: _onRefresh,
-      child: Column(children: [
-
-        ],
-      ),
+      child: SingleChildScrollView(child: Image.asset("assets/images/Chance.png")),
     );
   }
 
