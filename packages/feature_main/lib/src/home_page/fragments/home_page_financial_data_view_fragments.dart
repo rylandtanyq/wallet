@@ -56,56 +56,59 @@ class HomePageFinancialDataViewFragments extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       color: Theme.of(context).colorScheme.background,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: () => {},
-            child: Row(
-              children: [
-                Text(t.home.name, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-                SizedBox(width: 3.w),
-                Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
-              ],
-            ),
-          ),
-          SizedBox(width: 30.w),
           Expanded(
-            flex: 2,
             child: GestureDetector(
               onTap: () => {},
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(t.home.volume_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-                  SizedBox(width: 3.w),
-                  Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
+                  Text("价格", style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  // SizedBox(width: 3.w),
+                  // Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
               ),
             ),
           ),
+          // SizedBox(width: 30.w),
+          // Expanded(
+          //   flex: 2,
+          //   child: GestureDetector(
+          //     onTap: () => {},
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //         Text(t.home.volume_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+          //         SizedBox(width: 3.w),
+          //         Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+          // Expanded(
+          //   flex: 2,
+          //   child: GestureDetector(
+          //     onTap: () => {},
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //         Text(t.home.latest_price, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+          //         SizedBox(width: 3.w),
+          //         Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           Expanded(
-            flex: 2,
+            // flex: 2,
             child: GestureDetector(
               onTap: () => {},
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(t.home.latest_price, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-                  SizedBox(width: 3.w),
-                  Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: GestureDetector(
-              onTap: () => {},
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(t.home.change_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-                  SizedBox(width: 3.w),
-                  Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
+                  Text("数量", style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  // SizedBox(width: 3.w),
+                  // Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
               ),
             ),
