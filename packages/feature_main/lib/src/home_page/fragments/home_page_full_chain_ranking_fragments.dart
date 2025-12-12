@@ -29,10 +29,6 @@ class _HomePageFullChainRankingFragmentsState extends State<HomePageFullChainRan
             ],
           ),
         ),
-        // HorizontalSelectList(
-        //   items: List.generate(10, (index) => '榜单 ${index + 1}'),
-        //   onSelected: (index) {},
-        // ),
         HomePageFinancialDataViewFragments(items: widget.tokesList),
         SizedBox(height: 13.h),
       ],

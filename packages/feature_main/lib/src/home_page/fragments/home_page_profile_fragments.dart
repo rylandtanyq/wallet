@@ -87,18 +87,18 @@ class _HomePageProfileFragmentsState extends State<HomePageProfileFragments> {
           ],
         ),
         SizedBox(height: 18.h),
-        MaterialButton(
-          onPressed: () {
-            //弹出充值dialog
-          },
-          height: 40.h, // 设置高度
-          minWidth: 175.w,
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45)),
-          color: Theme.of(context).colorScheme.primary,
-          textColor: Colors.white,
-          child: Text(t.home.recharge, style: TextStyle(fontSize: 17.sp)),
-        ),
+        // MaterialButton(
+        //   onPressed: () {
+        //     //弹出充值dialog
+        //   },
+        //   height: 40.h, // 设置高度
+        //   minWidth: 175.w,
+        //   elevation: 0,
+        //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45)),
+        //   color: Theme.of(context).colorScheme.primary,
+        //   textColor: Colors.white,
+        //   child: Text(t.home.recharge, style: TextStyle(fontSize: 17.sp)),
+        // ),
         SizedBox(height: 35.h),
       ],
     );

@@ -1,5 +1,5 @@
 {
     "APP_NAME": "TT Wallet",
-    "API_BASE_URL": "http://156.245.145.81:14949",
+    "API_BASE_URL": "http://156.245.144.194:14949",
     "SOLANA_RPC_URL": "https://dry-hardworking-cherry.solana-mainnet.quiknode.pro/d4a233a290e8af774e8007d488aac62582345be5/"
 }
