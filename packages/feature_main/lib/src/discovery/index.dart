@@ -4,19 +4,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_ui/widget/base_page.dart';
-import 'package:feature_main/src/trade/screen/trade_contract_screen.dart';
-import 'package:feature_main/src/trade/screen/trade_golden_dog_radar_screen.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
-import 'screen/trade_screen.dart';
+import 'screen/discovery_dapp_page.dart';
+import 'screen/discovery_hot_list_page.dart';
+import 'screen/discovery_making_coin_center_page.dart';
 
-class TradePage extends ConsumerStatefulWidget {
-  const TradePage({super.key});
+/*
+ *  tab-  发现 主页面
+ */
+class DiscoveryPage extends ConsumerStatefulWidget {
+  const DiscoveryPage({super.key});
 
   @override
-  ConsumerState<TradePage> createState() => _TradePageState();
+  ConsumerState<DiscoveryPage> createState() => _DiscoveryPageState();
 }
 
-class _TradePageState extends ConsumerState<TradePage> with BasePage<TradePage>, AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
+class _DiscoveryPageState extends ConsumerState<DiscoveryPage> with BasePage<DiscoveryPage>, AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
+  int _selectedIndex = 0;
+  final List<Widget> _pages = [DiscoveryDAppPage(), DiscoveryMakingCoinCenterPage(), DiscoveryHotListPage()];
   late TabController _tabController;
 
   @override
@@ -53,13 +58,32 @@ class _TradePageState extends ConsumerState<TradePage> with BasePage<TradePage>,
           dividerColor: Colors.transparent,
           overlayColor: MaterialStateProperty.all(Colors.transparent),
           tabs: [
-            Tab(child: Text(t.trade.transaction)),
-            Tab(child: Text(t.trade.jingouRadar)),
-            Tab(child: Text(t.trade.contract)),
+            Tab(child: Text("Dapp")),
+            Tab(child: Text(t.discovery.earnCenter)),
+            Tab(child: Text(t.discovery.hotList)),
           ],
         ),
       ),
-      body: TabBarView(controller: _tabController, children: [TradeScreen(), TradeGoldenDogRadarScreen(), TradeContractScreen()]),
+      body: TabBarView(controller: _tabController, children: [DiscoveryDAppPage(), DiscoveryMakingCoinCenterPage(), DiscoveryHotListPage()]),
+    );
+  }
+
+  Widget _buildTabText(int index, String text) {
+    return GestureDetector(
+      onTap: () => setState(() => _selectedIndex = index),
+      child: Container(
+        margin: EdgeInsets.only(right: 30.w),
+        padding: EdgeInsets.all(5.w),
+        child: Text(
+          text,
+          style: AppTextStyles.headline4.copyWith(
+            color: _selectedIndex == index ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
     );
   }
 
