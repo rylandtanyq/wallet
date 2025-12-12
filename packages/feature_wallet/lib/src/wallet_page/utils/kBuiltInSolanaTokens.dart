@@ -2,7 +2,7 @@ import 'package:feature_wallet/hive/tokens.dart';
 
 final List<Tokens> kBuiltInSolanaTokens = [
   Tokens(
-    image: 'https://assets.coingecko.com/coins/images/4128/standard/solana.png?1718769756',
+    image: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
     title: 'SOL',
     subtitle: 'Solana',
     price: '0.00',
@@ -11,7 +11,8 @@ final List<Tokens> kBuiltInSolanaTokens = [
     tokenAddress: 'SOL',
   ),
   Tokens(
-    image: 'https://assets.coingecko.com/coins/images/325/standard/Tether.png?1696501661',
+    image:
+        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png',
     title: 'USDT',
     subtitle: 'USDT',
     price: '0.00',
@@ -20,7 +21,8 @@ final List<Tokens> kBuiltInSolanaTokens = [
     tokenAddress: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
   ),
   Tokens(
-    image: 'https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694',
+    image:
+        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48/logo.png',
     title: 'USDC',
     subtitle: 'USDC',
     price: '0.00',

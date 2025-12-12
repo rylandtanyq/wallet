@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:feature_main/src/home_page/models/token_price_model.dart';
+import 'package:feature_main/src/home_page/service/wallet_page_provide.dart';
+import 'package:feature_main/src/home_page/utils/k_build_coins.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,13 +14,9 @@ import 'package:shared_utils/hive_storage.dart';
 import 'package:shared_utils/hive_boxes.dart';
 import 'package:feature_wallet/hive/tokens.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_appbar_fragments.dart';
-import 'package:feature_main/src/home_page/fragments/home_page_backup_fragments.dart';
-import 'package:feature_main/src/home_page/fragments/home_page_earn_coins_fragments.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_full_chain_ranking_fragments.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_more_fragments.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_profile_fragments.dart';
-import 'package:feature_main/src/home_page/fragments/home_page_trading_contract_fragments.dart';
-import 'package:feature_main/src/home_page/fragments/home_page_trending_tokens_fragments.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_user_guide_fragments.dart';
 import 'package:feature_wallet/hive/Wallet.dart';
 
@@ -35,11 +34,14 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   StreamSubscription? _hiveSub;
   StreamSubscription? _hiveWallet;
   List<Tokens> _tokenList = [];
+  late List<String> _addresses = [];
+  ProviderSubscription<AsyncValue<TokenPriceModel>>? _priceSub;
   String tokensListKey(String address) => 'tokens_$address';
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
     _totalFuture = computeTotalFromHive2dp();
     _wallet = getCurrentSelectWallet();
     Hive.openBox(boxTokens).then((box) {
@@ -62,7 +64,13 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   void dispose() {
     _hiveSub?.cancel();
     _hiveWallet?.cancel();
+    _priceSub?.close();
     super.dispose();
+  }
+
+  Future<void> _bootstrap() async {
+    await _loaddingTokens();
+    await _refreshTokensPrice();
   }
 
   Future<String> computeTotalFromHive2dp() async {
@@ -70,7 +78,6 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
     final key = tokensListKey(reqAddr);
     final raw = await HiveStorage().getList<Map>(key, boxName: boxTokens) ?? const <Map>[];
     final tokens = raw.map((e) => Tokens.fromJson(Map<String, dynamic>.from(e))).toList();
-    if (mounted) setState(() => _tokenList = tokens);
     final sum = tokens.fold<double>(
       0.0,
       (acc, t) => acc + (double.tryParse(t.price.replaceAll(',', '').trim()) ?? 0.0) * (double.tryParse(t.number.replaceAll(',', '').trim()) ?? 0.0),
@@ -82,6 +89,50 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   Future<Wallet> getCurrentSelectWallet() async {
     final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet) ?? Wallet.empty();
     return wallet;
+  }
+
+  Future<void> _loaddingTokens() async {
+    for (final builtIn in kBuiltCoins) {
+      _tokenList.add(builtIn);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _refreshTokensPrice() async {
+    // 收集地址（统一小写、去重；SOL 无地址先略过）
+    final addresses = _tokenList.map((t) => t.tokenAddress.trim()).where((s) => s.isNotEmpty).toSet().toList();
+    if (mounted) setState(() => _addresses = addresses);
+
+    ref.read(getWalletTokensPriceProvide(_addresses).notifier).fetchWalletTokenPriceData(_addresses);
+    _priceSub?.close();
+    _priceSub = ref.listenManual<AsyncValue<TokenPriceModel>>(getWalletTokensPriceProvide(_addresses), (prev, next) {
+      next.when(
+        data: (data) {
+          final priceMap = <String, String>{for (final p in data.result) p.address.trim(): p.unitPrice};
+
+          // 合并回内存列表
+          for (var i = 0; i < _tokenList.length; i++) {
+            final t = _tokenList[i];
+            final addr = t.tokenAddress.trim();
+
+            final newPrice = priceMap[addr];
+            if (newPrice == null) continue;
+
+            _tokenList[i] = Tokens(
+              image: t.image,
+              title: t.title,
+              subtitle: t.subtitle,
+              price: newPrice, // 覆盖价格
+              number: t.number,
+              toadd: t.toadd,
+              tokenAddress: t.tokenAddress,
+            );
+          }
+        },
+        loading: () {},
+        error: (e, StackTrace) {},
+      );
+    });
   }
 
   @override
