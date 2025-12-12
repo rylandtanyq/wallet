@@ -219,5 +219,25 @@
         "expectedOrderPrice": "Precio esperado de la orden",
         "enterPrice": "Introduce el precio",
         "confirm": "Confirmar"
+    },
+    "discovery": {
+        "dappSearchPlaceholder": "Introduce el nombre o la URL de la DApp",
+        "featured": "Destacados",
+        "myDapps": "Mis DApps",
+        "categoryGameFi": "GameFi",
+        "categoryNft": "NFT",
+        "categoryExchange": "Exchange",
+        "onchainTrending": "Tendencias on-chain",
+        "ttDao": "TT DAO",
+        "ttWalletTagline": "TT Wallet, una billetera descentralizada todo en uno",
+        "raydium": "Raydium",
+        "raydiumDescription": "Plataforma DEX eficiente en la red de Solana",
+        "aave": "Aave",
+        "aaveDescription": "Protocolo líder de préstamos descentralizados multichain",
+        "thirdPartyServiceProvided": "Este servicio es proporcionado por un proveedor de servicios de terceros",
+        "earnCenter": "Centro de ganancias",
+        "shopping": "Compras",
+        "faucetCenter": "Centro de faucet",
+        "hotList": "Lista en tendencia"
     }
 }

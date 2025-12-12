@@ -219,5 +219,25 @@
         "expectedOrderPrice": "予想注文価格",
         "enterPrice": "価格を入力",
         "confirm": "確認"
+    },
+    "discovery": {
+        "dappSearchPlaceholder": "DApp 名または URL を入力",
+        "featured": "おすすめ",
+        "myDapps": "マイ DApp",
+        "categoryGameFi": "GameFi",
+        "categoryNft": "NFT",
+        "categoryExchange": "Exchange",
+        "onchainTrending": "オンチェーントレンド",
+        "ttDao": "TT DAO",
+        "ttWalletTagline": "TT Wallet ― 分散型ワンストップウォレット",
+        "raydium": "Raydium",
+        "raydiumDescription": "Solana チェーン上の高効率な DEX プラットフォーム",
+        "aave": "Aave",
+        "aaveDescription": "マルチチェーン対応の大手分散型レンディングプロトコル",
+        "thirdPartyServiceProvided": "本サービスはサードパーティ事業者によって提供されています",
+        "earnCenter": "収益センター",
+        "shopping": "ショッピング",
+        "faucetCenter": "ファウセットセンター",
+        "hotList": "人気ランキング"
     }
 }

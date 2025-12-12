@@ -82,7 +82,6 @@ flutter:
     - assets/fonts/iconfont.json
 
     - assets/icon/TT_icon.png
-    - assets/icon/app_icon_launch.png
     - assets/images/ic_arrows_right.png
     - assets/images/ic_arrows_down.png
     - assets/images/ic_tab_home.png
@@ -191,7 +190,13 @@ flutter:
     - assets/images/contract_Increase.png
     - assets/images/market.png
     - assets/images/Chance.png
-    - assets/images/dapp.jpg
+    - assets/images/theoriq.png
+    - assets/images/earn_coin_center.png
+    - assets/images/merkl.png
+    - assets/images/water_conservancy_center.png
+    - assets/images/tt_link.png
+    - assets/images/tt_dao.png
+    - assets/images/aave_link.png
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg

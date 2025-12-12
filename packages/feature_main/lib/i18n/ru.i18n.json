@@ -219,5 +219,25 @@
         "expectedOrderPrice": "Ожидаемая цена ордера",
         "enterPrice": "Введите цену",
         "confirm": "Подтвердить"
+    },
+    "discovery": {
+        "dappSearchPlaceholder": "Введите название DApp или URL",
+        "featured": "Рекомендованные",
+        "myDapps": "Мои DApp",
+        "categoryGameFi": "GameFi",
+        "categoryNft": "NFT",
+        "categoryExchange": "Exchange",
+        "onchainTrending": "On-chain тренды",
+        "ttDao": "TT DAO",
+        "ttWalletTagline": "TT Wallet — децентрализованный многофункциональный кошелёк",
+        "raydium": "Raydium",
+        "raydiumDescription": "Высокопроизводительная DEX-платформа в сети Solana",
+        "aave": "Aave",
+        "aaveDescription": "Ведущий мультичейн протокол децентрализованного кредитования",
+        "thirdPartyServiceProvided": "Эта услуга предоставляется сторонним поставщиком услуг",
+        "earnCenter": "Центр заработка",
+        "shopping": "Покупки",
+        "faucetCenter": "Центр раздачи (faucet)",
+        "hotList": "Топ-лист"
     }
 }

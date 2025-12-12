@@ -1,5 +1,5 @@
 import 'package:feature_main/i18n/strings.g.dart';
-import 'package:feature_main/src/discovery/DiscoveryPage.dart';
+import 'package:feature_main/src/discovery/index.dart';
 import 'package:feature_main/src/home_page/index.dart';
 import 'package:feature_main/src/situation/SituationPage.dart';
 import 'package:feature_main/src/trade/index.dart';
