@@ -15,6 +15,7 @@ import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_ui/widget/base_page.dart';
 import 'package:shared_ui/widget/sticky_tabbar_delegate.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 /*
  * 发现 DApp
@@ -47,6 +48,8 @@ class _DiscoveryDAppPageState extends ConsumerState<DiscoveryDAppPage>
   Widget build(BuildContext context) {
     super.build(context);
     ref.watch(localeProvider);
+
+    final images = ["assets/images/banner_one.jpg", "assets/images/banner_two.jpg"];
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 14.w),
@@ -81,9 +84,22 @@ class _DiscoveryDAppPageState extends ConsumerState<DiscoveryDAppPage>
                 width: double.infinity,
                 height: 180.h,
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.r)),
-                child: Image.asset("assets/images/theoriq.png"),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: CarouselSlider(
+                    items: images.map((e) => Image.asset(e, fit: BoxFit.cover, width: double.infinity)).toList(),
+                    options: CarouselOptions(
+                      height: 180.h,
+                      autoPlay: true,
+                      autoPlayInterval: const Duration(seconds: 5),
+                      viewportFraction: 1.0,
+                      enlargeCenterPage: false,
+                    ),
+                  ),
+                ),
               ),
             ),
+
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.only(top: 44, bottom: 50),

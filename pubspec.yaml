@@ -190,13 +190,14 @@ flutter:
     - assets/images/contract_Increase.png
     - assets/images/market.png
     - assets/images/Chance.png
-    - assets/images/theoriq.png
     - assets/images/earn_coin_center.png
     - assets/images/merkl.png
     - assets/images/water_conservancy_center.png
     - assets/images/tt_link.png
     - assets/images/tt_dao.png
     - assets/images/aave_link.png
+    - assets/images/banner_one.jpg
+    - assets/images/banner_two.jpg
 
     - assets/images/bg_jiaoyi.jpg
     - assets/images/bg_jiaoyiheyue.jpg
