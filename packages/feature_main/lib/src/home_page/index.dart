@@ -41,7 +41,7 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   @override
   void initState() {
     super.initState();
-    _bootstrap();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
     _totalFuture = computeTotalFromHive2dp();
     _wallet = getCurrentSelectWallet();
     Hive.openBox(boxTokens).then((box) {
@@ -92,9 +92,10 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   }
 
   Future<void> _loaddingTokens() async {
-    for (final builtIn in kBuiltCoins) {
-      _tokenList.add(builtIn);
-    }
+    _tokenList
+      ..clear()
+      ..addAll(kBuiltCoins);
+
     if (mounted) setState(() {});
   }
 
@@ -128,6 +129,7 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
               tokenAddress: t.tokenAddress,
             );
           }
+          if (mounted) setState(() {});
         },
         loading: () {},
         error: (e, StackTrace) {},
