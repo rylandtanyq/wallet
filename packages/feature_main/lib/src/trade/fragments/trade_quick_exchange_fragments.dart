@@ -54,7 +54,7 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
     if (mint == 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v') return 6; // USDC
     if (mint == 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB') return 6; // USDT
 
-    return 6; // 实在不知道就当 6 位
+    return 6;
   }
 
   String _symbolForMint(String mint) {
@@ -74,6 +74,7 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
     debugPrint('$tradeSwapQuoteData res ');
 
     return ListView(
+      physics: NeverScrollableScrollPhysics(),
       children: [
         Stack(
           alignment: Alignment.center,
@@ -114,7 +115,7 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
                         children: [
                           Row(
                             children: [
-                              Image.asset(_sellToken.logo, width: 40, height: 40),
+                              ClipRRect(borderRadius: BorderRadius.circular(50), child: Image.network(_sellToken.logo, width: 40, height: 40)),
                               SizedBox(width: 6),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,7 +196,7 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
                         children: [
                           Row(
                             children: [
-                              Image.asset(_buyToken.logo, width: 40, height: 40),
+                              ClipRRect(borderRadius: BorderRadius.circular(50), child: Image.network(_buyToken.logo, width: 40, height: 40)),
                               SizedBox(width: 6),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
