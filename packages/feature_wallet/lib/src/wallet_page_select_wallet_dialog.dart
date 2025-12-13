@@ -226,7 +226,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
               icon: Image.asset('assets/images/ic_wallet_edit.png', width: 20.h, height: 20.h),
               onPressed: () async {
                 Navigator.pop(context);
-                final result = await Get.to(SettingWalletPage(), arguments: item);
+                final result = await Get.to(() => SettingWalletPage(), arguments: item);
                 if (!mounted) return;
 
                 if (result == true) {

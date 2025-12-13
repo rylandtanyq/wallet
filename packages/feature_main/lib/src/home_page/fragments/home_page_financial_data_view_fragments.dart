@@ -24,29 +24,29 @@ class HomePageFinancialDataViewFragments extends StatelessWidget {
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
           // padding: EdgeInsets.all(8),
-          itemCount: items.length.clamp(0, 5).toInt(),
+          itemCount: items.length,
           itemBuilder: (context, index) => _buildItemRow(items[index], context),
         ),
-        if (items.length > 5)
-          SizedBox(
-            width: 100.w,
-            height: 32.h,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.onSecondary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.0),
-              ),
-              onPressed: () {
-                Get.to(() => const AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
-              },
-              child: Text(
-                t.home.view_all,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
-              ),
-            ),
-          ),
+        // if (items.length > 5)
+        //   SizedBox(
+        //     width: 100.w,
+        //     height: 32.h,
+        //     child: ElevatedButton(
+        //       style: ElevatedButton.styleFrom(
+        //         backgroundColor: Theme.of(context).colorScheme.onSecondary,
+        //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        //         padding: const EdgeInsets.symmetric(vertical: 5),
+        //         side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.0),
+        //       ),
+        //       onPressed: () {
+        //         Get.to(() => const AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+        //       },
+        //       child: Text(
+        //         t.home.view_all,
+        //         style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+        //       ),
+        //     ),
+        //   ),
       ],
     );
   }
@@ -56,56 +56,59 @@ class HomePageFinancialDataViewFragments extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       color: Theme.of(context).colorScheme.background,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: () => {},
-            child: Row(
-              children: [
-                Text(t.home.name, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-                SizedBox(width: 3.w),
-                Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
-              ],
-            ),
-          ),
-          SizedBox(width: 30.w),
           Expanded(
-            flex: 2,
             child: GestureDetector(
               onTap: () => {},
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(t.home.volume_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-                  SizedBox(width: 3.w),
-                  Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
+                  Text("名称", style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  // SizedBox(width: 3.w),
+                  // Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
               ),
             ),
           ),
+          // SizedBox(width: 30.w),
+          // Expanded(
+          //   flex: 2,
+          //   child: GestureDetector(
+          //     onTap: () => {},
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //         Text(t.home.volume_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+          //         SizedBox(width: 3.w),
+          //         Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+          // Expanded(
+          //   flex: 2,
+          //   child: GestureDetector(
+          //     onTap: () => {},
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //         Text(t.home.latest_price, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+          //         SizedBox(width: 3.w),
+          //         Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           Expanded(
-            flex: 2,
+            // flex: 2,
             child: GestureDetector(
               onTap: () => {},
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(t.home.latest_price, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-                  SizedBox(width: 3.w),
-                  Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: GestureDetector(
-              onTap: () => {},
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(t.home.change_24h, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-                  SizedBox(width: 3.w),
-                  Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
+                  Text("价格", style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
+                  // SizedBox(width: 3.w),
+                  // Image.asset('assets/images/ic_home_sort_default.png', width: 8.5.w, height: 10.h),
                 ],
               ),
             ),
@@ -126,18 +129,13 @@ class HomePageFinancialDataViewFragments extends StatelessWidget {
           ClipRRect(borderRadius: BorderRadius.circular(50), child: TokenIcon(item.image, size: 40)),
           SizedBox(width: 10.w),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      // 'USDT',
-                      item.title,
-                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
-                    ),
-                    SizedBox(width: 6),
-                  ],
+                Text(
+                  // 'USDT',
+                  item.title,
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
                 ),
                 Text(
                   '\$${toFixedTrunc(item.price)}',
@@ -146,19 +144,19 @@ class HomePageFinancialDataViewFragments extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                toFixedTrunc(item.number, digits: 2),
-                style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground),
-              ),
-              Text(
-                '\$${toFixedTrunc((totalPrice).toString(), digits: 2)}',
-                style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+          // Column(
+          //   crossAxisAlignment: CrossAxisAlignment.end,
+          //   children: [
+          //     Text(
+          //       toFixedTrunc(item.number, digits: 2),
+          //       style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onBackground),
+          //     ),
+          //     Text(
+          //       '\$${toFixedTrunc((totalPrice).toString(), digits: 2)}',
+          //       style: TextStyle(fontSize: 14.sp, color: Colors.grey, fontWeight: FontWeight.bold),
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );

@@ -219,5 +219,25 @@
         "expectedOrderPrice": "预期挂单价格",
         "enterPrice": "填入价格",
         "confirm": "确认"
+    },
+    "discovery": {
+        "dappSearchPlaceholder": "输入 DApp 名称或网址",
+        "featured": "精选",
+        "myDapps": "我的",
+        "categoryGameFi": "GameFi",
+        "categoryNft": "NFT",
+        "categoryExchange": "Exchange",
+        "onchainTrending": "链上飙升",
+        "ttDao": "TT DAO",
+        "ttWalletTagline": "TT Wallet 去中心化一站式服务钱包",
+        "raydium": "Raydium",
+        "raydiumDescription": "Solana 链上高效 DEX 平台",
+        "aave": "Aave",
+        "aaveDescription": "多链头部去中心化借贷协议",
+        "thirdPartyServiceProvided": "本服务由第三方服务商所提供",
+        "earnCenter": "赚币中心",
+        "shopping": "购物",
+        "faucetCenter": "领水中心",
+        "hotList": "热榜"
     }
 }

@@ -26,7 +26,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
+      height: MediaQuery.of(context).size.height * 0.4,
       padding: EdgeInsets.only(bottom: 20.h),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -73,21 +73,21 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                       Get.to(ImportWalletPage());
                     },
                   ),
-                  _buildCreateCard(
-                    'assets/images/ic_wallet_create.png',
-                    t.wallet.noPrivateKeyWallet,
-                    '',
-                    _isPrivateKeyTextVisible,
-                    () {
-                      setState(() {
-                        _isPrivateKeyTextVisible = !_isPrivateKeyTextVisible;
-                      });
-                    },
-                    () {
-                      Navigator.pop(context);
-                      Get.to(LinkHardwareWalletPage());
-                    },
-                  ),
+                  // _buildCreateCard(
+                  //   'assets/images/ic_wallet_create.png',
+                  //   t.wallet.noPrivateKeyWallet,
+                  //   '',
+                  //   _isPrivateKeyTextVisible,
+                  //   () {
+                  //     setState(() {
+                  //       _isPrivateKeyTextVisible = !_isPrivateKeyTextVisible;
+                  //     });
+                  //   },
+                  //   () {
+                  //     Navigator.pop(context);
+                  //     Get.to(LinkHardwareWalletPage());
+                  //   },
+                  // ),
                 ],
               ),
             ),

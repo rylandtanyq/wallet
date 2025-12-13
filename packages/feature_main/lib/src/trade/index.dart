@@ -26,6 +26,12 @@ class _TradePageState extends ConsumerState<TradePage> with BasePage<TradePage>,
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     ref.watch(localeProvider);

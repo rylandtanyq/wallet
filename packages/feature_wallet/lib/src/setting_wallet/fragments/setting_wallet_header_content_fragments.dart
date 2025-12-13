@@ -23,21 +23,21 @@ class SettingWalletHeaderContentFragments extends StatelessWidget {
             style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8.h),
-          GestureDetector(
-            onTap: () {},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'ID: deed...27dc',
-                  style: TextStyle(fontSize: 12.sp, color: AppColors.color_757F7F),
-                ),
-                SizedBox(width: 8.w),
-                Image.asset('assets/images/ic_wallet_copy.png', width: 13.w, height: 13.w),
-              ],
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {},
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     mainAxisSize: MainAxisSize.min,
+          //     children: [
+          //       Text(
+          //         'ID: deed...27dc',
+          //         style: TextStyle(fontSize: 12.sp, color: AppColors.color_757F7F),
+          //       ),
+          //       SizedBox(width: 8.w),
+          //       Image.asset('assets/images/ic_wallet_copy.png', width: 13.w, height: 13.w),
+          //     ],
+          //   ),
+          // ),
           SizedBox(width: 8.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -63,183 +63,184 @@ class _SituationChildPageState extends State<SituationChildPage> with BasePage<S
     final pageCount = (_items.length / _itemsPerPage).ceil();
     final List<String> tabs = [t.situation.favorites, t.situation.allChains, t.situation.contract];
     return Scaffold(
-      body: EasyRefresh(
-        controller: _refreshController,
-        header: ClassicHeader(),
-        onRefresh: _onRefresh,
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 50.h,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 15.h),
-                        padding: EdgeInsets.all(10.w),
-                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(19.r)),
-                        height: 37.h,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
-                            SizedBox(width: 8.w),
-                            Text(t.situation.searchCoins, style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  // 固定高度的PageView+GridView
-                  SizedBox(
-                    height: 100.h, // 正方形高度(根据宽度)
-                    child: PageView.builder(
-                      controller: _indicatorPageController,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentIndicatorPage = index;
-                        });
-                      },
-                      itemCount: pageCount,
-                      itemBuilder: (context, pageIndex) {
-                        return GridView.builder(
-                          physics: const NeverScrollableScrollPhysics(), // 禁止GridView自身滚动
-                          padding: const EdgeInsets.all(16),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3, // 每行4个项目
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            childAspectRatio: 1.0,
-                          ),
-                          itemCount: _itemsPerPage,
-                          itemBuilder: (context, index) {
-                            final itemIndex = pageIndex * _itemsPerPage + index;
-                            if (itemIndex >= _items.length) return Container();
-                            return _buildTopCoinItemView();
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  // 分页指示器
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20, top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(pageCount, (index) {
-                        return GestureDetector(
-                          onTap: () {
-                            _indicatorPageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: _currentIndicatorPage == index ? 24 : 12, // 当前页线条更长
-                            height: 4,
-                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2),
-                              color: _currentIndicatorPage == index
-                                  ? Colors
-                                        .black // 当前页颜色
-                                  : Colors.grey.withOpacity(0.3), // 其他页颜色
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: SliverHeaderDelegate(
-                maxHeight: 60,
-                minHeight: 60,
-                rebuildKey: _selectedIndex,
-                child: Stack(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 32.5.h), // 行高+间距，确保横线和指示器在同一行
-                      height: 0.5,
-                      width: double.infinity,
-                      color: Color(0xFFEEEEEE),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: List.generate(tabs.length, (index) {
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedIndex = index;
-                            });
-                            _pageController.animateToPage(index, duration: Duration(milliseconds: 250), curve: Curves.ease);
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Builder(
-                                    builder: (context) {
-                                      final isSelected = _selectedIndex == index;
-                                      return Text(
-                                        tabs[index],
-                                        style: AppTextStyles.size15.copyWith(
-                                          color: isSelected ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                SizedBox(height: 6.h),
-                                AnimatedContainer(
-                                  duration: Duration(milliseconds: 200),
-                                  height: 2.5.h,
-                                  width: 33.w,
-                                  decoration: BoxDecoration(
-                                    color: _selectedIndex == index ? Theme.of(context).colorScheme.onBackground : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(1.5.h),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+      body: SingleChildScrollView(child: Image.asset("assets/images/market.png")),
+      // EasyRefresh(
+      //   controller: _refreshController,
+      //   header: ClassicHeader(),
+      //   onRefresh: _onRefresh,
+      //   child: CustomScrollView(
+      //     slivers: [
+      //       SliverToBoxAdapter(
+      //         child: SizedBox(
+      //           height: 50.h,
+      //           child: Row(
+      //             children: [
+      //               Expanded(
+      //                 child: Container(
+      //                   margin: EdgeInsets.symmetric(horizontal: 15.h),
+      //                   padding: EdgeInsets.all(10.w),
+      //                   decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(19.r)),
+      //                   height: 37.h,
+      //                   child: Row(
+      //                     mainAxisSize: MainAxisSize.min,
+      //                     children: [
+      //                       Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
+      //                       SizedBox(width: 8.w),
+      //                       Text(t.situation.searchCoins, style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+      //                     ],
+      //                   ),
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       ),
+      //       SliverToBoxAdapter(
+      //         child: Column(
+      //           children: [
+      //             // 固定高度的PageView+GridView
+      //             SizedBox(
+      //               height: 100.h, // 正方形高度(根据宽度)
+      //               child: PageView.builder(
+      //                 controller: _indicatorPageController,
+      //                 onPageChanged: (index) {
+      //                   setState(() {
+      //                     _currentIndicatorPage = index;
+      //                   });
+      //                 },
+      //                 itemCount: pageCount,
+      //                 itemBuilder: (context, pageIndex) {
+      //                   return GridView.builder(
+      //                     physics: const NeverScrollableScrollPhysics(), // 禁止GridView自身滚动
+      //                     padding: const EdgeInsets.all(16),
+      //                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      //                       crossAxisCount: 3, // 每行4个项目
+      //                       crossAxisSpacing: 10,
+      //                       mainAxisSpacing: 10,
+      //                       childAspectRatio: 1.0,
+      //                     ),
+      //                     itemCount: _itemsPerPage,
+      //                     itemBuilder: (context, index) {
+      //                       final itemIndex = pageIndex * _itemsPerPage + index;
+      //                       if (itemIndex >= _items.length) return Container();
+      //                       return _buildTopCoinItemView();
+      //                     },
+      //                   );
+      //                 },
+      //               ),
+      //             ),
+      //             // 分页指示器
+      //             Padding(
+      //               padding: const EdgeInsets.only(bottom: 20, top: 10),
+      //               child: Row(
+      //                 mainAxisAlignment: MainAxisAlignment.center,
+      //                 children: List.generate(pageCount, (index) {
+      //                   return GestureDetector(
+      //                     onTap: () {
+      //                       _indicatorPageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+      //                     },
+      //                     child: AnimatedContainer(
+      //                       duration: const Duration(milliseconds: 300),
+      //                       width: _currentIndicatorPage == index ? 24 : 12, // 当前页线条更长
+      //                       height: 4,
+      //                       margin: const EdgeInsets.symmetric(horizontal: 2),
+      //                       decoration: BoxDecoration(
+      //                         borderRadius: BorderRadius.circular(2),
+      //                         color: _currentIndicatorPage == index
+      //                             ? Colors
+      //                                   .black // 当前页颜色
+      //                             : Colors.grey.withOpacity(0.3), // 其他页颜色
+      //                       ),
+      //                     ),
+      //                   );
+      //                 }),
+      //               ),
+      //             ),
+      //           ],
+      //         ),
+      //       ),
+      //       SliverPersistentHeader(
+      //         pinned: true,
+      //         delegate: SliverHeaderDelegate(
+      //           maxHeight: 60,
+      //           minHeight: 60,
+      //           rebuildKey: _selectedIndex,
+      //           child: Stack(
+      //             children: [
+      //               Container(
+      //                 margin: EdgeInsets.only(top: 32.5.h), // 行高+间距，确保横线和指示器在同一行
+      //                 height: 0.5,
+      //                 width: double.infinity,
+      //                 color: Color(0xFFEEEEEE),
+      //               ),
+      //               Row(
+      //                 mainAxisSize: MainAxisSize.max,
+      //                 mainAxisAlignment: MainAxisAlignment.start,
+      //                 children: List.generate(tabs.length, (index) {
+      //                   return GestureDetector(
+      //                     onTap: () {
+      //                       setState(() {
+      //                         _selectedIndex = index;
+      //                       });
+      //                       _pageController.animateToPage(index, duration: Duration(milliseconds: 250), curve: Curves.ease);
+      //                     },
+      //                     child: Container(
+      //                       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      //                       child: Column(
+      //                         mainAxisSize: MainAxisSize.min,
+      //                         crossAxisAlignment: CrossAxisAlignment.center,
+      //                         children: [
+      //                           Align(
+      //                             alignment: Alignment.centerLeft,
+      //                             child: Builder(
+      //                               builder: (context) {
+      //                                 final isSelected = _selectedIndex == index;
+      //                                 return Text(
+      //                                   tabs[index],
+      //                                   style: AppTextStyles.size15.copyWith(
+      //                                     color: isSelected ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.onSurface,
+      //                                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      //                                   ),
+      //                                 );
+      //                               },
+      //                             ),
+      //                           ),
+      //                           SizedBox(height: 6.h),
+      //                           AnimatedContainer(
+      //                             duration: Duration(milliseconds: 200),
+      //                             height: 2.5.h,
+      //                             width: 33.w,
+      //                             decoration: BoxDecoration(
+      //                               color: _selectedIndex == index ? Theme.of(context).colorScheme.onBackground : Colors.transparent,
+      //                               borderRadius: BorderRadius.circular(1.5.h),
+      //                             ),
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     ),
+      //                   );
+      //                 }),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       ),
 
-            SliverFillRemaining(
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: (index) {
-                  setState(() {
-                    _selectedIndex = index;
-                  });
-                },
-                children: [_buildOptionalPage(), _buildShopPage(), _buildProfilePage()],
-              ),
-            ),
-          ],
-        ),
-      ),
+      //       SliverFillRemaining(
+      //         child: PageView(
+      //           controller: _pageController,
+      //           physics: const NeverScrollableScrollPhysics(),
+      //           onPageChanged: (index) {
+      //             setState(() {
+      //               _selectedIndex = index;
+      //             });
+      //           },
+      //           children: [_buildOptionalPage(), _buildShopPage(), _buildProfilePage()],
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 

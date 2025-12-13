@@ -131,12 +131,34 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
                       isVerify: false,
                       onTap: () {
                         Get.to(
-                          () => ViewPrivateKeyScreen(privateKey: _wallet.privateKey),
+                          () => ViewPrivateKeyScreen(
+                            title: t.wallet.view_private_key,
+                            privateKey: _wallet.privateKey,
+                            hideContent: t.wallet.hidePrivateKey,
+                          ),
                           transition: Transition.rightToLeft,
                           duration: const Duration(milliseconds: 300),
                         );
                       },
                     ),
+                    if (_wallet.isBackUp)
+                      SettingWalletListItem(
+                        icon: '',
+                        mainTitle: t.wallet.viewMnemonic,
+                        subTitle: "",
+                        isVerify: false,
+                        onTap: () {
+                          Get.to(
+                            () => ViewPrivateKeyScreen(
+                              title: t.wallet.viewMnemonic,
+                              privateKey: _wallet.mnemonic!.join(' '),
+                              hideContent: t.wallet.hide_mnemonic,
+                            ),
+                            transition: Transition.rightToLeft,
+                            duration: const Duration(milliseconds: 300),
+                          );
+                        },
+                      ),
                     Divider(height: 0.5, color: AppColors.color_E8E8E8),
                     SettingWalletListItem(
                       icon: '',

@@ -1,5 +1,5 @@
 import 'package:feature_main/i18n/strings.g.dart';
-import 'package:feature_main/src/discovery/DiscoveryPage.dart';
+import 'package:feature_main/src/discovery/index.dart';
 import 'package:feature_main/src/home_page/index.dart';
 import 'package:feature_main/src/situation/SituationPage.dart';
 import 'package:feature_main/src/trade/index.dart';
@@ -29,7 +29,7 @@ class _MyHomePageState extends ConsumerState<MainPage> {
   final List<Widget> _navIcons = [
     ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.home, size: 24)),
     ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.market, size: 24)),
-    ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.transaction, size: 24)),
+    ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.transaction, size: 30)),
     ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.discover, size: 24)),
     ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.wallet, size: 24)),
   ];
@@ -59,7 +59,7 @@ class _MyHomePageState extends ConsumerState<MainPage> {
       ColorFiltered(colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn), child: Icon(WalletIcon.market, size: 24)),
       ColorFiltered(
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-        child: Icon(WalletIcon.transaction, size: 24),
+        child: Icon(WalletIcon.transaction, size: 30),
       ),
       ColorFiltered(
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
@@ -88,10 +88,10 @@ class _MyHomePageState extends ConsumerState<MainPage> {
         currentIndex: _selectedItemIndex,
         onTap: _onNavItemTapped,
       ),
-      floatingActionButton: Transform.translate(
-        offset: Offset(0, 4),
-        child: FloatingActionButton(onPressed: () => _onNavItemTapped(2), elevation: 0, child: Icon(WalletIcon.transaction, size: 47)),
-      ),
+      // floatingActionButton: Transform.translate(
+      //   offset: Offset(0, 4),
+      //   child: FloatingActionButton(onPressed: () => _onNavItemTapped(2), elevation: 0, child: Icon(WalletIcon.transaction, size: 47)),
+      // ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
