@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:feature_main/src/home_page/models/token_price_model.dart';
-import 'package:feature_main/src/home_page/service/wallet_page_provide.dart';
+import 'package:feature_main/src/home_page/service/home_page_provider.dart';
 import 'package:feature_main/src/home_page/utils/k_build_coins.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +41,7 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
+    _bootstrap();
     _totalFuture = computeTotalFromHive2dp();
     _wallet = getCurrentSelectWallet();
     Hive.openBox(boxTokens).then((box) {
@@ -181,6 +181,7 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
 
   void _onRefresh() async {
     await _refreshRequest();
+    _bootstrap();
     _refreshController.finishRefresh();
   }
 
