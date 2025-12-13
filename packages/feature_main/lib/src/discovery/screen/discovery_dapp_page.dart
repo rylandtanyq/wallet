@@ -60,6 +60,7 @@ class _DiscoveryDAppPageState extends ConsumerState<DiscoveryDAppPage>
               child: GestureDetector(
                 onTap: () => Get.to(SearchPage(), transition: Transition.rightToLeft, popGesture: true),
                 child: Container(
+                  margin: EdgeInsets.only(top: 12),
                   width: double.infinity,
                   decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(19.r)),
                   padding: EdgeInsets.all(10),

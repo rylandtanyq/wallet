@@ -19,7 +19,7 @@ class _DiscoverySelectedFragmentsState extends State<DiscoverySelectedFragments>
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.only(top: 50),
+            padding: EdgeInsets.only(top: 20),
             child: Column(
               children: [
                 Row(
