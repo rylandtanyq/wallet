@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:feature_main/i18n/strings.g.dart';
 import 'package:feature_main/src/trade/model/trade_swap_quote_model.dart';
-import 'package:feature_main/src/trade/network/repository.dart';
 import 'package:feature_main/src/trade/service/trade_provider.dart';
 import 'package:feature_main/src/trade/utils/decimal_text_input_formatter.dart';
 import 'package:feature_main/src/trade/model/swap_token.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
@@ -70,7 +67,7 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
 
   @override
   Widget build(BuildContext context) {
-    final tradeSwapQuoteData = ref.watch(tradeSwapProvider);
+    final tradeSwapQuoteData = ref.watch(tradeQuoteProvider);
     debugPrint('$tradeSwapQuoteData res ');
 
     return ListView(
@@ -159,7 +156,7 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
 
                                 _debounce = Timer(const Duration(milliseconds: 1000), () async {
                                   final int amountInt = (_sellAmount! * (pow(10, _sellToken.decimals))).round();
-                                  ref.read(tradeSwapProvider.notifier).fetchTradeSwapData(_sellToken.mint, _buyToken.mint, amountInt);
+                                  ref.read(tradeQuoteProvider.notifier).fetchTradeQuoteData(_sellToken.mint, _buyToken.mint, amountInt);
                                 });
                               },
                             ),
@@ -249,7 +246,7 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
 
                       if (_sellAmount != null && _sellAmount! > 0) {
                         final int amountInt = (_sellAmount! * (pow(10, _sellToken.decimals))).round();
-                        ref.read(tradeSwapProvider.notifier).fetchTradeSwapData(_sellToken.mint, _buyToken.mint, amountInt);
+                        ref.read(tradeQuoteProvider.notifier).fetchTradeQuoteData(_sellToken.mint, _buyToken.mint, amountInt);
                       }
                     });
                   },

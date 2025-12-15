@@ -23,10 +23,11 @@ class TradeSwapQuoteModel with _$TradeSwapQuoteModel {
     Map<String, dynamic>? platformFee,
     @JsonKey(fromJson: _toInt) required int slippageBps,
     @JsonKey(fromJson: _toDouble) required double priceImpactPct,
+    @JsonKey(ignore: true) Map<String, dynamic>? rawJson,
     @Default([]) List<TradeSwapQuoteRoutePlanModel> routePlan,
   }) = _TradeSwapQuoteModel;
 
-  factory TradeSwapQuoteModel.fromJson(Map<String, dynamic> json) => _$TradeSwapQuoteModelFromJson(json);
+  factory TradeSwapQuoteModel.fromJson(Map<String, dynamic> json) => _$TradeSwapQuoteModelFromJson(json).copyWith(rawJson: json);
 }
 
 @freezed
