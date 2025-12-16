@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:feature_main/i18n/strings.g.dart';
+import 'package:feature_main/src/trade/fragments/trade_transcation_dialog_fragments.dart';
 import 'package:feature_main/src/trade/model/trade_swap_quote_model.dart';
 import 'package:feature_main/src/trade/service/trade_provider.dart';
 import 'package:feature_main/src/trade/utils/decimal_text_input_formatter.dart';
@@ -10,6 +11,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_ui/widget/wallet_icon.dart';
+import 'package:feature_wallet/hive/Wallet.dart';
+import 'package:shared_utils/hive_storage.dart';
+import 'package:shared_utils/hive_boxes.dart';
+import 'package:shared_utils/format_solana_address.dart';
 
 class TradeQuickExchangeFragments extends ConsumerStatefulWidget {
   const TradeQuickExchangeFragments({super.key});
@@ -29,9 +34,12 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
   double? _buyAmount;
   double? _sellAmount = 0.0;
 
+  String? _currentSelected;
+
   @override
   void initState() {
     super.initState();
+    _getCurrentSelectedAddress();
   }
 
   @override
@@ -39,6 +47,11 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
     _debounce?.cancel();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  Future<void> _getCurrentSelectedAddress() async {
+    final reqAddr = (await HiveStorage().getValue<String>('selected_address', boxName: boxWallet) ?? '').trim();
+    if (mounted) setState(() => _currentSelected = reqAddr);
   }
 
   int _decimalsForMint(String mint) {
@@ -266,15 +279,28 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
             ),
           ],
         ),
-        Container(
-          margin: EdgeInsets.only(top: 16),
-          width: double.infinity,
-          height: 40.h,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(50.r)),
-          child: Text(
-            t.trade.transaction,
-            style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
+        GestureDetector(
+          onTap: () async {
+            final quoteState = ref.read(tradeQuoteProvider);
+
+            if (quoteState.isLoading || quoteState.hasError || !quoteState.hasValue) return;
+            if ((_currentSelected ?? '').isEmpty) return;
+
+            final quote = quoteState.value!;
+
+            _swapTranscationModelBottomSheetWidget();
+            // await ref.read(tradeSwapProvider.notifier).fetchTradeSwapTxData(quote, _currentSelected!);
+          },
+          child: Container(
+            margin: EdgeInsets.only(top: 16),
+            width: double.infinity,
+            height: 40.h,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(50.r)),
+            child: Text(
+              t.trade.transaction,
+              style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
         SizedBox(height: 28.h),
@@ -352,7 +378,7 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
                   children: [
                     Text('收款地址', style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground)),
                     Text(
-                      "AEz2i...Zqnm",
+                      formatSolanaAddress(_currentSelected!),
                       style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -391,5 +417,9 @@ class _TradeQuickExchangeFragmentsState extends ConsumerState<TradeQuickExchange
         ),
       ],
     );
+  }
+
+  Future<bool?> _swapTranscationModelBottomSheetWidget() async {
+    return TradeTranscationDialogFragments.show(context);
   }
 }
