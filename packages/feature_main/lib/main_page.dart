@@ -25,6 +25,7 @@ class MainPage extends ConsumerStatefulWidget {
 class _MyHomePageState extends ConsumerState<MainPage> {
   late int _selectedItemIndex;
   late PageController _pageController;
+  bool _didCheckUpdate = false;
 
   final List<Widget> _navIcons = [
     ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.home, size: 24)),
@@ -45,8 +46,18 @@ class _MyHomePageState extends ConsumerState<MainPage> {
     _selectedItemIndex = initIndex;
     _pageController = PageController(initialPage: initIndex);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_didCheckUpdate) return;
+      _didCheckUpdate = true;
+
       AppUpdater.checkUpdate(context);
     });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -69,6 +80,7 @@ class _MyHomePageState extends ConsumerState<MainPage> {
     ];
     return Scaffold(
       body: PageView.builder(
+        itemCount: _pages.length,
         itemBuilder: (context, index) {
           return _pages[index];
         },
