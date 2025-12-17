@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_ui/shared_ui.dart';
 
 class TradeTranscationDialogFragments extends StatefulWidget {
+  // required
   const TradeTranscationDialogFragments({super.key});
 
   @override
@@ -94,8 +95,112 @@ class _TradeTranscationDialogFragmentsState extends State<TradeTranscationDialog
                       ),
                     ],
                   ),
+                  SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("预估 Gas 费", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                      Text(
+                        "0.00000001",
+                        style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ],
               ),
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(top: 20),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(.1), borderRadius: BorderRadius.circular(10.r)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("滑点", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                  Text(
+                    "2%",
+                    style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(top: 20),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(.1), borderRadius: BorderRadius.circular(10.r)),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("兑换率", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                      Text(
+                        "1 SOL = 125.12 USDT",
+                        style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("提供方", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                      Text(
+                        "Jupiter",
+                        style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("收款地址", style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                      Text(
+                        "1233...1231",
+                        style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50.r),
+                        border: Border.all(width: 1, color: Theme.of(context).colorScheme.onBackground),
+                      ),
+                      child: Text("取消", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onBackground)),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 20),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(50.r)),
+                      child: Text("取消", style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
