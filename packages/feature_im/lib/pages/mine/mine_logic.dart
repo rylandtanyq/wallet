@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:openim/core/im_callback.dart';
-import 'package:openim/pages/home/home_logic.dart';
+import 'package:feature_im/core/im_callback.dart';
+import 'package:feature_im/pages/home/home_logic.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:openim_meeting/openim_meeting.dart';
 
@@ -23,7 +23,8 @@ class MineLogic extends GetxController {
   void copyID() {
     IMUtils.copy(text: imLogic.userInfo.value.userID!);
   }
-  void copyAddress(){
+
+  void copyAddress() {
     IMUtils.copy(text: imLogic.userInfo.value.account!);
   }
 

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/chat/chat_setup/search_chat_history/multimedia/multimedia_logic.dart';
+import 'package:feature_im/pages/chat/chat_setup/search_chat_history/multimedia/multimedia_logic.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -33,8 +33,7 @@ class ChatSetupLogic extends GetxController {
 
   int get burnDuration => conversationInfo.value.burnDuration ?? 30;
 
-  int get destructDuration =>
-      conversationInfo.value.msgDestructTime ?? 7 * 24 * 60 * 60;
+  int get destructDuration => conversationInfo.value.msgDestructTime ?? 7 * 24 * 60 * 60;
 
   String get getBurnAfterReadingDurationStr {
     int day = 1 * 24 * 60 * 60;
@@ -75,14 +74,8 @@ class ChatSetupLogic extends GetxController {
   void onInit() {
     conversationInfo = Rx(Get.arguments['conversationInfo']);
     final sourceID =
-        conversationInfo.value.conversationType == ConversationType.single
-            ? conversationInfo.value.userID
-            : conversationInfo.value.groupID;
-    OpenIM.iMManager.conversationManager
-        .getOneConversation(
-            sourceID: sourceID!,
-            sessionType: conversationInfo.value.conversationType!)
-        .then((value) {
+        conversationInfo.value.conversationType == ConversationType.single ? conversationInfo.value.userID : conversationInfo.value.groupID;
+    OpenIM.iMManager.conversationManager.getOneConversation(sourceID: sourceID!, sessionType: conversationInfo.value.conversationType!).then((value) {
       conversationInfo.value = value;
     });
 
@@ -127,8 +120,7 @@ class ChatSetupLogic extends GetxController {
   /// 消息免打扰 0：正常；1：不接受消息；2：接受在线消息不接受离线消息；
   void toggleNotDisturb() {
     LoadingView.singleton.wrap(
-        asyncFunction: () =>
-            OpenIM.iMManager.conversationManager.setConversationRecvMessageOpt(
+        asyncFunction: () => OpenIM.iMManager.conversationManager.setConversationRecvMessageOpt(
               conversationID: conversationID,
               status: !isNotDisturb ? 2 : 0,
             ));
@@ -199,9 +191,8 @@ class ChatSetupLogic extends GetxController {
 
   void setConversationBurnDuration(int duration) {
     LoadingView.singleton.wrap(
-        asyncFunction: () => OpenIM.iMManager.conversationManager
-            .setConversationBurnDuration(
-                conversationID: conversationID, burnDuration: duration));
+        asyncFunction: () =>
+            OpenIM.iMManager.conversationManager.setConversationBurnDuration(conversationID: conversationID, burnDuration: duration));
   }
 
   void toggleDestructMessage() {
@@ -246,9 +237,7 @@ class ChatSetupLogic extends GetxController {
 
   void setConversationMsgDestructTime(int duration) {
     LoadingView.singleton.wrap(
-        asyncFunction: () => OpenIM.iMManager.conversationManager
-            .setConversationMsgDestructTime(
-                conversationID: conversationID, duration: duration));
+        asyncFunction: () => OpenIM.iMManager.conversationManager.setConversationMsgDestructTime(conversationID: conversationID, duration: duration));
   }
 
   void clearChatHistory() async {
@@ -258,8 +247,7 @@ class ChatSetupLogic extends GetxController {
     ));
     if (confirm == true) {
       await LoadingView.singleton.wrap(
-        asyncFunction: () => OpenIM.iMManager.conversationManager
-            .clearConversationAndDeleteAllMsg(
+        asyncFunction: () => OpenIM.iMManager.conversationManager.clearConversationAndDeleteAllMsg(
           conversationID: conversationID,
         ),
       );
@@ -285,13 +273,11 @@ class ChatSetupLogic extends GetxController {
         conversationInfo: conversationInfo.value,
       );
 
-  void searchChatHistoryPicture() =>
-      AppNavigator.startSearchChatHistoryMultimedia(
+  void searchChatHistoryPicture() => AppNavigator.startSearchChatHistoryMultimedia(
         conversationInfo: conversationInfo.value,
       );
 
-  void searchChatHistoryVideo() =>
-      AppNavigator.startSearchChatHistoryMultimedia(
+  void searchChatHistoryVideo() => AppNavigator.startSearchChatHistoryMultimedia(
         conversationInfo: conversationInfo.value,
         multimediaType: MultimediaType.video,
       );

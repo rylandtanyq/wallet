@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
 import '../../../core/controller/im_controller.dart';
 import '../../../core/im_callback.dart';
 import '../../conversation/conversation_logic.dart';
 
-class GroupListLogic extends GetxController
-    with GetSingleTickerProviderStateMixin {
+class GroupListLogic extends GetxController with GetSingleTickerProviderStateMixin {
   final imLoic = Get.find<IMController>();
   final iCreateRefreshController = RefreshController(initialRefresh: false);
   final iJoinRefreshController = RefreshController(initialRefresh: false);
@@ -97,20 +96,17 @@ class GroupListLogic extends GetxController
   }
 
   Future<int> initial({bool iCreate = true, int offset = 0}) async {
-    final list = await OpenIM.iMManager.groupManager
-        .getJoinedGroupListPage(offset: offset, count: count);
+    final list = await OpenIM.iMManager.groupManager.getJoinedGroupListPage(offset: offset, count: count);
 
     int iCreatedCount = 0;
     int iJoinedCount = 0;
 
     if (iCreate) {
-      final result =
-          list.where((e) => e.ownerUserID == OpenIM.iMManager.userID);
+      final result = list.where((e) => e.ownerUserID == OpenIM.iMManager.userID);
       iCreatedList.addAll(result);
       iCreatedCount = result.length;
     } else {
-      final result =
-          list.where((e) => e.ownerUserID != OpenIM.iMManager.userID);
+      final result = list.where((e) => e.ownerUserID != OpenIM.iMManager.userID);
       iJoinedList.addAll(result);
       iJoinedCount = result.length;
     }
@@ -119,20 +115,17 @@ class GroupListLogic extends GetxController
   }
 
   Future<int> loadMore({bool iCreate = true, int offset = 0}) async {
-    final list = await OpenIM.iMManager.groupManager
-        .getJoinedGroupListPage(offset: offset, count: count);
+    final list = await OpenIM.iMManager.groupManager.getJoinedGroupListPage(offset: offset, count: count);
 
     int iCreatedCount = 0;
     int iJoinedCount = 0;
 
     if (iCreate) {
-      final result =
-          list.where((e) => e.ownerUserID == OpenIM.iMManager.userID);
+      final result = list.where((e) => e.ownerUserID == OpenIM.iMManager.userID);
       iCreatedList.addAll(result);
       iCreatedCount = result.length;
     } else {
-      final result =
-          list.where((e) => e.ownerUserID != OpenIM.iMManager.userID);
+      final result = list.where((e) => e.ownerUserID != OpenIM.iMManager.userID);
       iJoinedList.addAll(result);
       iJoinedCount = result.length;
     }

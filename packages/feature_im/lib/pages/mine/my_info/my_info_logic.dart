@@ -1,9 +1,9 @@
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/login/login_logic.dart';
-import 'package:openim/pages/mine/edit_my_info/edit_my_info_logic.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/pages/login/login_logic.dart';
+import 'package:feature_im/pages/mine/edit_my_info/edit_my_info_logic.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../../core/controller/im_controller.dart';
@@ -26,19 +26,16 @@ class MyInfoLogic extends GetxController {
         attr: EditAttr.mobile,
       );
 
-  void editEmail() =>
-      AppNavigator.startEditMyInfo(attr: EditAttr.email, maxLength: 30);
+  void editEmail() => AppNavigator.startEditMyInfo(attr: EditAttr.email, maxLength: 30);
 
   void openPhotoSheet() {
     IMViews.openPhotoSheet(
         onData: (path, url) async {
           if (url != null) {
             LoadingView.singleton.wrap(
-              asyncFunction: () => Apis.updateUserInfo(
-                      userID: OpenIM.iMManager.userID, faceURL: url)
-                  .then((value) => imLogic.userInfo.update((val) {
-                        val?.faceURL = url;
-                      })),
+              asyncFunction: () => Apis.updateUserInfo(userID: OpenIM.iMManager.userID, faceURL: url).then((value) => imLogic.userInfo.update((val) {
+                    val?.faceURL = url;
+                  })),
             );
           }
         },
@@ -52,8 +49,7 @@ class MyInfoLogic extends GetxController {
       Get.context!,
       locale: isZh ? LocaleType.zh : LocaleType.en,
       maxTime: DateTime.now(),
-      currentTime: DateTime.fromMillisecondsSinceEpoch(
-          imLogic.userInfo.value.birth ?? 0),
+      currentTime: DateTime.fromMillisecondsSinceEpoch(imLogic.userInfo.value.birth ?? 0),
       theme: DatePickerTheme(
         cancelStyle: Styles.ts_0C1C33_17sp,
         doneStyle: Styles.ts_0089FF_17sp,
@@ -84,11 +80,9 @@ class MyInfoLogic extends GetxController {
 
   void _updateGender(int gender) {
     LoadingView.singleton.wrap(
-      asyncFunction: () =>
-          Apis.updateUserInfo(userID: OpenIM.iMManager.userID, gender: gender)
-              .then((value) => imLogic.userInfo.update((val) {
-                    val?.gender = gender;
-                  })),
+      asyncFunction: () => Apis.updateUserInfo(userID: OpenIM.iMManager.userID, gender: gender).then((value) => imLogic.userInfo.update((val) {
+            val?.gender = gender;
+          })),
     );
   }
 

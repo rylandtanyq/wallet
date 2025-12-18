@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../select_contacts/select_contacts_logic.dart';
@@ -19,8 +19,7 @@ class CreateTagGroupLogic extends GetxController {
     tagInfo = Get.arguments["tagInfo"];
     if (null != tagInfo) {
       inputCtrl.text = tagInfo!.tagName ?? '';
-      memberList
-          .assignAll(tagInfo!.users!.map((e) => UserInfo.fromJson(e.toJson())));
+      memberList.assignAll(tagInfo!.users!.map((e) => UserInfo.fromJson(e.toJson())));
     }
     inputCtrl.addListener(_onChanged);
     super.onInit();
@@ -59,8 +58,7 @@ class CreateTagGroupLogic extends GetxController {
         final increaseUserIDList = <String>[];
         final reduceUserIDList = <String>[];
         if (isEdit) {
-          final oldList =
-              tagInfo!.users!.map((e) => UserInfo.fromJson(e.toJson()));
+          final oldList = tagInfo!.users!.map((e) => UserInfo.fromJson(e.toJson()));
           for (var user in oldList) {
             if (!memberList.value.contains(user)) {
               reduceUserIDList.add(user.userID!);

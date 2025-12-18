@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
 import 'package:openim_common/openim_common.dart';
-import 'package:openim/routes/app_navigator.dart';
-import 'package:openim/core/controller/im_controller.dart';
+import 'package:feature_im/routes/app_navigator.dart';
+import 'package:feature_im/core/controller/im_controller.dart';
 
 class WalletImportLogic extends GetxController {
   final imLogic = Get.find<IMController>();
@@ -97,11 +97,11 @@ class WalletImportLogic extends GetxController {
       // 1. 初始化钱包
       await wallet.initialize(networkId: 'solana');
       final newWallet = await wallet.restoreFromMnemonic(mnemonicCtrl.text);
-      if(newWallet!=null && newWallet["currentAddress"]!=null){
+      if (newWallet != null && newWallet["currentAddress"] != null) {
         walletAddress.value = newWallet["currentAddress"]!;
       }
     });
-    if(walletAddress.value.isEmpty){
+    if (walletAddress.value.isEmpty) {
       IMViews.showToast("助记词导入失败");
       return;
     }
@@ -116,16 +116,11 @@ class WalletImportLogic extends GetxController {
         verificationCode: "",
         invitationCode: "",
       );
-      if (null == IMUtils.emptyStrToNull(data.imToken) ||
-          null == IMUtils.emptyStrToNull(data.chatToken)) {
+      if (null == IMUtils.emptyStrToNull(data.imToken) || null == IMUtils.emptyStrToNull(data.chatToken)) {
         AppNavigator.startLogin();
         return;
       }
-      final account = {
-        "areaCode": "",
-        "phoneNumber": "",
-        'email': usernameCtrl.text.trim()
-      };
+      final account = {"areaCode": "", "phoneNumber": "", 'email': usernameCtrl.text.trim()};
       await DataSp.putLoginCertificate(data);
       await DataSp.putLoginAccount(account);
       await imLogic.login(data.userID, data.imToken);
@@ -133,11 +128,7 @@ class WalletImportLogic extends GetxController {
       PushController.login(
         data.userID,
         onTokenRefresh: (token) {
-          OpenIM.iMManager.updateFcmToken(
-              fcmToken: token,
-              expireTime: DateTime.now()
-                  .add(Duration(days: 90))
-                  .millisecondsSinceEpoch);
+          OpenIM.iMManager.updateFcmToken(fcmToken: token, expireTime: DateTime.now().add(Duration(days: 90)).millisecondsSinceEpoch);
         },
       );
       Logger.print('---------jpush login success----');

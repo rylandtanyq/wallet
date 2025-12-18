@@ -3,7 +3,7 @@ import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:openim/core/controller/im_controller.dart';
+import 'package:feature_im/core/controller/im_controller.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:rotated_corner_decoration/rotated_corner_decoration.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -51,8 +51,7 @@ class ConversationPage extends StatelessWidget {
                           ..overflow = TextOverflow.ellipsis,
                       ),
                     10.horizontalSpace,
-                    if (null != logic.imSdkStatus &&
-                        (!logic.reInstall || logic.isFailedSdkStatus))
+                    if (null != logic.imSdkStatus && (!logic.reInstall || logic.isFailedSdkStatus))
                       Flexible(
                           child: SyncStatusView(
                         isFailed: logic.isFailedSdkStatus,
@@ -91,18 +90,14 @@ class ConversationPage extends StatelessWidget {
   Widget _buildConversationItemView(ConversationInfo info) => Slidable(
         endActionPane: ActionPane(
           motion: const ScrollMotion(),
-          extentRatio: logic.existUnreadMsg(info)
-              ? 0.7
-              : (logic.isPinned(info) ? 0.5 : 0.4),
+          extentRatio: logic.existUnreadMsg(info) ? 0.7 : (logic.isPinned(info) ? 0.5 : 0.4),
           children: [
             CustomSlidableAction(
               onPressed: (_) => logic.pinConversation(info),
               flex: logic.isPinned(info) ? 3 : 2,
               backgroundColor: Styles.c_0089FF,
               padding: const EdgeInsets.all(1),
-              child:
-                  (logic.isPinned(info) ? StrRes.cancelTop : StrRes.top).toText
-                    ..style = Styles.ts_FFFFFF_14sp,
+              child: (logic.isPinned(info) ? StrRes.cancelTop : StrRes.top).toText..style = Styles.ts_FFFFFF_14sp,
             ),
             if (logic.existUnreadMsg(info))
               CustomSlidableAction(
@@ -171,8 +166,7 @@ class ConversationPage extends StatelessWidget {
                                 ),
                               ),
                               const Spacer(),
-                              logic.getTime(info).toText
-                                ..style = Styles.ts_8E9AB0_12sp,
+                              logic.getTime(info).toText..style = Styles.ts_8E9AB0_12sp,
                             ],
                           ),
                           3.verticalSpace,
@@ -185,12 +179,9 @@ class ConversationPage extends StatelessWidget {
                                 prefixSpan: TextSpan(
                                   text: '',
                                   children: [
-                                    if (logic.isNotDisturb(info) &&
-                                        logic.getUnreadCount(info) > 0)
+                                    if (logic.isNotDisturb(info) && logic.getUnreadCount(info) > 0)
                                       TextSpan(
-                                        text: '[${sprintf(StrRes.nPieces, [
-                                              logic.getUnreadCount(info)
-                                            ])}] ',
+                                        text: '[${sprintf(StrRes.nPieces, [logic.getUnreadCount(info)])}] ',
                                         style: Styles.ts_8E9AB0_14sp,
                                       ),
                                     TextSpan(
@@ -216,8 +207,7 @@ class ConversationPage extends StatelessWidget {
                                   ..width = 13.63.w
                                   ..height = 14.07.h
                               else
-                                UnreadCountView(
-                                    count: logic.getUnreadCount(info)),
+                                UnreadCountView(count: logic.getUnreadCount(info)),
                             ],
                           ),
                         ],

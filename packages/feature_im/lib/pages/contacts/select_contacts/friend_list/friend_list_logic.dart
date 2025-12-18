@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:openim/pages/contacts/friend_list/friend_list_logic.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/pages/contacts/friend_list/friend_list_logic.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../select_contacts_logic.dart';
@@ -25,8 +25,7 @@ class SelectContactsFromFriendsLogic extends FriendListLogic {
   bool get isSelectAll {
     if (selectContactsLogic.checkedList.isEmpty) {
       return false;
-    } else if (operableList
-        .every((item) => selectContactsLogic.isChecked(item))) {
+    } else if (operableList.every((item) => selectContactsLogic.isChecked(item))) {
       return true;
     } else {
       return false;

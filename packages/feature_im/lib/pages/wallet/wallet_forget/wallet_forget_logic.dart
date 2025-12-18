@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
 import 'package:openim_common/openim_common.dart';
-import 'package:openim/routes/app_navigator.dart';
-import 'package:openim/core/controller/im_controller.dart';
+import 'package:feature_im/routes/app_navigator.dart';
+import 'package:feature_im/core/controller/im_controller.dart';
 
 class WalletForgetLogic extends GetxController {
   final imLogic = Get.find<IMController>();
@@ -36,9 +36,7 @@ class WalletForgetLogic extends GetxController {
   }
 
   _onChanged() {
-    enabled.value = mnemonicCtrl.text.trim().isNotEmpty &&
-        passwordCtrl.text.trim().isNotEmpty &&
-        passwordAgainCtrl.text.trim().isNotEmpty;
+    enabled.value = mnemonicCtrl.text.trim().isNotEmpty && passwordCtrl.text.trim().isNotEmpty && passwordAgainCtrl.text.trim().isNotEmpty;
   }
 
   void pasteFromClipboard() async {
@@ -76,11 +74,11 @@ class WalletForgetLogic extends GetxController {
       // 1. 初始化钱包
       await wallet.initialize(networkId: 'solana');
       final newWallet = await wallet.restoreFromMnemonic(mnemonicCtrl.text);
-      if(newWallet!=null && newWallet["currentAddress"]!=null){
+      if (newWallet != null && newWallet["currentAddress"] != null) {
         walletAddress.value = newWallet["currentAddress"]!;
       }
     });
-    if(walletAddress.value.isEmpty){
+    if (walletAddress.value.isEmpty) {
       IMViews.showToast("助记词导入失败");
       return;
     }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 class ResetPasswordLogic extends GetxController {
@@ -33,8 +33,7 @@ class ResetPasswordLogic extends GetxController {
   }
 
   _onChanged() {
-    enabled.value =
-        pwdCtrl.text.trim().isNotEmpty && pwdAgainCtrl.text.trim().isNotEmpty;
+    enabled.value = pwdCtrl.text.trim().isNotEmpty && pwdAgainCtrl.text.trim().isNotEmpty;
   }
 
   bool _checkingInput() {

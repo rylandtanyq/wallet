@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/login/login_logic.dart';
-import 'package:openim/widgets/register_page_bg.dart';
+import 'package:feature_im/pages/login/login_logic.dart';
+import 'package:feature_im/widgets/register_page_bg.dart';
 import 'package:openim_common/openim_common.dart';
 
 import 'forget_password_logic.dart';
@@ -17,17 +17,13 @@ class ForgetPasswordPage extends StatelessWidget {
         child: Obx(() => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StrRes.forgetPassword.toText
-                  ..style = Styles.ts_0089FF_22sp_semibold,
+                StrRes.forgetPassword.toText..style = Styles.ts_0089FF_22sp_semibold,
                 29.verticalSpace,
                 InputBox.account(
                   label: logic.loginController.operateType.name,
                   hintText: logic.loginController.operateType.hintText,
                   code: logic.areaCode.value,
-                  onAreaCode:
-                      logic.loginController.operateType == LoginType.phone
-                          ? logic.openCountryCodePicker
-                          : null,
+                  onAreaCode: logic.loginController.operateType == LoginType.phone ? logic.openCountryCodePicker : null,
                   controller: logic.phoneCtrl,
                 ),
                 16.verticalSpace,

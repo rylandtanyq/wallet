@@ -48,6 +48,8 @@ dependencies:
     path: ./packages/feature_browser
   shared_setting:
     path: ./packages/shared_setting
+  feature_im:
+    path: ./packages/feature_im
 
 dev_dependencies:
   flutter_test:

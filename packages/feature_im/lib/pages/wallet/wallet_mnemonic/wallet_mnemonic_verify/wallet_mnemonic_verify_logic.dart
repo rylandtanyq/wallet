@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 class WalletMnemonicVerifyLogic extends GetxController {
@@ -21,7 +21,8 @@ class WalletMnemonicVerifyLogic extends GetxController {
     mnemonicToList();
     super.onInit();
   }
-  void mnemonicToList(){
+
+  void mnemonicToList() {
     final rawStr = mnemonic.value;
     List<String> wordList = rawStr.split(' ');
     // 2. 遍历生成 {index:01, value:xxx} 格式的Map列表
@@ -31,22 +32,16 @@ class WalletMnemonicVerifyLogic extends GetxController {
 
       // 补零：确保索引为两位数（01、02...10、11）
       String indexStr = index.toString().padLeft(2, '0');
-      return {
-        'sort': indexStr,
-        'value': value,
-        'check':false
-      };
+      return {'sort': indexStr, 'value': value, 'check': false};
     }).toList();
-    List<Map<String, dynamic>> verifyList = wordList.asMap().entries.map(
-            (entry) {
-      return {
-        'value': ""
-      };
+    List<Map<String, dynamic>> verifyList = wordList.asMap().entries.map((entry) {
+      return {'value': ""};
     }).toList();
     mnemonicList.value = resultList;
     mnemonicDisperList.value = shuffleList(mnemonicList.value);
     mnemonicVerifyList.value = verifyList;
   }
+
   List<T> shuffleList<T>(List<T> list) {
     // 创建副本，避免修改原列表
     List<T> newList = List.from(list);
@@ -63,14 +58,15 @@ class WalletMnemonicVerifyLogic extends GetxController {
     }
     return newList;
   }
-  void selectItem(dynamic item){
+
+  void selectItem(dynamic item) {
     //遍历需要验证的助记词集合
-    if(item["check"]){
+    if (item["check"]) {
       //如果被选中了
-      for(int i = 0;i<mnemonicDisperList.value.length;i++){
-        if(mnemonicDisperList.value[i]["value"]==item["value"]){
-          for(int k = 0;k<mnemonicVerifyList.value.length;k++){
-            if(mnemonicVerifyList.value[k]["value"]==item["value"]){
+      for (int i = 0; i < mnemonicDisperList.value.length; i++) {
+        if (mnemonicDisperList.value[i]["value"] == item["value"]) {
+          for (int k = 0; k < mnemonicVerifyList.value.length; k++) {
+            if (mnemonicVerifyList.value[k]["value"] == item["value"]) {
               mnemonicVerifyList.value[k]["value"] = "";
               break;
             }
@@ -78,13 +74,12 @@ class WalletMnemonicVerifyLogic extends GetxController {
           mnemonicDisperList.value[i]["check"] = false;
         }
       }
-    }else{
-      for(int i = 0;i<mnemonicDisperList.value.length;i++){
-        if(mnemonicDisperList.value[i]["value"]==item["value"]){
-          for(int k = 0;k<mnemonicVerifyList.value.length;k++){
-            if(mnemonicVerifyList.value[k]["value"]==""){
-              mnemonicVerifyList.value[k]["value"] =  mnemonicDisperList
-                  .value[i]["value"];
+    } else {
+      for (int i = 0; i < mnemonicDisperList.value.length; i++) {
+        if (mnemonicDisperList.value[i]["value"] == item["value"]) {
+          for (int k = 0; k < mnemonicVerifyList.value.length; k++) {
+            if (mnemonicVerifyList.value[k]["value"] == "") {
+              mnemonicVerifyList.value[k]["value"] = mnemonicDisperList.value[i]["value"];
               break;
             }
           }
@@ -95,15 +90,17 @@ class WalletMnemonicVerifyLogic extends GetxController {
     mnemonicVerifyList.refresh();
     mnemonicDisperList.refresh();
   }
+
   @override
   void onClose() {
     super.onClose();
   }
-  void verifyList(){
+
+  void verifyList() {
     String result = mnemonicVerifyList.value.map((item) => item['value']!).join(' ');
-    if(result == mnemonic.value){
+    if (result == mnemonic.value) {
       AppNavigator.startWalletmnemonicSuccess(walletAddress: wallet.value);
-    }else{
+    } else {
       IMViews.showToast("助记词验证失败");
     }
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/conversation/conversation_logic.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/pages/conversation/conversation_logic.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:openim_organization/openim_organization.dart';
 
@@ -40,8 +40,7 @@ enum SelAction {
   notificationIssued,
 }
 
-class SelectContactsLogic extends GetxController
-    implements OrganizationMultiSelBridge {
+class SelectContactsLogic extends GetxController implements OrganizationMultiSelBridge {
   final checkedList = <String, dynamic>{}.obs; // 已经选中的
   final defaultCheckedIDList = <String>{}.obs; // 默认选中，且不能修改
   List<String>? excludeIDList; // 剔除某些数据
@@ -123,18 +122,14 @@ class SelectContactsLogic extends GetxController
 
       final futures = cons.map((con) async {
         if (con.isGroupChat) {
-          final result = await OpenIM.iMManager.groupManager
-              .isJoinedGroup(groupID: con.groupID!);
+          final result = await OpenIM.iMManager.groupManager.isJoinedGroup(groupID: con.groupID!);
           return result ? con : null;
         }
-        return con.conversationType == ConversationType.notification
-            ? null
-            : con;
+        return con.conversationType == ConversationType.notification ? null : con;
       }).toList();
 
       final results = await Future.wait(futures);
-      final filteredCons =
-          results.where((con) => con != null).cast<ConversationInfo>().toList();
+      final filteredCons = results.where((con) => con != null).cast<ConversationInfo>().toList();
 
       conversationList.addAll(filteredCons);
     }
@@ -199,8 +194,7 @@ class SelectContactsLogic extends GetxController
   bool isDefaultChecked(info) => defaultCheckedIDList.contains(parseID(info));
 
   @override
-  Function()? onTap(dynamic info) =>
-      isDefaultChecked(info) ? null : () => toggleChecked(info);
+  Function()? onTap(dynamic info) => isDefaultChecked(info) ? null : () => toggleChecked(info);
 
   @override
   removeItem(dynamic info) {
@@ -304,10 +298,8 @@ class SelectContactsLogic extends GetxController
     }
   }
 
-  bool get enabledConfirmButton =>
-      checkedList.isNotEmpty || action == SelAction.remindWhoToWatch;
+  bool get enabledConfirmButton => checkedList.isNotEmpty || action == SelAction.remindWhoToWatch;
 
   @override
-  Widget get checkedConfirmView =>
-      isMultiModel ? CheckedConfirmView() : const SizedBox();
+  Widget get checkedConfirmView => isMultiModel ? CheckedConfirmView() : const SizedBox();
 }

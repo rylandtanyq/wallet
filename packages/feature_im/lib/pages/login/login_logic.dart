@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/mine/server_config/server_config_binding.dart';
-import 'package:openim/pages/mine/server_config/server_config_view.dart';
+import 'package:feature_im/pages/mine/server_config/server_config_binding.dart';
+import 'package:feature_im/pages/mine/server_config/server_config_view.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -16,6 +16,7 @@ enum LoginType {
   account(0),
   email(1),
   phone(2);
+
   final int rawValue;
 
   const LoginType(this.rawValue);
@@ -74,12 +75,9 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
 
   final List<String> removeType = ["LoginType.phone"];
 
-  String? get email =>
-      loginType.value == LoginType.email ? phoneCtrl.text.trim() : null;
-  String? get phone =>
-      loginType.value == LoginType.phone ? phoneCtrl.text.trim() : null;
-  String? get account =>
-      loginType.value == LoginType.account ? phoneCtrl.text.trim() : null;
+  String? get email => loginType.value == LoginType.email ? phoneCtrl.text.trim() : null;
+  String? get phone => loginType.value == LoginType.phone ? phoneCtrl.text.trim() : null;
+  String? get account => loginType.value == LoginType.account ? phoneCtrl.text.trim() : null;
   LoginType operateType = LoginType.phone;
 
   FocusNode? accountFocus = FocusNode();
@@ -114,7 +112,7 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
 
   @override
   void onInit() {
-    if (removeType.length==0) {
+    if (removeType.length == 0) {
       tabController = TabController(length: 3, vsync: this);
     } else {
       tabController = TabController(length: 2, vsync: this);
@@ -145,18 +143,12 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
 
   _onChanged() {
     if (loginType.value == LoginType.account) {
-      enabled.value =
-          phoneCtrl.text.trim().isNotEmpty && pwdCtrl.text.trim().isNotEmpty;
-    }else if(loginType.value == LoginType.email){
-      enabled.value =
-          phoneCtrl.text.trim().isNotEmpty && pwdCtrl.text.trim().isNotEmpty;
+      enabled.value = phoneCtrl.text.trim().isNotEmpty && pwdCtrl.text.trim().isNotEmpty;
+    } else if (loginType.value == LoginType.email) {
+      enabled.value = phoneCtrl.text.trim().isNotEmpty && pwdCtrl.text.trim().isNotEmpty;
     } else {
-      enabled.value = isPasswordLogin.value &&
-              phoneCtrl.text.trim().isNotEmpty &&
-              pwdCtrl.text.trim().isNotEmpty ||
-          !isPasswordLogin.value &&
-              phoneCtrl.text.trim().isNotEmpty &&
-              verificationCodeCtrl.text.trim().isNotEmpty;
+      enabled.value = isPasswordLogin.value && phoneCtrl.text.trim().isNotEmpty && pwdCtrl.text.trim().isNotEmpty ||
+          !isPasswordLogin.value && phoneCtrl.text.trim().isNotEmpty && verificationCodeCtrl.text.trim().isNotEmpty;
     }
   }
 
@@ -177,8 +169,7 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
     try {
       print(loginType.value);
       if (loginType.value == LoginType.phone) {
-        if (phone?.isNotEmpty == true &&
-            !IMUtils.isMobile(areaCode.value, phoneCtrl.text)) {
+        if (phone?.isNotEmpty == true && !IMUtils.isMobile(areaCode.value, phoneCtrl.text)) {
           IMViews.showToast(StrRes.plsEnterRightPhone);
           return false;
         }
@@ -203,13 +194,7 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
         password: isPasswordLogin.value ? password : null,
         verificationCode: "",
       );
-      final account = {
-        "areaCode": "",
-        "phoneNumber": "",
-        'email': email,
-        'account': this.account,
-        'loginType': loginType.value.rawValue
-      };
+      final account = {"areaCode": "", "phoneNumber": "", 'email': email, 'account': this.account, 'loginType': loginType.value.rawValue};
       await DataSp.putLoginCertificate(data);
       await DataSp.putLoginAccount(account);
       Logger.print('login : ${data.userID}, token: ${data.imToken}');
@@ -218,11 +203,7 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
       PushController.login(
         data.userID,
         onTokenRefresh: (token) {
-          OpenIM.iMManager.updateFcmToken(
-              fcmToken: token,
-              expireTime: DateTime.now()
-                  .add(Duration(days: 90))
-                  .millisecondsSinceEpoch);
+          OpenIM.iMManager.updateFcmToken(fcmToken: token, expireTime: DateTime.now().add(Duration(days: 90)).millisecondsSinceEpoch);
         },
       );
       Logger.print('push login success');
@@ -248,8 +229,7 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
   }
 
   Future<bool> getVerificationCode() async {
-    if (phone?.isNotEmpty == true &&
-        !IMUtils.isMobile(areaCode.value, phoneCtrl.text)) {
+    if (phone?.isNotEmpty == true && !IMUtils.isMobile(areaCode.value, phoneCtrl.text)) {
       IMViews.showToast(StrRes.plsEnterRightPhone);
       return false;
     }
@@ -285,9 +265,9 @@ class LoginLogic extends GetxController with GetTickerProviderStateMixin {
 
   void forgetPassword() => AppNavigator.startForgetPassword();
 
-  void forgetWallet()=>AppNavigator.startWalletForget();
+  void forgetWallet() => AppNavigator.startWalletForget();
 
-  void registerWallet()=>AppNavigator.startWalletIndex();
+  void registerWallet() => AppNavigator.startWalletIndex();
 
   void getPackageInfo() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();

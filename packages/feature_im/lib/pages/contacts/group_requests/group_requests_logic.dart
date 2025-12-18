@@ -1,6 +1,6 @@
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../../core/controller/im_controller.dart';
@@ -95,9 +95,8 @@ class GroupRequestsLogic extends GetxController {
 
       // 查询邀请者的群成员信息
       if (map.isNotEmpty) {
-        await Future.wait(map.entries.map((e) => OpenIM.iMManager.groupManager
-            .getGroupMembersInfo(groupID: e.key, userIDList: e.value)
-            .then((list) => memberList.assignAll(list))));
+        await Future.wait(map.entries.map((e) =>
+            OpenIM.iMManager.groupManager.getGroupMembersInfo(groupID: e.key, userIDList: e.value).then((list) => memberList.assignAll(list))));
         // await Future.forEach<MapEntry>(map.entries, (element) {
         //   OpenIM.iMManager.groupManager
         //       .getGroupMembersInfo(groupId: element.key, uidList: element.value)
@@ -109,8 +108,7 @@ class GroupRequestsLogic extends GetxController {
       if (inviterList.isNotEmpty) {
         await OpenIM.iMManager.userManager
             .getUsersInfo(userIDList: inviterList)
-            .then((list) => userInfoList
-                .assignAll(list.map((e) => e.simpleUserInfo).toList()));
+            .then((list) => userInfoList.assignAll(list.map((e) => e.simpleUserInfo).toList()));
       }
 
       return allList;
@@ -137,23 +135,17 @@ class GroupRequestsLogic extends GetxController {
     });
   }
 
-  String getGroupName(GroupApplicationInfo info) =>
-      info.groupName ?? groupList[info.groupID]?.groupName ?? '';
+  String getGroupName(GroupApplicationInfo info) => info.groupName ?? groupList[info.groupID]?.groupName ?? '';
 
   String getInviterNickname(GroupApplicationInfo info) =>
-      (getMemberInfo(info.inviterUserID!)?.nickname) ??
-      (getUserInfo(info.inviterUserID!)?.nickname) ??
-      '-';
+      (getMemberInfo(info.inviterUserID!)?.nickname) ?? (getUserInfo(info.inviterUserID!)?.nickname) ?? '-';
 
-  GroupMembersInfo? getMemberInfo(inviterUserID) =>
-      memberList.firstWhereOrNull((e) => e.userID == inviterUserID);
+  GroupMembersInfo? getMemberInfo(inviterUserID) => memberList.firstWhereOrNull((e) => e.userID == inviterUserID);
 
-  UserInfo? getUserInfo(inviterUserID) =>
-      userInfoList.firstWhereOrNull((e) => e.userID == inviterUserID);
+  UserInfo? getUserInfo(inviterUserID) => userInfoList.firstWhereOrNull((e) => e.userID == inviterUserID);
 
   void handle(GroupApplicationInfo info) async {
-    var result =
-        await AppNavigator.startProcessGroupRequests(applicationInfo: info);
+    var result = await AppNavigator.startProcessGroupRequests(applicationInfo: info);
     if (result is int) {
       info.handleResult = result;
       list.refresh();

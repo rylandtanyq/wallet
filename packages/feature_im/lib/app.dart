@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/home/home_binding.dart';
+import 'package:feature_im/pages/home/home_binding.dart';
 import 'package:openim_common/openim_common.dart';
 
 import 'core/controller/im_controller.dart';
@@ -13,14 +13,22 @@ import 'widgets/app_view.dart';
 class ChatApp extends StatelessWidget {
   const ChatApp({Key? key}) : super(key: key);
 
+  static final GlobalKey<NavigatorState> _imNavKey = GlobalKey<NavigatorState>(debugLabel: 'im_nav');
+  static final GlobalKey<ScaffoldMessengerState> _imMsgKey = GlobalKey<ScaffoldMessengerState>(debugLabel: 'im_msg');
+
   @override
   Widget build(BuildContext context) {
     return AppView(
       builder: (locale, builder) => GetMaterialApp(
+        key: const ValueKey('im_get_app'),
+        navigatorKey: _imNavKey,
+        scaffoldMessengerKey: _imMsgKey,
         debugShowCheckedModeBanner: false,
         enableLog: true,
         builder: builder,
-        logWriterCallback: Logger.print,
+        logWriterCallback: (text, {bool isError = false}) {
+          Logger.print(text, isError: isError, onlyConsole: true);
+        },
         translations: TranslationService(),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
@@ -47,8 +55,7 @@ class ChatApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey.shade50,
         canvasColor: Colors.white,
         appBarTheme: const AppBarTheme(color: Colors.white),
-        textSelectionTheme:
-            const TextSelectionThemeData().copyWith(cursorColor: Colors.blue),
+        textSelectionTheme: const TextSelectionThemeData().copyWith(cursorColor: Colors.blue),
         checkboxTheme: const CheckboxThemeData().copyWith(
           checkColor: WidgetStateProperty.all(Colors.white),
           fillColor: WidgetStateProperty.resolveWith((states) {
@@ -84,31 +91,22 @@ class ChatApp extends StatelessWidget {
             foregroundColor: const WidgetStatePropertyAll(Colors.black),
           ),
         ),
-        progressIndicatorTheme: const ProgressIndicatorThemeData().copyWith(
-            color: Colors.white,
-            linearTrackColor: Colors.grey[300],
-            circularTrackColor: Colors.grey[300]),
+        progressIndicatorTheme: const ProgressIndicatorThemeData()
+            .copyWith(color: Colors.white, linearTrackColor: Colors.grey[300], circularTrackColor: Colors.grey[300]),
         cupertinoOverrideTheme: CupertinoThemeData(
           brightness: Brightness.light,
           primaryColor: CupertinoColors.systemBlue,
           barBackgroundColor: Colors.white,
           applyThemeToAll: true,
           textTheme: const CupertinoTextThemeData().copyWith(
-            navActionTextStyle:
-                TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            actionTextStyle:
-                TextStyle(color: CupertinoColors.systemBlue, fontSize: 17.sp),
+            navActionTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
+            actionTextStyle: TextStyle(color: CupertinoColors.systemBlue, fontSize: 17.sp),
             textStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            navLargeTitleTextStyle:
-                TextStyle(color: CupertinoColors.label, fontSize: 20.sp),
-            navTitleTextStyle:
-                TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            pickerTextStyle:
-                TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            tabLabelTextStyle:
-                TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            dateTimePickerTextStyle:
-                TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
+            navLargeTitleTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 20.sp),
+            navTitleTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
+            pickerTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
+            tabLabelTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
+            dateTimePickerTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
           ),
         ),
       );
@@ -117,12 +115,23 @@ class ChatApp extends StatelessWidget {
 class InitBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put<IMController>(IMController());
-    Get.put<PushController>(PushController());
-    Get.put<CacheController>(CacheController());
-    Get.put<DownloadController>(DownloadController());
-    final homeBinding = HomeBinding();
-    Get.lazyPut<HomeBinding>(() => homeBinding);
-    homeBinding.dependencies();
+    if (!Get.isRegistered<IMController>()) {
+      Get.put<IMController>(IMController(), permanent: true);
+    }
+    if (!Get.isRegistered<PushController>()) {
+      Get.put<PushController>(PushController(), permanent: true);
+    }
+    if (!Get.isRegistered<CacheController>()) {
+      Get.put<CacheController>(CacheController(), permanent: true);
+    }
+    if (!Get.isRegistered<DownloadController>()) {
+      Get.put<DownloadController>(DownloadController(), permanent: true);
+    }
+
+    if (!Get.isRegistered<HomeBinding>()) {
+      final homeBinding = HomeBinding();
+      Get.lazyPut<HomeBinding>(() => homeBinding, fenix: true);
+      homeBinding.dependencies();
+    }
   }
 }

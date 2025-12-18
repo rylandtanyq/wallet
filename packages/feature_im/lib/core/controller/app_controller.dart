@@ -9,7 +9,7 @@ import 'package:flutter_openim_sdk/flutter_openim_sdk.dart' as im;
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:openim/core/im_callback.dart';
+import 'package:feature_im/core/im_callback.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:openim_live/openim_live.dart';
 import 'package:openim_meeting/openim_meeting.dart';
@@ -25,13 +25,11 @@ class AppController extends GetxController with UpgradeManger {
 
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  final initializationSettingsAndroid =
-      const AndroidInitializationSettings('@mipmap/ic_launcher');
+  final initializationSettingsAndroid = const AndroidInitializationSettings('@mipmap/ic_launcher');
 
   /// Note: permissions aren't requested here just to demonstrate that can be
   /// done later
-  final DarwinInitializationSettings initializationSettingsDarwin =
-      const DarwinInitializationSettings(
+  final DarwinInitializationSettings initializationSettingsDarwin = const DarwinInitializationSettings(
     requestAlertPermission: false,
     requestBadgePermission: false,
     requestSoundPermission: false,
@@ -44,8 +42,7 @@ class AppController extends GetxController with UpgradeManger {
   bool get shouldMuted =>
       meetingBridge?.hasConnection == true ||
       rtcBridge?.hasConnection == true ||
-      Get.find<IMController>().imSdkStatusSubject.values.last.status !=
-          IMSdkStatus.syncEnded;
+      Get.find<IMController>().imSdkStatusSubject.values.last.status != IMSdkStatus.syncEnded;
 
   final _ring = 'assets/audio/message_ring.wav';
   final _audioPlayer = AudioPlayer();
@@ -111,22 +108,15 @@ class AppController extends GetxController with UpgradeManger {
   }
 
   void _requestPermissions() {
-    flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
-    flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
         );
   }
 
-  Future<void> showNotification(im.Message message,
-      {bool showNotification = true}) async {
+  Future<void> showNotification(im.Message message, {bool showNotification = true}) async {
     if (_isGlobalNotDisturb() ||
         message.attachedInfoElem?.notSenderNotificationPush == true ||
         message.contentType == im.MessageType.typing ||
@@ -134,9 +124,7 @@ class AppController extends GetxController with UpgradeManger {
         (message.contentType! >= 1000 && message.contentType != 1400)) return;
 
     // 开启免打扰的不提示
-    var sourceID = message.sessionType == ConversationType.single
-        ? message.sendID
-        : message.groupID;
+    var sourceID = message.sessionType == ConversationType.single ? message.sendID : message.groupID;
     if (sourceID != null && message.sessionType != null) {
       var i = await OpenIM.iMManager.conversationManager.getOneConversation(
         sourceID: sourceID,
@@ -151,8 +139,7 @@ class AppController extends GetxController with UpgradeManger {
   }
 
   Future<void> promptSoundOrNotification(int seq) async {
-    if (Get.find<IMController>().imSdkStatusSubject.values.lastOrNull?.status !=
-        IMSdkStatus.syncEnded) {
+    if (Get.find<IMController>().imSdkStatusSubject.values.lastOrNull?.status != IMSdkStatus.syncEnded) {
       return;
     }
     if (!isRunningBackground) {
@@ -161,17 +148,10 @@ class AppController extends GetxController with UpgradeManger {
       if (Platform.isAndroid) {
         final id = seq;
 
-        const androidPlatformChannelSpecifics = AndroidNotificationDetails(
-            'chat', 'OpenIM聊天消息',
-            channelDescription: '来自OpenIM的信息',
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: 'ticker');
-        const NotificationDetails platformChannelSpecifics =
-            NotificationDetails(android: androidPlatformChannelSpecifics);
-        await flutterLocalNotificationsPlugin.show(
-            id, '您收到了一条新消息', '消息内容：.....', platformChannelSpecifics,
-            payload: '');
+        const androidPlatformChannelSpecifics = AndroidNotificationDetails('chat', 'OpenIM聊天消息',
+            channelDescription: '来自OpenIM的信息', importance: Importance.max, priority: Priority.high, ticker: 'ticker');
+        const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+        await flutterLocalNotificationsPlugin.show(id, '您收到了一条新消息', '消息内容：.....', platformChannelSpecifics, payload: '');
       }
     }
   }
@@ -182,25 +162,16 @@ class AppController extends GetxController with UpgradeManger {
 
   Future<void> _startForegroundService() async {
     await getAppInfo();
-    const androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'pro', 'OpenIM后台进程',
-        channelDescription: '保证app能收到信息',
-        importance: Importance.max,
-        priority: Priority.high,
-        ticker: 'ticker');
+    const androidPlatformChannelSpecifics = AndroidNotificationDetails('pro', 'OpenIM后台进程',
+        channelDescription: '保证app能收到信息', importance: Importance.max, priority: Priority.high, ticker: 'ticker');
 
     await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.startForegroundService(1, packageInfo!.appName, '正在运行...',
-            notificationDetails: androidPlatformChannelSpecifics, payload: '');
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.startForegroundService(1, packageInfo!.appName, '正在运行...', notificationDetails: androidPlatformChannelSpecifics, payload: '');
   }
 
   Future<void> _stopForegroundService() async {
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.stopForegroundService();
+    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.stopForegroundService();
   }
 
   void showBadge(count) {
@@ -297,14 +268,9 @@ class AppController extends GetxController with UpgradeManger {
     // 获取系统静音、震动状态
     RingerModeStatus ringerStatus = await SoundMode.ringerModeStatus;
 
-    Logger.print(
-        'System ringer status: $ringerStatus, user is allow beep: $isAllowBeep',
-        fileName: 'app_controller.dart');
+    Logger.print('System ringer status: $ringerStatus, user is allow beep: $isAllowBeep', fileName: 'app_controller.dart');
 
-    if (!_audioPlayer.playerState.playing &&
-        isAllowBeep &&
-        (ringerStatus == RingerModeStatus.normal ||
-            ringerStatus == RingerModeStatus.unknown)) {
+    if (!_audioPlayer.playerState.playing && isAllowBeep && (ringerStatus == RingerModeStatus.normal || ringerStatus == RingerModeStatus.unknown)) {
       await session.setActive(true);
       _audioPlayer.setAsset(_ring, package: 'openim_common');
       _audioPlayer.setLoopMode(LoopMode.off);
@@ -313,9 +279,7 @@ class AppController extends GetxController with UpgradeManger {
     }
 
     if (isAllowVibration &&
-        (ringerStatus == RingerModeStatus.normal ||
-            ringerStatus == RingerModeStatus.vibrate ||
-            ringerStatus == RingerModeStatus.unknown)) {
+        (ringerStatus == RingerModeStatus.normal || ringerStatus == RingerModeStatus.vibrate || ringerStatus == RingerModeStatus.unknown)) {
       if (await Vibration.hasVibrator() == true) {
         Vibration.vibrate();
       }

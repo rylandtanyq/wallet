@@ -1,6 +1,6 @@
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/chat/group_setup/group_setup_logic.dart';
+import 'package:feature_im/pages/chat/group_setup/group_setup_logic.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../../../routes/app_navigator.dart';
@@ -39,8 +39,7 @@ class GroupManageLogic extends GetxController {
   /// 0：关闭，1：打开
   void toggleAddMemberToFriend() async {
     await LoadingView.singleton.wrap(
-      asyncFunction: () =>
-          OpenIM.iMManager.groupManager.setGroupApplyMemberFriend(
+      asyncFunction: () => OpenIM.iMManager.groupManager.setGroupApplyMemberFriend(
         groupID: groupInfo.value.groupID,
         status: !allowAddFriend ? 1 : 0,
       ),
@@ -69,9 +68,7 @@ class GroupManageLogic extends GetxController {
     if (null != index) {
       final value = index == 0
           ? GroupVerification.directly
-          : (index == 1
-              ? GroupVerification.applyNeedVerificationInviteDirectly
-              : GroupVerification.allNeedVerification);
+          : (index == 1 ? GroupVerification.applyNeedVerificationInviteDirectly : GroupVerification.allNeedVerification);
       await LoadingView.singleton.wrap(
         asyncFunction: () => OpenIM.iMManager.groupManager.setGroupVerification(
           groupID: groupInfo.value.groupID,

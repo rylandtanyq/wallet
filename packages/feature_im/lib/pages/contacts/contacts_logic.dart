@@ -1,7 +1,7 @@
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/contacts/group_profile_panel/group_profile_panel_logic.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/pages/contacts/group_profile_panel/group_profile_panel_logic.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:openim_working_circle/openim_working_circle.dart';
 
@@ -9,20 +9,16 @@ import '../../core/controller/im_controller.dart';
 import '../home/home_logic.dart';
 import 'select_contacts/select_contacts_logic.dart';
 
-class ContactsLogic extends GetxController
-    with WorkingCircleBridge
-    implements ViewUserProfileBridge, SelectContactsBridge, ScanBridge {
+class ContactsLogic extends GetxController with WorkingCircleBridge implements ViewUserProfileBridge, SelectContactsBridge, ScanBridge {
   final imLogic = Get.find<IMController>();
   final homeLogic = Get.find<HomeLogic>();
 
   // final organizationLogic = Get.find<OrganizationLogic>();
   final friendApplicationList = <UserInfo>[];
 
-  int get friendApplicationCount =>
-      homeLogic.unhandledFriendApplicationCount.value;
+  int get friendApplicationCount => homeLogic.unhandledFriendApplicationCount.value;
 
-  int get groupApplicationCount =>
-      homeLogic.unhandledGroupApplicationCount.value;
+  int get groupApplicationCount => homeLogic.unhandledGroupApplicationCount.value;
 
   int get momentsUnreadCount => homeLogic.unreadMomentsCount.value;
 
@@ -100,9 +96,7 @@ class ContactsLogic extends GetxController
     String? ex,
   }) =>
       AppNavigator.startSelectContacts(
-        action: type == 0
-            ? SelAction.whoCanWatch
-            : (type == 1 ? SelAction.remindWhoToWatch : SelAction.meeting),
+        action: type == 0 ? SelAction.whoCanWatch : (type == 1 ? SelAction.remindWhoToWatch : SelAction.meeting),
         defaultCheckedIDList: defaultCheckedIDList,
         checkedList: checkedList,
         excludeIDList: excludeIDList,
@@ -112,9 +106,7 @@ class ContactsLogic extends GetxController
       );
 
   @override
-  viewUserProfile(String userID, String? nickname, String? faceURL,
-          [String? groupID]) =>
-      AppNavigator.startUserProfilePane(
+  viewUserProfile(String userID, String? nickname, String? faceURL, [String? groupID]) => AppNavigator.startUserProfilePane(
         userID: userID,
         nickname: nickname,
         faceURL: faceURL,
@@ -129,6 +121,5 @@ class ContactsLogic extends GetxController
       );
 
   @override
-  scanOutUserID(String userID) =>
-      AppNavigator.startUserProfilePane(userID: userID, offAndToNamed: true);
+  scanOutUserID(String userID) => AppNavigator.startUserProfilePane(userID: userID, offAndToNamed: true);
 }

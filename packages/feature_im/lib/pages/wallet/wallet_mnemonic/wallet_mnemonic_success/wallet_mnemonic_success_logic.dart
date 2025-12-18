@@ -1,6 +1,6 @@
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 
 class WalletMnemonicSuccessLogic extends GetxController {
   final wallet = "".obs;
@@ -15,5 +15,6 @@ class WalletMnemonicSuccessLogic extends GetxController {
   void onClose() {
     super.onClose();
   }
-  void viewWalletRegister()=>AppNavigator.startWalletRegister(walletAddress: wallet.value);
+
+  void viewWalletRegister() => AppNavigator.startWalletRegister(walletAddress: wallet.value);
 }

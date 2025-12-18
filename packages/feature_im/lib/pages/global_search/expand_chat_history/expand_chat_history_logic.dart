@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/conversation/conversation_logic.dart';
+import 'package:feature_im/pages/conversation/conversation_logic.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
@@ -58,8 +58,7 @@ class ExpandChatHistoryLogic extends GetxController {
         usedWidth: 80.w + 26.w,
       );
 
-  Future<SearchResult> _request(int pageIndex) =>
-      OpenIM.iMManager.messageManager.searchLocalMessages(
+  Future<SearchResult> _request(int pageIndex) => OpenIM.iMManager.messageManager.searchLocalMessages(
         conversationID: searchResultItems.value.conversationID,
         keywordList: [searchKey],
         messageTypeList: [MessageType.text, MessageType.atText],
@@ -100,8 +99,7 @@ class ExpandChatHistoryLogic extends GetxController {
     }
   }
 
-  void previewMessageHistory(Message message) =>
-      AppNavigator.startPreviewChatHistory(
+  void previewMessageHistory(Message message) => AppNavigator.startPreviewChatHistory(
         conversationInfo: ConversationInfo(
           conversationID: searchResultItems.value.conversationID!,
           showName: searchResultItems.value.showName,
@@ -112,8 +110,7 @@ class ExpandChatHistoryLogic extends GetxController {
 
   void toChat() async {
     final list = await LoadingView.singleton.wrap(
-      asyncFunction: () =>
-          OpenIM.iMManager.conversationManager.getMultipleConversation(
+      asyncFunction: () => OpenIM.iMManager.conversationManager.getMultipleConversation(
         conversationIDList: [searchResultItems.value.conversationID!],
       ),
     );

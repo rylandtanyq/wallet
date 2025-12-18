@@ -1,6 +1,6 @@
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../../core/controller/im_controller.dart';
@@ -52,9 +52,7 @@ class AccountSetupLogic extends GetxController {
 
   void toggleNotDisturbMode() async {
     var status = isGlobalNotDisturb ? 0 : 2;
-    await LoadingView.singleton.wrap(
-        asyncFunction: () => OpenIM.iMManager.userManager
-            .setGlobalRecvMessageOpt(status: status));
+    await LoadingView.singleton.wrap(asyncFunction: () => OpenIM.iMManager.userManager.setGlobalRecvMessageOpt(status: status));
     imLogic.userInfo.update((val) {
       val?.globalRecvMsgOpt = status;
     });

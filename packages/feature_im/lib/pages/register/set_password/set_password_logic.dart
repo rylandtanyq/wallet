@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/login/login_logic.dart';
+import 'package:feature_im/pages/login/login_logic.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../../core/controller/im_controller.dart';
@@ -43,9 +43,7 @@ class SetPasswordLogic extends GetxController {
   }
 
   _onChanged() {
-    enabled.value = nicknameCtrl.text.trim().isNotEmpty &&
-        pwdCtrl.text.trim().isNotEmpty &&
-        pwdAgainCtrl.text.trim().isNotEmpty;
+    enabled.value = nicknameCtrl.text.trim().isNotEmpty && pwdCtrl.text.trim().isNotEmpty && pwdAgainCtrl.text.trim().isNotEmpty;
   }
 
   bool _checkingInput() {
@@ -96,16 +94,11 @@ class SetPasswordLogic extends GetxController {
         verificationCode: verificationCode,
         invitationCode: invitationCode,
       );
-      if (null == IMUtils.emptyStrToNull(data.imToken) ||
-          null == IMUtils.emptyStrToNull(data.chatToken)) {
+      if (null == IMUtils.emptyStrToNull(data.imToken) || null == IMUtils.emptyStrToNull(data.chatToken)) {
         AppNavigator.startLogin();
         return;
       }
-      final account = {
-        "areaCode": areaCode,
-        "phoneNumber": phoneNumber,
-        'email': email
-      };
+      final account = {"areaCode": areaCode, "phoneNumber": phoneNumber, 'email': email};
       await DataSp.putLoginCertificate(data);
       await DataSp.putLoginAccount(account);
       DataSp.putLoginType(email != null ? 1 : 0);
@@ -114,11 +107,7 @@ class SetPasswordLogic extends GetxController {
       PushController.login(
         data.userID,
         onTokenRefresh: (token) {
-          OpenIM.iMManager.updateFcmToken(
-              fcmToken: token,
-              expireTime: DateTime.now()
-                  .add(Duration(days: 90))
-                  .millisecondsSinceEpoch);
+          OpenIM.iMManager.updateFcmToken(fcmToken: token, expireTime: DateTime.now().add(Duration(days: 90)).millisecondsSinceEpoch);
         },
       );
       Logger.print('---------jpush login success----');

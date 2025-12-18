@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 
 /// print full log
@@ -35,24 +36,23 @@ class Logger {
 
   // Sample of abstract logging function
   static void print(dynamic text,
-      {bool isError = false,
-      String? fileName,
-      String? functionName,
-      String? errorMsg,
-      List<dynamic>? keyAndValues,
-      bool onlyConsole = false}) {
+      {bool isError = false, String? fileName, String? functionName, String? errorMsg, List<dynamic>? keyAndValues, bool onlyConsole = false}) {
     final time = DateTime.now().toIso8601String();
 
     log(
       '$time ${Logger()._header} [Console]: $text, ${keyAndValues != null ? ', $keyAndValues' : ''}, isError [${isError || errorMsg != null}]',
     );
     if (!onlyConsole) {
-      OpenIM.iMManager.logs(
-        msgs:
-            '$time ${Logger()._header} [${functionName ?? ''}]: $text, ${keyAndValues != null ? ', $keyAndValues' : ''}',
+      OpenIM.iMManager
+          .logs(
+        msgs: '$time ${Logger()._header} [${functionName ?? ''}]: $text, ${keyAndValues != null ? ', $keyAndValues' : ''}',
         err: errorMsg,
         keyAndValues: keyAndValues ?? [],
-      );
+      )
+          .catchError((e) {
+        if (e is PlatformException && e.code == '10006') return; // init 前忽略
+        log('$time ${Logger()._header} [OpenIM.logs error]: $e');
+      });
     }
   }
 }

@@ -28,7 +28,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.ai.wallet"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 36
         versionCode = flutterVersionCode
         versionName = flutterVersionName

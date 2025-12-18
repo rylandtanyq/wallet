@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../login/login_logic.dart';
@@ -11,12 +11,8 @@ class ForgetPasswordLogic extends GetxController {
   final areaCode = "+86".obs;
   final enabled = false.obs;
   final loginController = Get.find<LoginLogic>();
-  String? get email => loginController.operateType == LoginType.email
-      ? phoneCtrl.text.trim()
-      : null;
-  String? get phone => loginController.operateType == LoginType.phone
-      ? phoneCtrl.text.trim()
-      : null;
+  String? get email => loginController.operateType == LoginType.email ? phoneCtrl.text.trim() : null;
+  String? get phone => loginController.operateType == LoginType.phone ? phoneCtrl.text.trim() : null;
   @override
   void onClose() {
     phoneCtrl.dispose();
@@ -32,8 +28,7 @@ class ForgetPasswordLogic extends GetxController {
   }
 
   _onChanged() {
-    enabled.value = phoneCtrl.text.trim().isNotEmpty &&
-        verificationCodeCtrl.text.trim().isNotEmpty;
+    enabled.value = phoneCtrl.text.trim().isNotEmpty && verificationCodeCtrl.text.trim().isNotEmpty;
   }
 
   void openCountryCodePicker() async {
@@ -42,8 +37,7 @@ class ForgetPasswordLogic extends GetxController {
   }
 
   Future<bool> getVerificationCode() async {
-    if (phone?.isNotEmpty == true &&
-        !IMUtils.isMobile(areaCode.value, phoneCtrl.text)) {
+    if (phone?.isNotEmpty == true && !IMUtils.isMobile(areaCode.value, phoneCtrl.text)) {
       IMViews.showToast(StrRes.plsEnterRightPhone);
       return false;
     }

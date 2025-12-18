@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 
 class WalletCreateLogic extends GetxController {
   final enabled = false.obs;
@@ -29,19 +29,22 @@ class WalletCreateLogic extends GetxController {
     tipsCtrl.dispose();
     super.onClose();
   }
+
   _onChanged() {
     // enabled.value = walletNameCtrl.text.trim().isNotEmpty &&
     //     passwordCtrl.text.trim().isNotEmpty &&
     //     passwordAgainCtrl.text.trim().isNotEmpty &&
     //     agree.value;
   }
-  void changeAgree(){
+  void changeAgree() {
     agree.value = !agree.value;
   }
-  void openPrivacy(){
+
+  void openPrivacy() {
     print("打开协议");
   }
-  void createWallet(){
+
+  void createWallet() {
     AppNavigator.startWalletMnemonic();
   }
 }

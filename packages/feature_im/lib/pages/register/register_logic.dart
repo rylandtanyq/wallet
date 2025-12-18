@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/login/login_logic.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/pages/login/login_logic.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../core/controller/app_controller.dart';
@@ -13,13 +13,9 @@ class RegisterLogic extends GetxController {
   final areaCode = "+86".obs;
   final enabled = false.obs;
   final loginController = Get.find<LoginLogic>();
-  String? get email => loginController.operateType == LoginType.email
-      ? phoneCtrl.text.trim()
-      : null;
-  String? get phone => (loginController.operateType == LoginType.phone ||
-          loginController.operateType == LoginType.account)
-      ? phoneCtrl.text.trim()
-      : null;
+  String? get email => loginController.operateType == LoginType.email ? phoneCtrl.text.trim() : null;
+  String? get phone =>
+      (loginController.operateType == LoginType.phone || loginController.operateType == LoginType.account) ? phoneCtrl.text.trim() : null;
 
   @override
   void onClose() {
@@ -36,10 +32,8 @@ class RegisterLogic extends GetxController {
   }
 
   _onChanged() {
-    enabled.value = needInvitationCodeRegister
-        ? phoneCtrl.text.trim().isNotEmpty &&
-            invitationCodeCtrl.text.trim().isNotEmpty
-        : phoneCtrl.text.trim().isNotEmpty;
+    enabled.value =
+        needInvitationCodeRegister ? phoneCtrl.text.trim().isNotEmpty && invitationCodeCtrl.text.trim().isNotEmpty : phoneCtrl.text.trim().isNotEmpty;
   }
 
   bool get needInvitationCodeRegister =>
@@ -62,15 +56,13 @@ class RegisterLogic extends GetxController {
       );
 
   void next() async {
-    if ((loginController.operateType == LoginType.phone ||
-            loginController.operateType == LoginType.account) &&
+    if ((loginController.operateType == LoginType.phone || loginController.operateType == LoginType.account) &&
         !IMUtils.isMobile(areaCode.value, phoneCtrl.text)) {
       IMViews.showToast(StrRes.plsEnterRightPhone);
       return;
     }
 
-    if (loginController.operateType == LoginType.email &&
-        !phoneCtrl.text.isEmail) {
+    if (loginController.operateType == LoginType.email && !phoneCtrl.text.isEmail) {
       IMViews.showToast(StrRes.plsEnterRightEmail);
       return;
     }

@@ -1,6 +1,6 @@
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 class WalletMnemonicLogic extends GetxController {
@@ -27,12 +27,11 @@ class WalletMnemonicLogic extends GetxController {
         print('New wallet created:');
         print('Mnemonic: ${newWallet['mnemonic']}');
         print('Current address: ${newWallet['currentAddress']}');
-        if(newWallet['mnemonic']!.isNotEmpty && newWallet['currentAddress']!
-            .isNotEmpty){
+        if (newWallet['mnemonic']!.isNotEmpty && newWallet['currentAddress']!.isNotEmpty) {
           mnemonic = newWallet['mnemonic']!;
           walletAddress = newWallet['currentAddress']!;
-          AppNavigator.startWalletMnemonicbackup(mnemonicStr: mnemonic,walletAddress: walletAddress);
-        }else{
+          AppNavigator.startWalletMnemonicbackup(mnemonicStr: mnemonic, walletAddress: walletAddress);
+        } else {
           IMViews.showToast("生成失败");
         }
       });

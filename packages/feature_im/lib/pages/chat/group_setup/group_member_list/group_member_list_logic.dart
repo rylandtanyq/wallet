@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 import 'package:sprintf/sprintf.dart';
@@ -33,21 +33,13 @@ class GroupMemberListLogic extends GetxController {
   late GroupMemberOpType opType;
   late StreamSubscription mISub;
   late StreamSubscription _guSub;
-  bool get canLookMembersInfo =>
-      groupInfo.lookMemberInfo != 1 ||
-      myGroupMemberLevel.value != GroupRoleLevel.member;
+  bool get canLookMembersInfo => groupInfo.lookMemberInfo != 1 || myGroupMemberLevel.value != GroupRoleLevel.member;
 
   /// 多选模式
-  bool get isMultiSelMode =>
-      opType == GroupMemberOpType.call ||
-      opType == GroupMemberOpType.at ||
-      opType == GroupMemberOpType.del;
+  bool get isMultiSelMode => opType == GroupMemberOpType.call || opType == GroupMemberOpType.at || opType == GroupMemberOpType.del;
 
   /// 需要移除自己
-  bool get excludeSelfFromList =>
-      opType == GroupMemberOpType.call ||
-      opType == GroupMemberOpType.at ||
-      opType == GroupMemberOpType.transferRight;
+  bool get excludeSelfFromList => opType == GroupMemberOpType.call || opType == GroupMemberOpType.at || opType == GroupMemberOpType.transferRight;
 
   bool get isDelMember => opType == GroupMemberOpType.del;
 
@@ -130,12 +122,9 @@ class GroupMemberListLogic extends GetxController {
 
     if (isDelMember) {
       if (isOwner) {
-        result.removeWhere(
-            (element) => element.roleLevel == GroupRoleLevel.owner);
+        result.removeWhere((element) => element.roleLevel == GroupRoleLevel.owner);
       } else if (isAdmin) {
-        result.removeWhere((element) =>
-            element.roleLevel == GroupRoleLevel.admin ||
-            element.roleLevel == GroupRoleLevel.owner);
+        result.removeWhere((element) => element.roleLevel == GroupRoleLevel.admin || element.roleLevel == GroupRoleLevel.owner);
       }
     }
 
@@ -162,8 +151,7 @@ class GroupMemberListLogic extends GetxController {
     }
   }
 
-  bool isChecked(GroupMembersInfo membersInfo) =>
-      checkedList.contains(membersInfo);
+  bool isChecked(GroupMembersInfo membersInfo) => checkedList.contains(membersInfo);
 
   clickMember(GroupMembersInfo membersInfo) async {
     if (opType == GroupMemberOpType.transferRight) {
@@ -252,6 +240,5 @@ class GroupMemberListLogic extends GetxController {
     Get.back(result: checkedList.value);
   }
 
-  bool hiddenMember(GroupMembersInfo membersInfo) =>
-      excludeSelfFromList && membersInfo.userID == OpenIM.iMManager.userID;
+  bool hiddenMember(GroupMembersInfo membersInfo) => excludeSelfFromList && membersInfo.userID == OpenIM.iMManager.userID;
 }

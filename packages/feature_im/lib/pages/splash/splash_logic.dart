@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/conversation/conversation_logic.dart';
+import 'package:feature_im/pages/conversation/conversation_logic.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../core/controller/im_controller.dart';
@@ -39,11 +39,7 @@ class SplashLogic extends GetxController {
       PushController.login(
         userID!,
         onTokenRefresh: (token) {
-          OpenIM.iMManager.updateFcmToken(
-              fcmToken: token,
-              expireTime: DateTime.now()
-                  .add(Duration(days: 90))
-                  .millisecondsSinceEpoch);
+          OpenIM.iMManager.updateFcmToken(fcmToken: token, expireTime: DateTime.now().add(Duration(days: 90)).millisecondsSinceEpoch);
         },
       );
       Logger.print('---------push login success----');

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 
 import '../../../core/controller/im_controller.dart';
@@ -68,12 +68,10 @@ class FriendRequestsLogic extends GetxController {
     applicationList.assignAll(allList);
   }
 
-  bool isISendRequest(FriendApplicationInfo info) =>
-      info.fromUserID == OpenIM.iMManager.userID;
+  bool isISendRequest(FriendApplicationInfo info) => info.fromUserID == OpenIM.iMManager.userID;
 
   /// 接受好友申请
-  void acceptFriendApplication(FriendApplicationInfo info) =>
-      AppNavigator.startProcessFriendRequests(
+  void acceptFriendApplication(FriendApplicationInfo info) => AppNavigator.startProcessFriendRequests(
         applicationInfo: info,
       );
 
@@ -81,10 +79,7 @@ class FriendRequestsLogic extends GetxController {
   void refuseFriendApplication(FriendApplicationInfo info) async {}
 
   void toChat(String userID) {
-    OpenIM.iMManager.conversationManager
-        .getOneConversation(
-            sourceID: userID, sessionType: ConversationType.single)
-        .then((value) {
+    OpenIM.iMManager.conversationManager.getOneConversation(sourceID: userID, sessionType: ConversationType.single).then((value) {
       AppNavigator.startChat(
         offUntilHome: false,
         conversationInfo: value,

@@ -6,7 +6,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/routes/app_navigator.dart';
+import 'package:feature_im/routes/app_navigator.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:openim_live/openim_live.dart';
 import 'package:openim_working_circle/openim_working_circle.dart';
@@ -122,8 +122,7 @@ class UserProfilePanelLogic extends GetxController {
 
   /// 是否能给非好友发送消息
   bool get allowSendMsgNotFriend {
-    final r = null == appLogic.clientConfigMap['allowSendMsgNotFriend'] ||
-        appLogic.clientConfigMap['allowSendMsgNotFriend'] == '1';
+    final r = null == appLogic.clientConfigMap['allowSendMsgNotFriend'] || appLogic.clientConfigMap['allowSendMsgNotFriend'] == '1';
     return r;
   }
 
@@ -166,9 +165,7 @@ class UserProfilePanelLogic extends GetxController {
     final blackList = await OpenIM.iMManager.friendshipManager.getBlacklist();
 
     final isFriendship = friendInfo != null;
-    final isBlack =
-        blackList.firstWhereOrNull((e) => e.userID == friendInfo?.userID) !=
-            null;
+    final isBlack = blackList.firstWhereOrNull((e) => e.userID == friendInfo?.userID) != null;
 
     if (friendInfo == null) {
       final user = (await OpenIM.iMManager.userManager.getUsersInfoWithCache(
@@ -238,13 +235,9 @@ class UserProfilePanelLogic extends GetxController {
     if (isGroupMemberPage) {
       final list = await OpenIM.iMManager.groupManager.getGroupMembersInfo(
         groupID: groupID!,
-        userIDList: [
-          userInfo.value.userID!,
-          if (!isMyself) OpenIM.iMManager.userID
-        ],
+        userIDList: [userInfo.value.userID!, if (!isMyself) OpenIM.iMManager.userID],
       );
-      final other =
-          list.firstWhereOrNull((e) => e.userID == userInfo.value.userID);
+      final other = list.firstWhereOrNull((e) => e.userID == userInfo.value.userID);
       groupMembersInfo = other;
       groupUserNickname.value = other?.nickname ?? '';
       joinGroupTime.value = other?.joinTime ?? 0;
@@ -255,23 +248,17 @@ class UserProfilePanelLogic extends GetxController {
 
       // 是我查看其他人的资料
       if (!isMyself) {
-        var me =
-            list.firstWhereOrNull((e) => e.userID == OpenIM.iMManager.userID);
+        var me = list.firstWhereOrNull((e) => e.userID == OpenIM.iMManager.userID);
         // 只有群主可以设置管理员
         iAmOwner.value = me?.roleLevel == GroupRoleLevel.owner;
         // 群主禁言（取消禁言）管理员和普通成员，管理员只能禁言（取消禁言）普通成员
-        iHasMutePermissions.value = me?.roleLevel == GroupRoleLevel.owner ||
-            (me?.roleLevel == GroupRoleLevel.admin &&
-                other?.roleLevel == GroupRoleLevel.member);
+        iHasMutePermissions.value =
+            me?.roleLevel == GroupRoleLevel.owner || (me?.roleLevel == GroupRoleLevel.admin && other?.roleLevel == GroupRoleLevel.member);
         // 我是管理员或群主
-        iHaveAdminOrOwnerPermission.value =
-            me?.roleLevel == GroupRoleLevel.owner ||
-                me?.roleLevel == GroupRoleLevel.admin;
+        iHaveAdminOrOwnerPermission.value = me?.roleLevel == GroupRoleLevel.owner || me?.roleLevel == GroupRoleLevel.admin;
       }
 
-      if (null != other &&
-          null != other.muteEndTime &&
-          other.muteEndTime! > 0) {
+      if (null != other && null != other.muteEndTime && other.muteEndTime! > 0) {
         _calMuteTime(other.muteEndTime!);
       }
     }
@@ -339,11 +326,9 @@ class UserProfilePanelLogic extends GetxController {
   /// 设置为管理员
   void toggleAdmin() async {
     final hasPermission = !hasAdminPermission.value;
-    final roleLevel =
-        hasPermission ? GroupRoleLevel.admin : GroupRoleLevel.member;
+    final roleLevel = hasPermission ? GroupRoleLevel.admin : GroupRoleLevel.member;
     await LoadingView.singleton.wrap(
-        asyncFunction: () =>
-            OpenIM.iMManager.groupManager.setGroupMemberRoleLevel(
+        asyncFunction: () => OpenIM.iMManager.groupManager.setGroupMemberRoleLevel(
               groupID: groupID!,
               userID: userInfo.value.userID!,
               roleLevel: roleLevel,

@@ -5,7 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
 import 'package:get/get.dart';
-import 'package:openim/pages/chat/group_setup/edit_name/edit_name_logic.dart';
+import 'package:feature_im/pages/chat/group_setup/edit_name/edit_name_logic.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:synchronized/synchronized.dart';
@@ -47,20 +47,16 @@ class GroupSetupLogic extends GetxController {
     if (Get.arguments['conversationInfo'] != null) {
       conversationInfo = Rx(Get.arguments['conversationInfo']);
     } else {
-      final temp = await OpenIM.iMManager.conversationManager
-          .getOneConversation(
-              sourceID: chatLogic.conversationInfo.isGroupChat
-                  ? chatLogic.conversationInfo.groupID!
-                  : chatLogic.conversationInfo.userID!,
-              sessionType: chatLogic.conversationInfo.conversationType!);
+      final temp = await OpenIM.iMManager.conversationManager.getOneConversation(
+          sourceID: chatLogic.conversationInfo.isGroupChat ? chatLogic.conversationInfo.groupID! : chatLogic.conversationInfo.userID!,
+          sessionType: chatLogic.conversationInfo.conversationType!);
       conversationInfo = Rx(temp);
     }
     groupInfo = Rx(_defaultGroupInfo);
     myGroupMembersInfo = Rx(_defaultMemberInfo);
 
     _ccSub = imLogic.conversationChangedSubject.listen((newList) {
-      final newValue = newList.firstWhereOrNull((element) =>
-          element.conversationID == conversationInfo.value.conversationID);
+      final newValue = newList.firstWhereOrNull((element) => element.conversationID == conversationInfo.value.conversationID);
       if (newValue != null) {
         conversationInfo.update((val) {
           val?.isPinned = newValue.isPinned;
@@ -92,8 +88,7 @@ class GroupSetupLogic extends GetxController {
     });
 
     _mISub = imLogic.memberInfoChangedSubject.listen((e) {
-      if (e.groupID == groupInfo.value.groupID &&
-          e.userID == myGroupMembersInfo.value.userID) {
+      if (e.groupID == groupInfo.value.groupID && e.userID == myGroupMembersInfo.value.userID) {
         myGroupMembersInfo.update((val) {
           val?.nickname = e.nickname;
           val?.roleLevel = e.roleLevel;
@@ -101,17 +96,14 @@ class GroupSetupLogic extends GetxController {
       }
 
       if (e.groupID == groupInfo.value.groupID) {
-        final index =
-            memberList.indexWhere((element) => element.userID == e.userID);
+        final index = memberList.indexWhere((element) => element.userID == e.userID);
         if (index != -1) {
           memberList[index] = e;
         }
       }
 
-      if (e.groupID == groupInfo.value.groupID &&
-          e.userID == groupInfo.value.ownerUserID) {
-        var index = memberList.indexWhere(
-            (element) => element.userID == groupInfo.value.ownerUserID);
+      if (e.groupID == groupInfo.value.groupID && e.userID == groupInfo.value.ownerUserID) {
+        var index = memberList.indexWhere((element) => element.userID == groupInfo.value.ownerUserID);
         if (index == -1) {
           memberList.insert(0, e);
         } else if (index != 0) {
@@ -184,8 +176,7 @@ class GroupSetupLogic extends GetxController {
 
   bool get isOwnerOrAdmin => isOwner || isAdmin;
 
-  bool get isAdmin =>
-      myGroupMembersInfo.value.roleLevel == GroupRoleLevel.admin;
+  bool get isAdmin => myGroupMembersInfo.value.roleLevel == GroupRoleLevel.admin;
 
   bool get isOwner => groupInfo.value.ownerUserID == OpenIM.iMManager.userID;
 
@@ -197,15 +188,13 @@ class GroupSetupLogic extends GetxController {
 
   bool get isMsgDestruct => conversationInfo.value.isMsgDestruct == true;
 
-  int get destructDuration =>
-      conversationInfo.value.msgDestructTime ?? 7 * 24 * 60 * 60;
+  int get destructDuration => conversationInfo.value.msgDestructTime ?? 7 * 24 * 60 * 60;
 
   // bool get canLookMembersInfo =>
   //     groupInfo.value.lookMemberInfo != 1 ||
   //     myGroupMembersInfo.value.roleLevel != GroupRoleLevel.member;
   bool get canLookMembersInfo =>
-      myGroupMembersInfo.value.roleLevel == GroupRoleLevel.admin ||
-      myGroupMembersInfo.value.roleLevel == GroupRoleLevel.owner;
+      myGroupMembersInfo.value.roleLevel == GroupRoleLevel.admin || myGroupMembersInfo.value.roleLevel == GroupRoleLevel.owner;
 
   void _checkIsJoinedGroup() async {
     isJoinedGroup.value = await OpenIM.iMManager.groupManager.isJoinedGroup(
@@ -276,8 +265,7 @@ class GroupSetupLogic extends GetxController {
   void modifyGroupAvatar() async {
     final List<AssetEntity>? assets = await AssetPicker.pickAssets(
       Get.context!,
-      pickerConfig:
-          const AssetPickerConfig(maxAssets: 1, requestType: RequestType.image),
+      pickerConfig: const AssetPickerConfig(maxAssets: 1, requestType: RequestType.image),
     );
     if (assets != null) {
       final file = await assets.first.file;
@@ -337,13 +325,11 @@ class GroupSetupLogic extends GetxController {
         conversationInfo: conversationInfo.value,
       );
 
-  void searchChatHistoryPicture() =>
-      AppNavigator.startSearchChatHistoryMultimedia(
+  void searchChatHistoryPicture() => AppNavigator.startSearchChatHistoryMultimedia(
         conversationInfo: conversationInfo.value,
       );
 
-  void searchChatHistoryVideo() =>
-      AppNavigator.startSearchChatHistoryMultimedia(
+  void searchChatHistoryVideo() => AppNavigator.startSearchChatHistoryMultimedia(
         conversationInfo: conversationInfo.value,
         multimediaType: MultimediaType.video,
       );
@@ -354,8 +340,7 @@ class GroupSetupLogic extends GetxController {
 
   void _removeConversation() async {
     // 删除群会话
-    await OpenIM.iMManager.conversationManager
-        .deleteConversationAndDeleteAllMsg(
+    await OpenIM.iMManager.conversationManager.deleteConversationAndDeleteAllMsg(
       conversationID: conversationInfo.value.conversationID,
     );
 
@@ -407,9 +392,7 @@ class GroupSetupLogic extends GetxController {
 
   int length() {
     int buttons = isOwnerOrAdmin ? 2 : 1;
-    return (memberList.length + buttons) > 10
-        ? 10
-        : (memberList.length + buttons);
+    return (memberList.length + buttons) > 10 ? 10 : (memberList.length + buttons);
   }
 
   Widget itemBuilder({
@@ -451,8 +434,7 @@ class GroupSetupLogic extends GetxController {
 
   void toggleNotDisturb() {
     LoadingView.singleton.wrap(
-        asyncFunction: () =>
-            OpenIM.iMManager.conversationManager.setConversationRecvMessageOpt(
+        asyncFunction: () => OpenIM.iMManager.conversationManager.setConversationRecvMessageOpt(
               conversationID: conversationID,
               status: !isNotDisturb ? 2 : 0,
             ));
@@ -464,8 +446,7 @@ class GroupSetupLogic extends GetxController {
       rightText: StrRes.clearAll,
     ));
     if (confirm == true) {
-      await OpenIM.iMManager.conversationManager
-          .clearConversationAndDeleteAllMsg(
+      await OpenIM.iMManager.conversationManager.clearConversationAndDeleteAllMsg(
         conversationID: conversationID,
       );
       chatLogic.clearAllMessage();
@@ -581,8 +562,6 @@ class GroupSetupLogic extends GetxController {
 
   void setConversationMsgDestructTime(int duration) {
     LoadingView.singleton.wrap(
-        asyncFunction: () => OpenIM.iMManager.conversationManager
-            .setConversationMsgDestructTime(
-                conversationID: conversationID, duration: duration));
+        asyncFunction: () => OpenIM.iMManager.conversationManager.setConversationMsgDestructTime(conversationID: conversationID, duration: duration));
   }
 }

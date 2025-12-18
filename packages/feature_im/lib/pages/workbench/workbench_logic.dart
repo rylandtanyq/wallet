@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:openim/core/controller/app_controller.dart';
+import 'package:feature_im/core/controller/app_controller.dart';
 import 'package:openim_common/openim_common.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
