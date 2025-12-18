@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'transaction_record.g.dart';
 
 @JsonSerializable()
-@HiveType(typeId: 2)
+@HiveType(typeId: 102)
 class TransactionRecord extends HiveObject {
   @HiveField(0)
   final String txHash;

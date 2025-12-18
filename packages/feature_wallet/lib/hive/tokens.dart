@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'tokens.g.dart';
 
 @JsonSerializable()
-@HiveType(typeId: 3)
+@HiveType(typeId: 103)
 class Tokens extends HiveObject {
   @HiveField(0)
   final String image;
