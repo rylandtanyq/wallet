@@ -47,24 +47,24 @@ class AboutUsPage extends StatelessWidget {
                   height: .5,
                 ),
                 // if (Platform.isAndroid)
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: logic.checkUpdate,
-                  child: Container(
-                    height: 57.h,
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Row(
-                      children: [
-                        StrRes.checkNewVersion.toText
-                          ..style = Styles.ts_0C1C33_17sp,
-                        const Spacer(),
-                        ImageRes.rightArrow.toImage
-                          ..width = 24.w
-                          ..height = 24.h,
-                      ],
-                    ),
-                  ),
-                ),
+                // GestureDetector(
+                //   behavior: HitTestBehavior.translucent,
+                //   onTap: logic.checkUpdate,
+                //   child: Container(
+                //     height: 57.h,
+                //     padding: EdgeInsets.symmetric(horizontal: 16.w),
+                //     child: Row(
+                //       children: [
+                //         StrRes.checkNewVersion.toText
+                //           ..style = Styles.ts_0C1C33_17sp,
+                //         const Spacer(),
+                //         ImageRes.rightArrow.toImage
+                //           ..width = 24.w
+                //           ..height = 24.h,
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: logic.uploadLogs,
@@ -73,8 +73,7 @@ class AboutUsPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Row(
                       children: [
-                        StrRes.uploadErrorLog.toText
-                          ..style = Styles.ts_0C1C33_17sp,
+                        StrRes.uploadErrorLog.toText..style = Styles.ts_0C1C33_17sp,
                         const Spacer(),
                         ImageRes.rightArrow.toImage
                           ..width = 24.w
@@ -91,8 +90,7 @@ class AboutUsPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Row(
                       children: [
-                        StrRes.uploadLogWithLine.toText
-                          ..style = Styles.ts_0C1C33_17sp,
+                        StrRes.uploadLogWithLine.toText..style = Styles.ts_0C1C33_17sp,
                         const Spacer(),
                         ImageRes.rightArrow.toImage
                           ..width = 24.w

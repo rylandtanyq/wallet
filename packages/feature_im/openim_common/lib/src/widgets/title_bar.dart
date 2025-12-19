@@ -234,9 +234,7 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
                 ..width = 24.w
                 ..height = 24.h
                 ..color = backIconColor,
-              if (null != leftTitle)
-                leftTitle.toText
-                  ..style = (leftTitleStyle ?? Styles.ts_0C1C33_17sp_semibold),
+              if (null != leftTitle) leftTitle.toText..style = (leftTitleStyle ?? Styles.ts_0C1C33_17sp_semibold),
             ],
           ),
         );

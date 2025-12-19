@@ -50,11 +50,11 @@ class MinePage extends StatelessWidget {
               label: StrRes.aboutUs,
               onTap: logic.aboutUs,
             ),
-            _buildItemView(
-              icon: ImageRes.aboutUs,
-              label: StrRes.checkNewVersion,
-              onTap: logic.checkUpdate,
-            ),
+            // _buildItemView(
+            //   icon: ImageRes.aboutUs,
+            //   label: StrRes.checkNewVersion,
+            //   onTap: logic.checkUpdate,
+            // ),
             _buildItemView(
               icon: ImageRes.logout,
               label: StrRes.logout,
@@ -90,8 +90,7 @@ class MinePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  (logic.imLogic.userInfo.value.nickname ?? '').toText
-                    ..style = Styles.ts_0C1C33_17sp_medium,
+                  (logic.imLogic.userInfo.value.nickname ?? '').toText..style = Styles.ts_0C1C33_17sp_medium,
                   4.verticalSpace,
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
@@ -101,8 +100,7 @@ class MinePage extends StatelessWidget {
                       children: [
                         Container(
                           width: 130,
-                          child: (logic.imLogic.userInfo.value.account ?? '')
-                              .toText
+                          child: (logic.imLogic.userInfo.value.account ?? '').toText
                             ..style = Styles.ts_8E9AB0_14sp
                             ..maxLines = 1
                             ..overflow = TextOverflow.ellipsis,
@@ -120,8 +118,7 @@ class MinePage extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        (logic.imLogic.userInfo.value.userID ?? '').toText
-                          ..style = Styles.ts_8E9AB0_14sp,
+                        (logic.imLogic.userInfo.value.userID ?? '').toText..style = Styles.ts_8E9AB0_14sp,
                         ImageRes.mineCopy.toImage
                           ..width = 16.w
                           ..height = 16.h,

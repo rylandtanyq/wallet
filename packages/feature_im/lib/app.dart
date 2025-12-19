@@ -10,17 +10,25 @@ import 'core/controller/im_controller.dart';
 import 'routes/app_pages.dart';
 import 'widgets/app_view.dart';
 
-class ChatApp extends StatelessWidget {
+class ChatApp extends StatefulWidget {
   const ChatApp({Key? key}) : super(key: key);
 
-  static final GlobalKey<NavigatorState> _imNavKey = GlobalKey<NavigatorState>(debugLabel: 'im_nav');
-  static final GlobalKey<ScaffoldMessengerState> _imMsgKey = GlobalKey<ScaffoldMessengerState>(debugLabel: 'im_msg');
+  @override
+  State<ChatApp> createState() => _ChatAppState();
+}
+
+class _ChatAppState extends State<ChatApp> {
+  late final GlobalKey<NavigatorState> _imNavKey = GlobalKey<NavigatorState>(debugLabel: 'im_nav_${DateTime.now().microsecondsSinceEpoch}');
+  late final GlobalKey<ScaffoldMessengerState> _imMsgKey =
+      GlobalKey<ScaffoldMessengerState>(debugLabel: 'im_msg_${DateTime.now().microsecondsSinceEpoch}');
+
+  late final Key _appKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
     return AppView(
       builder: (locale, builder) => GetMaterialApp(
-        key: const ValueKey('im_get_app'),
+        key: _appKey,
         navigatorKey: _imNavKey,
         scaffoldMessengerKey: _imMsgKey,
         debugShowCheckedModeBanner: false,

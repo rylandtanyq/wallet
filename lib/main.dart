@@ -21,25 +21,47 @@ import 'package:feature_main/i18n/strings.g.dart' as main_i18n;
 import 'package:feature_wallet/i18n/strings.g.dart' as wallet_i18n;
 import 'package:feature_browser/i18n/strings.g.dart' as browser_i18n;
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+import 'dart:async';
+import 'dart:ui';
 
-  core_i18n.LocaleSettings.useDeviceLocale();
+void main() {
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-  final hiveStorage = HiveStorage();
-  await hiveStorage.init(adapters: [WalletAdapter(), TransactionRecordAdapter(), TokensAdapter()]);
-  await HiveStorage().ensureOpen(boxWallet);
-  await HiveStorage().ensureOpen(boxTokens);
-  await HiveStorage().ensureOpen(boxTx, lazy: true);
-  final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet);
-  final bool hasWallets = wallets != null && wallets.isNotEmpty;
-  await ImageCacheRepo.I.init();
-  await AppConfig.load();
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        debugPrint('FlutterError: ${details.exception}\n${details.stack}');
+      };
 
-  runApp(
-    ProviderScope(
-      child: core_i18n.TranslationProvider(child: MyApp(hasWallets: hasWallets)),
-    ),
+      PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+        debugPrint('Uncaught: $error\n$stack');
+        return true;
+      };
+
+      core_i18n.LocaleSettings.useDeviceLocale();
+
+      final hiveStorage = HiveStorage();
+      await hiveStorage.init(adapters: [WalletAdapter(), TransactionRecordAdapter(), TokensAdapter()]);
+      await HiveStorage().ensureOpen(boxWallet);
+      await HiveStorage().ensureOpen(boxTokens);
+      await HiveStorage().ensureOpen(boxTx, lazy: true);
+
+      final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet);
+      final bool hasWallets = wallets != null && wallets.isNotEmpty;
+
+      await ImageCacheRepo.I.init();
+      await AppConfig.load();
+
+      runApp(
+        ProviderScope(
+          child: core_i18n.TranslationProvider(child: MyApp(hasWallets: hasWallets)),
+        ),
+      );
+    },
+    (Object error, StackTrace stack) {
+      debugPrint('ZoneError: $error\n$stack');
+    },
   );
 }
 

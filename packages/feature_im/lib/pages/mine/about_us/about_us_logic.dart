@@ -23,8 +23,7 @@ class AboutUsLogic extends GetxController {
     final appName = packageInfo.appName;
     final buildNumber = packageInfo.buildNumber;
 
-    displayVersion.value =
-        '$appName $version+$buildNumber SDK: ${OpenIM.version}';
+    displayVersion.value = '$appName $version+$buildNumber SDK: ${OpenIM.version}';
   }
 
   void checkUpdate() {
@@ -38,8 +37,21 @@ class AboutUsLogic extends GetxController {
 
   void uploadLogs([int line = 0]) async {
     EasyLoading.showProgress(0);
-    await OpenIM.iMManager.uploadLogs(line: line);
-    EasyLoading.dismiss();
+    try {
+      await OpenIM.iMManager.uploadLogs(line: line);
+      IMViews.showToast('日志上传成功');
+    } on PlatformException catch (e) {
+      final msg = e.message ?? '';
+      Logger.print('[uploadLogs] $msg', onlyConsole: true);
+
+      if (msg.contains('external_ip') || msg.contains('no such host')) {
+        IMViews.showToast('日志上传地址配置错误（服务器端 external_ip 未替换）');
+      } else {
+        IMViews.showToast('日志上传失败，请稍后重试');
+      }
+    } finally {
+      EasyLoading.dismiss();
+    }
   }
 
   @override

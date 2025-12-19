@@ -55,8 +55,7 @@ class HomeLogic extends SuperController {
   /// 浏览过得不再计入红点
   void getUnhandledFriendApplicationCount() async {
     var i = 0;
-    var list = await OpenIM.iMManager.friendshipManager
-        .getFriendApplicationListAsRecipient();
+    var list = await OpenIM.iMManager.friendshipManager.getFriendApplicationListAsRecipient();
     var haveReadList = DataSp.getHaveReadUnHandleFriendApplication();
     haveReadList ??= <String>[];
     for (var info in list) {
@@ -72,8 +71,7 @@ class HomeLogic extends SuperController {
   /// 获取群申请未处理数
   void getUnhandledGroupApplicationCount() async {
     var i = 0;
-    var list = await OpenIM.iMManager.groupManager
-        .getGroupApplicationListAsRecipient();
+    var list = await OpenIM.iMManager.groupManager.getGroupApplicationListAsRecipient();
     var haveReadList = DataSp.getHaveReadUnHandleGroupApplication();
     haveReadList ??= <String>[];
     for (var info in list) {
@@ -220,20 +218,17 @@ class HomeLogic extends SuperController {
     if (Platform.isAndroid) {
       return;
     }
-    final containsStatus = imLogic.imSdkStatusSubject.values.firstWhereOrNull(
-            (e) => e.status == IMSdkStatus.connectionSucceeded) !=
-        null;
+    final containsStatus = imLogic.imSdkStatusSubject.values.firstWhereOrNull((e) => e.status == IMSdkStatus.connectionSucceeded) != null;
     if (containsStatus) {
       _getRTCInvitationStart();
     }
   }
 
   void _getRTCInvitationStart() async {
-    final signalingInfo = await OpenIM.iMManager.signalingManager
-        .getSignalingInvitationInfoStartApp();
-    if (null != signalingInfo.invitation) {
-      // 调用视频界面
-      imLogic.receiveNewInvitation(signalingInfo);
+    final signalingInfo = await OpenIM.iMManager.signalingManager.getSignalingInvitationInfoStartAppSafe();
+
+    if (signalingInfo?.invitation != null) {
+      imLogic.receiveNewInvitation(signalingInfo!);
     }
   }
 

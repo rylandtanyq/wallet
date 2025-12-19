@@ -257,17 +257,13 @@ class WorkMomentsListLogic2 extends GetxController {
   }
 
   /// 我点赞了
-  bool iIsLiked(WorkMoments moments) =>
-      moments.likeUsers
-          ?.firstWhereOrNull((e) => e.userID == OpenIM.iMManager.userID) !=
-      null;
+  bool iIsLiked(WorkMoments moments) => moments.likeUsers?.firstWhereOrNull((e) => e.userID == OpenIM.iMManager.userID) != null;
 
   /// 点赞/取消点赞 朋友圈
   likeMoments(WorkMoments moments) async {
     hiddenLikeCommentPopMenu();
     final workMomentID = moments.workMomentID!;
-    await WApis.likeMoments(
-        workMomentID: workMomentID, like: !iIsLiked(moments));
+    await WApis.likeMoments(workMomentID: workMomentID, like: !iIsLiked(moments));
     await _updateData(workMomentID);
   }
 

@@ -16,14 +16,13 @@ class Config {
   static Future<void> ensureInitForModule({bool applySystemUi = false}) async {
     if (_inited) return;
 
+    final doc = await getApplicationDocumentsDirectory();
+    cachePath = '${doc.path}${Platform.pathSeparator}';
+
     try {
-      final doc = await getApplicationDocumentsDirectory();
-      cachePath = '${doc.path}${Platform.pathSeparator}';
       await Hive.initFlutter(doc.path);
-    } catch (e) {
-      final tmp = await getTemporaryDirectory();
-      cachePath = '${tmp.path}${Platform.pathSeparator}';
-      await Hive.initFlutter(tmp.path);
+    } on HiveError catch (e) {
+      Logger.print('Hive already initialized, skip init. $e');
     }
 
     await DataSp.init();

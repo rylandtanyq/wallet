@@ -144,21 +144,34 @@ class SignalingManager {
             'operationID': Utils.checkOperationID(operationID),
           }));
 
-  Future<SignalingInfo> getSignalingInvitationInfoStartApp({
+  Future<SignalingInfo?> getSignalingInvitationInfoStartAppSafe({
     String? operationID,
-  }) =>
-      _channel
-          .invokeMethod(
-              'getSignalingInvitationInfoStartApp',
-              _buildParam({
-                'operationID': Utils.checkOperationID(operationID),
-              }))
-          .then((value) => Utils.toObj(value, (map) => SignalingInfo.fromJson(map)));
+  }) async {
+    try {
+      final value = await _channel.invokeMethod(
+        'getSignalingInvitationInfoStartApp',
+        _buildParam({'operationID': Utils.checkOperationID(operationID)}),
+      );
+
+      if (value == null) return null;
+      return Utils.toObj(value, (map) => SignalingInfo.fromJson(map));
+    } on PlatformException catch (e) {
+      // 这两个就是你现在遇到的网络/超时类错误：直接当“没邀请信息”
+      if (e.code == '10005' || e.code == '10000') {
+        // Logger.print('[Signaling] getInvitation timeout/network: ${e.message}', onlyConsole: true);
+        return null;
+      }
+      rethrow; // 其它错误继续抛（方便定位真正 bug）
+    } catch (e) {
+      // Logger.print('[Signaling] getInvitation unexpected: $e', onlyConsole: true);
+      return null;
+    }
+  }
 
   static Map _buildParam(Map<String, dynamic> param) {
     param["ManagerName"] = "signalingManager";
     param = Utils.cleanMap(param);
-    
+
     return param;
   }
 }

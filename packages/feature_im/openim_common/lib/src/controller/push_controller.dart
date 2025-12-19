@@ -2,245 +2,194 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_openim_sdk/flutter_openim_sdk.dart';
-import 'package:get/get.dart';
-import 'package:getuiflut/getuiflut.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:get/get.dart';
 import 'package:google_api_availability/google_api_availability.dart';
 import 'package:openim_common/openim_common.dart';
 
 import 'firebase_options.dart';
 
-enum PushType { getui, FCM }
+enum PushType { fcm, getui, none }
 
-const appID = '';
-const appKey = '';
-const appSecret = '';
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (_) {}
+  // 这里仅记录，真正展示通知需要 flutter_local_notifications
+  Logger.print('[FCM][BG] messageId=${message.messageId}', onlyConsole: true);
+}
 
 class PushController extends GetxService {
-  PushType pushType = PushType.FCM;
+  PushType pushType = Platform.isAndroid ? PushType.fcm : PushType.fcm;
 
-  @override
-  void onInit() {
-    super.onInit();
-
-    if (PushController().pushType == PushType.getui) {
-      GetuiPushController()._addEventHandler();
-      GetuiPushController()._initialize();
-    }
-  }
-
-  /// Logs in the user with the specified alias to the push notification service.
-  ///
-  /// Depending on the push type configured, it either logs in using the Getui or
-  /// FCM push service.
-  ///
-  /// If using Getui, it binds the alias to the Getui service.
-  ///
-  /// If using FCM, it listens for token refresh events and logs in, invoking the
-  /// provided callback with the new token.
-  ///
-  /// Throws an assertion error if the FCM push type is selected but the
-  /// `onTokenRefresh` callback is not provided.
-  ///
-  /// - Parameters:
-  ///   - alias: The alias to bind to the push notification service for getui.
-  ///   - onTokenRefresh: A callback function that is invoked with the refreshed
-  ///     token when using FCM. Required if the push type is FCM.
-  static void login(String alias,
-      {void Function(String token)? onTokenRefresh}) {
-    assert(
-        (PushController().pushType == PushType.FCM && onTokenRefresh != null) ||
-            (PushController().pushType == PushType.getui && alias.isNotEmpty));
-
-    if (PushController().pushType == PushType.getui) {
-      GetuiPushController()._login(alias);
-    } else {
-      FCMPushController()._initialize().then((_) {
-        FCMPushController()._getToken().then((token) => onTokenRefresh!(token));
-        FCMPushController()._listenToTokenRefresh((token) => onTokenRefresh!(token));
-      });
-    }
-  }
-
-  static void logout() {
-    if (PushController().pushType == PushType.getui) {
-      GetuiPushController()._logout();
-    } else {
-      FCMPushController()._deleteToken();
-    }
-  }
-
-  static void setBadge(int badge) {
-    if (PushController().pushType == PushType.getui) {
-      GetuiPushController()._setBadge(badge);
-    }
+  static void setBadge(int count) {
+    Logger.print('[Push] setBadge($count) (noop)', onlyConsole: true);
   }
 
   static void resetBadge() {
-    if (PushController().pushType == PushType.getui) {
-      GetuiPushController()._resetBadge();
-    }
-  }
-}
-
-class GetuiPushController {
-  static final GetuiPushController _instance = GetuiPushController._();
-  factory GetuiPushController() => _instance;
-
-  GetuiPushController._();
-
-  Future<void> _initialize() async {
-    Permissions.notification().then((isGranted) {
-      if (isGranted) {
-        try {
-          Getuiflut().initGetuiSdk;
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-    });
+    setBadge(0);
   }
 
-  void _addEventHandler() {
-    if (Platform.isIOS) {
-      Getuiflut().startSdk(
-        appId: appID,
-        appKey: appKey,
-        appSecret: appSecret,
-      );
+  static PushController get I {
+    if (Get.isRegistered<PushController>()) return Get.find<PushController>();
+    return Get.put(PushController(), permanent: true);
+  }
 
-      Getuiflut().runBackgroundEnable(0);
+  /// 登录后绑定推送 token
+  static Future<void> login(
+    String userId, {
+    required void Function(String token) onTokenRefresh,
+  }) async {
+    final c = PushController.I;
+
+    if (c.pushType == PushType.none) {
+      Logger.print('[Push] pushType=none, skip', onlyConsole: true);
+      return;
     }
 
-    Getuiflut().addEventHandler(
-      onReceiveClientId: (String message) async {
-        print("flutter onReceiveClientId: $message");
-      },
-      onRegisterDeviceToken: (String message) async {
-        print("flutter onRegisterDeviceToken: $message");
-      },
-      onReceivePayload: (Map<String, dynamic> message) async {},
-      onReceiveNotificationResponse: (Map<String, dynamic> message) async {},
-      onAppLinkPayload: (String message) async {},
-      // onReceiveOnlineState: (bool online) async {},
-      onReceiveOnlineState: (String res) {
-        return Future.value();
-      },
-      onPushModeResult: (Map<String, dynamic> message) async {},
-      onSetTagResult: (Map<String, dynamic> message) async {},
-      onAliasResult: (Map<String, dynamic> message) async {},
-      onQueryTagResult: (Map<String, dynamic> message) async {},
-      onWillPresentNotification: (Map<String, dynamic> message) async {},
-      onOpenSettingsForNotification: (Map<String, dynamic> message) async {},
-      onGrantAuthorization: (String granted) async {},
-      // onReceiveMessageData: (Map<String, dynamic> event) async {
-      //   print("flutter onReceiveMessageData: $event");
-      // },
-      onNotificationMessageArrived: (Map<String, dynamic> event) async {},
-      onNotificationMessageClicked: (Map<String, dynamic> event) async {},
-      onTransmitUserMessageReceive: (Map<String, dynamic> event) async {},
-      onLiveActivityResult: (Map<String, dynamic> event) async {},
-      onRegisterPushToStartTokenResult: (Map<String, dynamic> event) async {},
+    if (c.pushType == PushType.getui) {
+      Logger.print('[Push] getui not implemented', onlyConsole: true);
+      return;
+    }
+
+    await FCMPushController.I.login(
+      userId,
+      onTokenRefresh: onTokenRefresh,
     );
   }
 
-  Future<void> _login(String uid) async {
-    print('login user ID: $uid, client id: ${await Getuiflut().getClientId}');
-    Getuiflut().bindAlias(uid, 'openim');
-  }
-
-  void _logout() {
-    Getuiflut().unbindAlias(OpenIM.iMManager.userID, 'openim', true);
-  }
-
-  void _setBadge(int badge) {
-    Getuiflut().setBadge(badge);
-  }
-
-  void _resetBadge() {
-    Getuiflut().resetBadge();
+  static Future<void> logout() async {
+    final c = PushController.I;
+    if (c.pushType == PushType.fcm) {
+      await FCMPushController.I.logout();
+    }
   }
 }
 
 class FCMPushController {
-  static final FCMPushController _instance = FCMPushController._internal();
-  factory FCMPushController() => _instance;
+  FCMPushController._();
+  static final FCMPushController I = FCMPushController._();
 
-  FCMPushController._internal();
+  bool _ready = false;
+  Future<bool>? _initTask;
 
-  Future<void> _initialize() async {
-    GooglePlayServicesAvailability? availability =
-        GooglePlayServicesAvailability.success;
-    if (Platform.isAndroid) {
-      availability = await GoogleApiAvailability.instance
-          .checkGooglePlayServicesAvailability();
-    }
-    if (availability != GooglePlayServicesAvailability.serviceInvalid) {
-      await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform);
-    } else {
-      Logger.print('Google Play Services are not available');
+  StreamSubscription<String>? _tokenSub;
+  StreamSubscription<RemoteMessage>? _onMessageSub;
+  StreamSubscription<RemoteMessage>? _onOpenSub;
+
+  void Function(RemoteMessage msg)? onForegroundMessage;
+  void Function(RemoteMessage msg)? onNotificationOpened;
+
+  Future<void> login(
+    String userId, {
+    required void Function(String token) onTokenRefresh,
+  }) async {
+    final ok = await ensureInitialized();
+    if (!ok) {
+      Logger.print('[FCM] init not available, skip', onlyConsole: true);
       return;
     }
 
-    await _requestPermission();
-
-    _configureForegroundNotification();
-
-    _configureBackgroundNotification();
-
-    return;
-  }
-
-  Future<void> _requestPermission() async {
-    NotificationSettings settings =
-        await FirebaseMessaging.instance.requestPermission();
-    print('User granted permission: ${settings.authorizationStatus}');
-  }
-
-  void _configureForegroundNotification() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print('Foreground notification received: ${message.notification?.title}');
-
-      if (message.notification != null) {}
-    });
-  }
-
-  void _configureBackgroundNotification() {
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('App opened from background: ${message.notification?.title}');
-    });
-
-    FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((RemoteMessage? message) {
-      if (message != null) {
-        print(
-            'App opened from terminated state: ${message.notification?.title}');
-      }
-    });
-  }
-
-  Future<String> _getToken() async {
-    final token = await FirebaseMessaging.instance.getToken();
-    Logger.print("FCM Token: $token");
-
-    if (token == null) {
-      throw Exception('FCM Token is null');
+    final token = await _getTokenWithRetry(retries: 3);
+    if (token != null && token.isNotEmpty) {
+      onTokenRefresh(token);
+    } else {
+      Logger.print('[FCM] token null/empty', onlyConsole: true);
     }
 
-    return token;
-  }
-
-  Future<void> _deleteToken() {
-    return FirebaseMessaging.instance.deleteToken();
-  }
-
-  void _listenToTokenRefresh(void Function(String token) onTokenRefresh) {
-    FirebaseMessaging.instance.onTokenRefresh.listen((String newToken) {
-      print("FCM Token refreshed: $newToken");
-      onTokenRefresh(newToken);
+    await _tokenSub?.cancel();
+    _tokenSub = FirebaseMessaging.instance.onTokenRefresh.listen((t) {
+      if (t.isNotEmpty) onTokenRefresh(t);
     });
+  }
+
+  Future<void> logout() async {
+    await _tokenSub?.cancel();
+    await _onMessageSub?.cancel();
+    await _onOpenSub?.cancel();
+    _tokenSub = null;
+    _onMessageSub = null;
+    _onOpenSub = null;
+  }
+
+  Future<bool> ensureInitialized() async {
+    if (_ready) return true;
+
+    _initTask ??= () async {
+      if (Platform.isAndroid) {
+        final availability = await GoogleApiAvailability.instance.checkGooglePlayServicesAvailability();
+        if (availability != GooglePlayServicesAvailability.success) {
+          Logger.print('[FCM] Google Play Services not available: $availability', onlyConsole: true);
+          return false;
+        }
+      }
+
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      } catch (e) {
+        Logger.print('[FCM] Firebase.initializeApp: $e', onlyConsole: true);
+      }
+
+      try {
+        final settings = await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        Logger.print('[FCM] permission: ${settings.authorizationStatus}', onlyConsole: true);
+      } catch (e) {
+        Logger.print('[FCM] requestPermission: $e', onlyConsole: true);
+      }
+
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+      await _onMessageSub?.cancel();
+      _onMessageSub = FirebaseMessaging.onMessage.listen((msg) {
+        Logger.print('[FCM][FG] messageId=${msg.messageId}', onlyConsole: true);
+        onForegroundMessage?.call(msg);
+      });
+
+      await _onOpenSub?.cancel();
+      _onOpenSub = FirebaseMessaging.onMessageOpenedApp.listen((msg) {
+        Logger.print('[FCM][OPEN] messageId=${msg.messageId}', onlyConsole: true);
+        onNotificationOpened?.call(msg);
+      });
+
+      _ready = true;
+      return true;
+    }();
+
+    return _initTask!;
+  }
+
+  Future<String?> _getTokenWithRetry({int retries = 3}) async {
+    int delayMs = 600;
+
+    for (int i = 0; i < retries; i++) {
+      try {
+        final token = await FirebaseMessaging.instance.getToken();
+        if (token != null && token.isNotEmpty) return token;
+      } on FirebaseException catch (e) {
+        final msg = (e.message ?? '').toUpperCase();
+        Logger.print('[FCM] getToken FirebaseException: ${e.code} ${e.message}', onlyConsole: true);
+
+        final retryable = msg.contains('SERVICE_NOT_AVAILABLE') || msg.contains('EXECUTIONEXCEPTION') || msg.contains('IOEXCEPTION');
+
+        if (!retryable) return null;
+      } catch (e) {
+        Logger.print('[FCM] getToken error: $e', onlyConsole: true);
+        return null;
+      }
+
+      await Future.delayed(Duration(milliseconds: delayMs));
+      delayMs *= 2;
+    }
+
+    return null;
   }
 }

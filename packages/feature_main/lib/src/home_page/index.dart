@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:feature_im/app.dart';
 import 'package:feature_im/feature_im.dart';
+import 'package:feature_im/im_host_bridge.dart';
 import 'package:feature_main/src/home_page/models/token_price_model.dart';
 import 'package:feature_main/src/home_page/service/home_page_provider.dart';
 import 'package:feature_main/src/home_page/utils/k_build_coins.dart';
@@ -177,7 +177,16 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
                   ElevatedButton(
                     onPressed: () async {
                       await Config.ensureInitForModule();
-                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const ChatApp()));
+
+                      // ✅ 关键：把“退出IM=回钱包”的动作交给外层钱包执行
+                      IMHostBridge.exitToWallet = () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      };
+
+                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const ChatApp())).then((_) {
+                        // 退出后清理，避免旧 context 被误用
+                        IMHostBridge.exitToWallet = null;
+                      });
                     },
                     child: const Text('进入 IM'),
                   ),

@@ -8,6 +8,7 @@ import 'package:openim_common/openim_common.dart';
 import 'package:rotated_corner_decoration/rotated_corner_decoration.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:feature_im/im_host_bridge.dart';
 
 import 'conversation_logic.dart';
 
@@ -36,6 +37,23 @@ class ConversationPage extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        final cb = IMHostBridge.exitToWallet;
+                        if (cb != null) {
+                          cb();
+                        } else {
+                          Get.back();
+                        }
+                      },
+                      child: Icon(
+                        Icons.close,
+                        size: 22.w,
+                        color: Styles.c_0C1C33,
+                      ),
+                    ),
+                    10.horizontalSpace,
                     AvatarView(
                       width: 42.w,
                       height: 42.h,
