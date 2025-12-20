@@ -89,7 +89,7 @@ class _ToggleDialogState extends State<CreateWalletDialog> {
                       });
                     },
                     () {
-                      WalletNav.to(BackUpHelperPage());
+                      WalletNav.to(BackUpHelperPage(), duration: const Duration(milliseconds: 300));
                     },
                   ),
                   // _buildCreateCard(

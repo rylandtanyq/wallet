@@ -37,15 +37,18 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
   final ScrollController _scrollController = ScrollController();
   final ImagePicker picker = ImagePicker();
   bool _showExpandedTitle = false;
+  bool _inited = false;
 
   final GlobalKey _headerKey = GlobalKey();
   double _expandedHeight = 500.0.h;
   late Wallet _wallet;
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_inited) return;
+    _inited = true;
+
     _scrollController.addListener(_handleScroll);
     _wallet = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
   }

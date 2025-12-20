@@ -36,10 +36,49 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
   String address = '';
   String privateKey = '';
   String network = '';
+  bool _inited = false;
 
   @override
   void initState() {
     super.initState();
+    // final random = Random();
+    // final range = List.generate(12, (i) => i + 1); // 生成1到12的数字列表
+    // range.shuffle(random); // 打乱顺序
+    // verifyPosition = range.take(3).toList();
+    // randomMnemonics.add(
+    //   BackUp(
+    //     name: t.wallet.verifyWordPosition(index: range[0]),
+    //     value: "",
+    //   ),
+    // );
+    // randomMnemonics.add(
+    //   BackUp(
+    //     name: t.wallet.verifyWordPosition(index: range[1]),
+    //     value: "",
+    //   ),
+    // );
+    // randomMnemonics.add(
+    //   BackUp(
+    //     name: t.wallet.verifyWordPosition(index: range[2]),
+    //     value: "",
+    //   ),
+    // );
+    // final newWallet = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
+    // address = newWallet['currentAddress'] ?? '';
+    // privateKey = newWallet['privateKey'] ?? '';
+    // network = newWallet['currentNetwork'] ?? '';
+    // String mnemonic = newWallet['mnemonic'];
+    // mnemonics = mnemonic.split(' ');
+    // _orderlyMnemonics = List.from(mnemonics);
+    // mnemonics.shuffle(random);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_inited) return;
+    _inited = true;
+
     final random = Random();
     final range = List.generate(12, (i) => i + 1); // 生成1到12的数字列表
     range.shuffle(random); // 打乱顺序
@@ -62,14 +101,34 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
         value: "",
       ),
     );
-    final newWallet = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
-    address = newWallet['currentAddress'] ?? '';
-    privateKey = newWallet['privateKey'] ?? '';
-    network = newWallet['currentNetwork'] ?? '';
-    String mnemonic = newWallet['mnemonic'];
-    mnemonics = mnemonic.split(' ');
+
+    final argsRaw = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
+    final args = _toMap(argsRaw);
+
+    final addr = (args?['currentAddress'] ?? args?['address'] ?? '') as String;
+    final pk = (args?['privateKey'] ?? '') as String;
+    final net = (args?['currentNetwork'] ?? args?['network'] ?? '') as String;
+    final mnemonic = (args?['mnemonic'] ?? '') as String;
+
+    address = addr;
+    privateKey = pk;
+    network = net;
+    mnemonics = mnemonic.split(' ').where((e) => e.trim().isNotEmpty).toList();
     _orderlyMnemonics = List.from(mnemonics);
     mnemonics.shuffle(random);
+
+    if (address.isEmpty || privateKey.isEmpty || network.isEmpty) {
+      Fluttertoast.showToast(msg: '创建钱包参数缺失，请返回上一步重试');
+      return;
+    }
+
+    setState(() {});
+  }
+
+  Map<String, dynamic>? _toMap(dynamic a) {
+    if (a is Map<String, dynamic>) return a;
+    if (a is Map) return Map<String, dynamic>.from(a);
+    return null;
   }
 
   @override

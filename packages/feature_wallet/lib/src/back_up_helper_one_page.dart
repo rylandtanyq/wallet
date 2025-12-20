@@ -36,6 +36,8 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
 
   bool _showBlur = true; // 控制模糊层显示
 
+  bool _inited = false;
+
   // 模拟数据, 接受上一个页面传递的助记词、私钥、钱包地址、当前的网络(例如Eth)
   late List<String> mnemonics;
 
@@ -44,9 +46,27 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
   @override
   void initState() {
     super.initState();
-    final newWallet = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
-    String mnemonic = newWallet['mnemonic'];
-    mnemonics = mnemonic.split(' ');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_inited) return;
+    _inited = true;
+
+    final argsRaw = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
+    final args = _toMap(argsRaw);
+
+    final mnemonic = (args?['mnemonic'] ?? '') as String;
+    mnemonics = mnemonic.split(' ').where((e) => e.trim().isNotEmpty).toList();
+
+    setState(() {});
+  }
+
+  Map<String, dynamic>? _toMap(dynamic a) {
+    if (a is Map<String, dynamic>) return a;
+    if (a is Map) return Map<String, dynamic>.from(a);
+    return null;
   }
 
   Future<void> oneClickBackup() async {
