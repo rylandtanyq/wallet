@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class SearchPageDappUserAgreementFragments extends StatefulWidget {
   final String textEditing;
@@ -71,7 +72,7 @@ class _SearchPageDappUserAgreementFragmentsState extends State<SearchPageDappUse
                 ),
                 GestureDetector(
                   onTap: () {
-                    Get.to(DappUserAgreementScreen(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+                    WalletNav.to(DappUserAgreementScreen(), duration: const Duration(milliseconds: 300));
                   },
                   child: Text(
                     t.search.dappTermsOfUse,
@@ -106,11 +107,7 @@ class _SearchPageDappUserAgreementFragmentsState extends State<SearchPageDappUse
                         return;
                       }
                       Navigator.of(context).pop(true);
-                      Get.to(
-                        () => DappBrowser(dappUrl: widget.textEditing),
-                        transition: Transition.rightToLeft,
-                        duration: const Duration(milliseconds: 300),
-                      );
+                      WalletNav.to(DappBrowser(dappUrl: widget.textEditing), duration: const Duration(milliseconds: 300));
                     },
                     child: Container(
                       height: 60,

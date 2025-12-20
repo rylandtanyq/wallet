@@ -40,6 +40,8 @@ dependencies:
     path: ../shared_ui
   feature_im:
     path: ../feature_im
+  shared_utils:
+    path: ../shared_utils
 
 dev_dependencies:
   flutter_test:

@@ -14,6 +14,7 @@ import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_ui/widget/base_page.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'package:shared_utils/hive_boxes.dart';
+import 'package:shared_utils/wallet_nav.dart';
 import 'package:feature_wallet/hive/tokens.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_appbar_fragments.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_full_chain_ranking_fragments.dart';
@@ -178,15 +179,15 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
                     onPressed: () async {
                       await Config.ensureInitForModule();
 
-                      // ✅ 关键：把“退出IM=回钱包”的动作交给外层钱包执行
                       IMHostBridge.exitToWallet = () {
-                        Navigator.of(context, rootNavigator: true).pop();
+                        WalletNav.back();
                       };
 
-                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const ChatApp())).then((_) {
-                        // 退出后清理，避免旧 context 被误用
+                      try {
+                        await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const ChatApp()));
+                      } finally {
                         IMHostBridge.exitToWallet = null;
-                      });
+                      }
                     },
                     child: const Text('进入 IM'),
                   ),

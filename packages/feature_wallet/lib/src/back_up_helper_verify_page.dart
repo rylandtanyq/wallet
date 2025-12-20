@@ -13,6 +13,7 @@ import 'package:feature_wallet/hive/Wallet.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 /*
  * 验证备份助记词。
@@ -61,7 +62,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
         value: "",
       ),
     );
-    final newWallet = Get.arguments;
+    final newWallet = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
     address = newWallet['currentAddress'] ?? '';
     privateKey = newWallet['privateKey'] ?? '';
     network = newWallet['currentNetwork'] ?? '';
@@ -211,7 +212,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
                     textStyle: TextStyle(fontSize: 18.sp),
                   ),
                   onPressed: () => {
-                    // Get.off(),
+                    // WalletNav.off(),
                     verifyMnemonic(_orderlyMnemonics),
                   },
                   child: Text(
@@ -258,7 +259,7 @@ class _BackUpHelperVerifyPageState extends State<BackUpHelperVerifyPage> with Ba
       _wallets.add(walletEntity);
       await HiveStorage().putList<Wallet>('wallets_data', _wallets, boxName: boxWallet);
       dismissLoading();
-      Get.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4});
+      WalletNav.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4});
     }
   }
 

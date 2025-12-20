@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class AboutUs extends ConsumerStatefulWidget {
   final Version version;
@@ -83,7 +84,7 @@ class _AboutUsState extends ConsumerState<AboutUs> {
                             title: Text(t.Mysettings.termsAndPrivacy, style: AppTextStyles.labelLarge.copyWith(color: colorScheme.onBackground)),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 15, color: Color(0xFFA3ADAD)),
                             onTap: () {
-                              Get.to(ServicePrivacy(), transition: Transition.rightToLeft, duration: Duration(milliseconds: 300));
+                              WalletNav.to(ServicePrivacy(), duration: Duration(milliseconds: 300));
                             },
                           ),
                           Divider(color: colorScheme.onSurface.withOpacity(.2), height: .5.h, indent: 16.w, endIndent: 16.w),

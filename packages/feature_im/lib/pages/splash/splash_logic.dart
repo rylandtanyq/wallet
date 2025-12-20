@@ -13,21 +13,36 @@ class SplashLogic extends GetxController {
   final pushLogic = Get.find<PushController>();
 
   String? get userID => DataSp.userID;
-
   String? get token => DataSp.imToken;
 
   late StreamSubscription initializedSub;
+  bool _handled = false;
 
   @override
   void onInit() {
-    initializedSub = imLogic.initializedSubject.listen((value) {
-      Logger.print('---------------------initialized---------------------');
-      if (null != userID && null != token) {
+    initializedSub = imLogic.initializedSubject.listen((inited) {
+      if (_handled) return;
+
+      if (inited != true) {
+        _handled = true;
+        AppNavigator.startLogin();
+        return;
+      }
+
+      if (userID != null && token != null) {
+        _handled = true;
         _login();
       } else {
+        _handled = true;
         AppNavigator.startLogin();
       }
     });
+
+    // ✅ 关键：每次进 Splash 主动触发一次
+    // - 第一次：会真正initSDK并emit
+    // - 第二次：会走你上面“重放状态”的逻辑，立刻emit true
+    imLogic.initOpenIM();
+
     super.onInit();
   }
 

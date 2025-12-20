@@ -24,6 +24,9 @@ import 'package:feature_browser/i18n/strings.g.dart' as browser_i18n;
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:shared_utils/wallet_nav.dart';
+import 'package:shared_utils/wallet_snack.dart';
+
 void main() {
   runZonedGuarded(
     () async {
@@ -87,6 +90,8 @@ class MyApp extends ConsumerWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return GetMaterialApp(
+          navigatorKey: WalletNav.key,
+          scaffoldMessengerKey: WalletSnack.key,
           locale: locale,
           supportedLocales: core_i18n.AppLocaleUtils.supportedLocales,
           localizationsDelegates: GlobalMaterialLocalizations.delegates,

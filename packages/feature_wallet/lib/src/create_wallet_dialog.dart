@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_utils/constants/app_colors.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class CreateWalletDialog extends StatefulWidget {
   final String title;
@@ -88,7 +89,7 @@ class _ToggleDialogState extends State<CreateWalletDialog> {
                       });
                     },
                     () {
-                      Get.to(BackUpHelperPage());
+                      WalletNav.to(BackUpHelperPage());
                     },
                   ),
                   // _buildCreateCard(
@@ -103,7 +104,7 @@ class _ToggleDialogState extends State<CreateWalletDialog> {
                   //   },
                   //   () {
                   //     Navigator.pop(context);
-                  //     Get.to(LinkHardwareWalletPage());
+                  //     WalletNav.to(LinkHardwareWalletPage());
                   //   },
                   // ),
                 ],

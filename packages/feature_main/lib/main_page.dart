@@ -26,6 +26,52 @@ class _MyHomePageState extends ConsumerState<MainPage> {
   late int _selectedItemIndex;
   late PageController _pageController;
 
+  bool _inited = false;
+
+  Map<String, dynamic>? _readArgs(BuildContext context) {
+    final a = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
+    if (a is Map<String, dynamic>) return a;
+    if (a is Map) return Map<String, dynamic>.from(a);
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedItemIndex = widget.initialPageIndex;
+    _pageController = PageController(initialPage: _selectedItemIndex);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppUpdater.checkUpdate(context);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_inited) return;
+    _inited = true;
+
+    final args = _readArgs(context);
+    final initIndex = (args?['initialPageIndex'] as int?) ?? widget.initialPageIndex;
+
+    if (initIndex != _selectedItemIndex) {
+      _selectedItemIndex = initIndex;
+
+      // 这里用 jumpToPage，比重新 new PageController 改动更小
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _pageController.jumpToPage(initIndex);
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   final List<Widget> _navIcons = [
     ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.home, size: 24)),
     ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey, BlendMode.srcIn), child: Icon(WalletIcon.market, size: 24)),
@@ -35,19 +81,6 @@ class _MyHomePageState extends ConsumerState<MainPage> {
   ];
 
   final List<Widget> _pages = [const HomePage(), const SituationPage(), const TradePage(), const DiscoveryPage(), const WalletPage()];
-
-  @override
-  void initState() {
-    super.initState();
-    final args = Get.arguments as Map<String, dynamic>?;
-    final initIndex = (args?['initialPageIndex'] as int?) ?? 0;
-
-    _selectedItemIndex = initIndex;
-    _pageController = PageController(initialPage: initIndex);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppUpdater.checkUpdate(context);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

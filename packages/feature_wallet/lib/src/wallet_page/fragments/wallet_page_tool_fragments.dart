@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:feature_wallet/src/wallet_page/fragments/wallet_page_action_fragments.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class WalletPageToolFragments extends StatefulWidget {
   final TextEditingController textEditingController;
@@ -55,7 +56,7 @@ class _WalletPageToolFragmentsState extends State<WalletPageToolFragments> {
           SizedBox(width: 15),
           GestureDetector(
             onTap: () async {
-              final added = await Get.to(AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+              final added = await WalletNav.to(AddingTokens(), duration: const Duration(milliseconds: 300));
               if (added == true) {
                 widget.actions.reloadTokens();
                 unawaited(widget.actions.reloadTokensPrice());

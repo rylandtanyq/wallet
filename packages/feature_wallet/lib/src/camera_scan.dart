@@ -6,6 +6,7 @@ import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class Camerascan extends StatefulWidget {
   const Camerascan({super.key});
@@ -88,7 +89,7 @@ class _CamerascanState extends State<Camerascan> {
                         final String? code = barcode.rawValue;
                         if (code != null) {
                           setState(() => _isScanned = true);
-                          Get.back(result: code);
+                          WalletNav.back(code);
                           HapticFeedback.heavyImpact();
                         }
                       }

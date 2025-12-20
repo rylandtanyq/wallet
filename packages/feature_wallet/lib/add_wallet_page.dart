@@ -13,6 +13,7 @@ import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_utils/wallet_nav.dart';
 import 'src/observe_wallet_page.dart';
 
 /*
@@ -87,25 +88,25 @@ class _AddWalletPageState extends ConsumerState<AddWalletPage> with BasePage<Add
         'icon': 'assets/images/ic_wallet_create.png',
         'mainTitle': t.wallet.createWallet,
         'subTitle': t.wallet.createNewMnemonicOrKeylessWallet,
-        'action': () => Get.to(LinkHardwareWalletPage()),
+        'action': () => WalletNav.to(LinkHardwareWalletPage()),
       },
       {
         'icon': 'assets/images/ic_wallet_import.png',
         'mainTitle': t.wallet.importWallet,
         'subTitle': t.wallet.importExistingWallet,
-        'action': () => Get.toNamed('/profile'),
+        'action': () => WalletNav.toNamed('/profile'),
       },
       // {
       //   'icon': 'assets/images/ic_wallet_hardware.png',
       //   'mainTitle': t.wallet.connectHardwareWallet,
       //   'subTitle': t.wallet.connectHardwareWalletByQr,
-      //   'action': () => Get.to(LinkHardwareWalletPage()),
+      //   'action': () => WalletNav.to(LinkHardwareWalletPage()),
       // },
       // {
       //   'icon': 'assets/images/ic_wallet_observe.png',
       //   'mainTitle': t.wallet.useWatchWallet,
       //   'subTitle': t.wallet.trackWalletAssets,
-      //   'action': () => Get.to(ObserveWalletPage()),
+      //   'action': () => WalletNav.to(ObserveWalletPage()),
       // },
     ];
 

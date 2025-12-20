@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_ui/widget/sticky_tabbar_delegate.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -318,11 +319,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: () {
         _addSearchHistoryList();
-        Get.to(
-          DappBrowser(dappUrl: _textEditingController.text),
-          transition: Transition.rightToLeft,
-          duration: const Duration(milliseconds: 300),
-        );
+        WalletNav.to(DappBrowser(dappUrl: _textEditingController.text), duration: const Duration(milliseconds: 300));
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),

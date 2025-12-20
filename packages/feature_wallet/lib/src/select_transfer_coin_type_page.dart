@@ -11,6 +11,7 @@ import 'package:feature_wallet/src/transfer_page.dart';
 import 'package:shared_utils/to_fixed_trunc.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class SelectTransferCoinTypePage extends StatefulWidget {
   const SelectTransferCoinTypePage({super.key});
@@ -153,7 +154,7 @@ class _SelectTransferCoinTypePageState extends State<SelectTransferCoinTypePage>
       onTap: () async {
         Navigator.pop(context);
         // await HiveStorage().ensureBoxReady();
-        Get.to(TransferPage(currency: item.title, tokenAddress: item.tokenAddress, network: item.subtitle, image: item.image));
+        WalletNav.to(TransferPage(currency: item.title, tokenAddress: item.tokenAddress, network: item.subtitle, image: item.image));
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),

@@ -37,7 +37,14 @@ class IMController extends GetxController with IMCallback, OpenIMLive {
   }
 
   Future<bool> initOpenIM({bool force = false}) async {
-    if (_initCompleter != null && !force) return _initCompleter!.future;
+    // 重进IM时如果已经init过，也要再广播一次当前状态，
+    // 不然 SplashLogic 新注册的 listener 收不到事件就卡死
+    if (_initCompleter != null && !force) {
+      try {
+        initializedSubject.sink.add(_sdkInited); // 重放一次 true/false
+      } catch (_) {}
+      return _initCompleter!.future;
+    }
     _initCompleter = Completer<bool>();
 
     try {

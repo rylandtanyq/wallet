@@ -12,6 +12,8 @@ import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:feature_wallet/src/wallet_page/index.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
+import 'package:shared_utils/wallet_snack.dart';
 
 import 'back_up_helper_verify_page.dart';
 
@@ -42,7 +44,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
   @override
   void initState() {
     super.initState();
-    final newWallet = Get.arguments;
+    final newWallet = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
     String mnemonic = newWallet['mnemonic'];
     mnemonics = mnemonic.split(' ');
   }
@@ -52,7 +54,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
       final addrRaw = widget.backupAddress ?? '';
       final addr = addrRaw.trim();
       if (addr.isEmpty) {
-        Get.snackbar(t.wallet.tip, t.wallet.no_wallet_address_to_backup);
+        WalletSnack.show(t.wallet.tip, t.wallet.no_wallet_address_to_backup);
         return;
       }
 
@@ -66,7 +68,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
       }
 
       if (idx == -1) {
-        Get.snackbar(t.wallet.tip, t.wallet.wallet_address_not_found_local);
+        WalletSnack.show(t.wallet.tip, t.wallet.wallet_address_not_found_local);
         return;
       }
 
@@ -86,20 +88,20 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
         }
       }
 
-      Get.closeAllSnackbars();
-      Get.snackbar(t.wallet.success, t.wallet.marked_as_backed_up);
+      WalletSnack.closeAll();
+      WalletSnack.show(t.wallet.success, t.wallet.marked_as_backed_up);
 
       Future.delayed(const Duration(milliseconds: 300), () {
-        if (Get.key.currentState?.canPop() ?? false) {
-          Get.back(result: true);
+        if (WalletNav.key.currentState?.canPop() ?? false) {
+          WalletNav.back(true);
         } else {
           // 如果不是 Get.to 进来的，没有上一页可返回
-          Get.offAll(() => WalletPage());
+          WalletNav.offAll(WalletPage());
         }
       });
     } else {
       // 去助记词验证页
-      final _ = await Get.to(() => BackUpHelperVerifyPage(), arguments: Get.arguments);
+      final _ = await WalletNav.to(BackUpHelperVerifyPage(), arguments: ModalRoute.of(context)?.settings.arguments ?? Get.arguments);
     }
   }
 

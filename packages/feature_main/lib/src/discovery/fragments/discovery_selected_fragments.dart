@@ -1,9 +1,8 @@
 import 'package:feature_browser/dapp_browser/index.dart';
 import 'package:feature_main/i18n/strings.g.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class DiscoverySelectedFragments extends StatefulWidget {
   const DiscoverySelectedFragments({super.key});
@@ -35,11 +34,7 @@ class _DiscoverySelectedFragmentsState extends State<DiscoverySelectedFragments>
                 SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
-                    Get.to(
-                      () => DappBrowser(dappUrl: "https://wpos.pro/"),
-                      transition: Transition.rightToLeft,
-                      duration: const Duration(milliseconds: 300),
-                    );
+                    WalletNav.to(DappBrowser(dappUrl: "https://wpos.pro/"), duration: const Duration(milliseconds: 300));
                   },
                   child: Row(
                     children: [
@@ -65,11 +60,7 @@ class _DiscoverySelectedFragmentsState extends State<DiscoverySelectedFragments>
                 SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
-                    Get.to(
-                      () => DappBrowser(dappUrl: "https://raydium.io/"),
-                      transition: Transition.rightToLeft,
-                      duration: const Duration(milliseconds: 300),
-                    );
+                    WalletNav.to(DappBrowser(dappUrl: "https://raydium.io/"), duration: const Duration(milliseconds: 300));
                   },
                   child: Row(
                     children: [
@@ -95,11 +86,7 @@ class _DiscoverySelectedFragmentsState extends State<DiscoverySelectedFragments>
                 SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
-                    Get.to(
-                      () => DappBrowser(dappUrl: "https://ave.ai/"),
-                      transition: Transition.rightToLeft,
-                      duration: const Duration(milliseconds: 300),
-                    );
+                    WalletNav.to(DappBrowser(dappUrl: "https://ave.ai/"), duration: const Duration(milliseconds: 300));
                   },
                   child: Row(
                     children: [
