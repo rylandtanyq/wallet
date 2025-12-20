@@ -16,53 +16,78 @@ class SplashLogic extends GetxController {
   String? get token => DataSp.imToken;
 
   late StreamSubscription initializedSub;
+  Timer? _timeout;
   bool _handled = false;
 
   @override
   void onInit() {
+    Logger.print('---------login---------- userID: $userID, token: $token');
+
+    // 超时兜底, 防止 SDK 初始化一直不回调导致卡 splash
+    _timeout = Timer(const Duration(seconds: 8), () {
+      if (_handled) return;
+      _handled = true;
+      Logger.print('initOpenIM timeout -> go login', isError: true);
+      AppNavigator.startLogin();
+    });
+
     initializedSub = imLogic.initializedSubject.listen((inited) {
       if (_handled) return;
 
+      // 冷启动时 inited 可能先是 null/false（表示还没初始化完）
       if (inited != true) {
-        _handled = true;
-        AppNavigator.startLogin();
-        return;
+        Logger.print('openim not ready yet: $inited');
+        return; // 继续等 true
       }
 
+      // 只有 true 才做路由决策
+      _handled = true;
+      _timeout?.cancel();
+
       if (userID != null && token != null) {
-        _handled = true;
         _login();
       } else {
-        _handled = true;
         AppNavigator.startLogin();
       }
     });
 
-    // ✅ 关键：每次进 Splash 主动触发一次
-    // - 第一次：会真正initSDK并emit
-    // - 第二次：会走你上面“重放状态”的逻辑，立刻emit true
+    // 触发初始化
     imLogic.initOpenIM();
-
     super.onInit();
   }
 
-  _login() async {
+  Future<void> _login() async {
     try {
-      Logger.print('---------login---------- userID: $userID, token: $token');
+      Logger.print('---------_login---------- userID: $userID');
       await imLogic.login(userID!, token!);
       Logger.print('---------im login success-------');
-      PushController.login(
-        userID!,
-        onTokenRefresh: (token) {
-          OpenIM.iMManager.updateFcmToken(fcmToken: token, expireTime: DateTime.now().add(Duration(days: 90)).millisecondsSinceEpoch);
-        },
-      );
-      Logger.print('---------push login success----');
-      final result = await ConversationLogic.getConversationFirstPage();
 
-      AppNavigator.startSplashToMain(isAutoLogin: true, conversations: result);
+      // push/拉会话失败不要影响进首页(避免误删凭证/回登录)
+      try {
+        PushController.login(
+          userID!,
+          onTokenRefresh: (token) {
+            OpenIM.iMManager.updateFcmToken(
+              fcmToken: token,
+              expireTime: DateTime.now().add(const Duration(days: 90)).millisecondsSinceEpoch,
+            );
+          },
+        );
+      } catch (e, s) {
+        Logger.print('push init failed (ignored): $e\n$s', isError: true);
+      }
+
+      dynamic conversations;
+      try {
+        conversations = await ConversationLogic.getConversationFirstPage();
+      } catch (e, s) {
+        Logger.print('getConversationFirstPage failed (ignored): $e\n$s', isError: true);
+        conversations = null;
+      }
+
+      AppNavigator.startSplashToMain(isAutoLogin: true, conversations: conversations);
     } catch (e, s) {
-      IMViews.showToast('$e $s');
+      Logger.print('im login failed: $e\n$s', isError: true);
       await DataSp.removeLoginCertificate();
       AppNavigator.startLogin();
     }
@@ -70,6 +95,7 @@ class SplashLogic extends GetxController {
 
   @override
   void onClose() {
+    _timeout?.cancel();
     initializedSub.cancel();
     super.onClose();
   }
