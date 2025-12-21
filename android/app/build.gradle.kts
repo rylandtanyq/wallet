@@ -32,6 +32,8 @@ android {
         targetSdk = 36
         versionCode = flutterVersionCode
         versionName = flutterVersionName
+
+        manifestPlaceholders["GETUI_APPID"] = "your appid"
     }
 
     compileOptions {
@@ -96,4 +98,7 @@ dependencies {
     implementation("com.google.errorprone:error_prone_annotations:2.18.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    implementation("com.getui:gtsdk:3.3.12.0")  // 个推 SDK
+    implementation("com.getui:gtc:3.2.18.0")
 }
