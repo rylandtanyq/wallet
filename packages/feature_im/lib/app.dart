@@ -27,13 +27,28 @@ class _ChatAppState extends State<ChatApp> {
   @override
   Widget build(BuildContext context) {
     return AppView(
-      builder: (locale, builder) => GetMaterialApp(
+      builder: (locale, outerBuilder) => GetMaterialApp(
         key: _appKey,
         navigatorKey: _imNavKey,
         scaffoldMessengerKey: _imMsgKey,
         debugShowCheckedModeBanner: false,
         enableLog: true,
-        builder: builder,
+        builder: (ctx, child) {
+          final built = outerBuilder(ctx, child);
+
+          return WillPopScope(
+            onWillPop: () async {
+              final nav = _imNavKey.currentState;
+              if (nav != null && await nav.maybePop()) {
+                return false; // 已处理，不要退出 ChatApp
+              }
+
+              Navigator.of(ctx, rootNavigator: true).pop();
+              return false;
+            },
+            child: built,
+          );
+        },
         logWriterCallback: (text, {bool isError = false}) {
           Logger.print(text, isError: isError, onlyConsole: true);
         },
@@ -42,7 +57,6 @@ class _ChatAppState extends State<ChatApp> {
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
-          // DefaultCupertinoLocalizations.delegate,
         ],
         fallbackLocale: TranslationService.fallbackLocale,
         locale: locale,
@@ -67,12 +81,8 @@ class _ChatAppState extends State<ChatApp> {
         checkboxTheme: const CheckboxThemeData().copyWith(
           checkColor: WidgetStateProperty.all(Colors.white),
           fillColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.disabled)) {
-              return Colors.grey;
-            }
-            if (states.contains(WidgetState.selected)) {
-              return Colors.blue;
-            }
+            if (states.contains(WidgetState.disabled)) return Colors.grey;
+            if (states.contains(WidgetState.selected)) return Colors.blue;
             return Colors.white;
           }),
           side: BorderSide(color: Colors.grey.shade500, width: 1),
@@ -99,22 +109,25 @@ class _ChatAppState extends State<ChatApp> {
             foregroundColor: const WidgetStatePropertyAll(Colors.black),
           ),
         ),
-        progressIndicatorTheme: const ProgressIndicatorThemeData()
-            .copyWith(color: Colors.white, linearTrackColor: Colors.grey[300], circularTrackColor: Colors.grey[300]),
+        progressIndicatorTheme: const ProgressIndicatorThemeData().copyWith(
+          color: Colors.white,
+          linearTrackColor: Colors.grey,
+          circularTrackColor: Colors.grey,
+        ),
         cupertinoOverrideTheme: CupertinoThemeData(
           brightness: Brightness.light,
           primaryColor: CupertinoColors.systemBlue,
           barBackgroundColor: Colors.white,
           applyThemeToAll: true,
           textTheme: const CupertinoTextThemeData().copyWith(
-            navActionTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            actionTextStyle: TextStyle(color: CupertinoColors.systemBlue, fontSize: 17.sp),
-            textStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            navLargeTitleTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 20.sp),
-            navTitleTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            pickerTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            tabLabelTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
-            dateTimePickerTextStyle: TextStyle(color: CupertinoColors.label, fontSize: 17.sp),
+            navActionTextStyle: const TextStyle(color: CupertinoColors.label),
+            actionTextStyle: const TextStyle(color: CupertinoColors.systemBlue),
+            textStyle: const TextStyle(color: CupertinoColors.label),
+            navLargeTitleTextStyle: const TextStyle(color: CupertinoColors.label),
+            navTitleTextStyle: const TextStyle(color: CupertinoColors.label),
+            pickerTextStyle: const TextStyle(color: CupertinoColors.label),
+            tabLabelTextStyle: const TextStyle(color: CupertinoColors.label),
+            dateTimePickerTextStyle: const TextStyle(color: CupertinoColors.label),
           ),
         ),
       );
