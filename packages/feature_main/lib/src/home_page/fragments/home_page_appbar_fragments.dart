@@ -1,3 +1,5 @@
+import 'package:feature_im/feature_im.dart';
+import 'package:feature_im/im_host_bridge.dart';
 import 'package:feature_main/src/linked_wallet_Dapp.dart';
 import 'package:feature_main/src/my_settings.dart';
 import 'package:feature_main/src/notification_page.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_ui/widget/wallet_icon.dart';
 import 'package:shared_utils/wallet_nav.dart';
 
 class HomePageAppbarFragments extends StatelessWidget {
@@ -42,6 +45,23 @@ class HomePageAppbarFragments extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+          SizedBox(width: 22.w),
+          GestureDetector(
+            onTap: () async {
+              await Config.ensureInitForModule();
+
+              IMHostBridge.exitToWallet = () {
+                WalletNav.back();
+              };
+
+              try {
+                await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const ChatApp()));
+              } finally {
+                IMHostBridge.exitToWallet = null;
+              }
+            },
+            child: Icon(WalletIcon.chat, color: Theme.of(context).colorScheme.onBackground),
           ),
           SizedBox(width: 22.w),
           GestureDetector(

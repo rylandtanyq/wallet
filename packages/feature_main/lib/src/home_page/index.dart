@@ -175,22 +175,6 @@ class _HomePageState extends ConsumerState<HomePage> with BasePage<HomePage>, Au
                   // HomePageTradingContractFragments(),
                   SizedBox(height: 15.h),
                   HomePageUserGuideFragments(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await Config.ensureInitForModule();
-
-                      IMHostBridge.exitToWallet = () {
-                        WalletNav.back();
-                      };
-
-                      try {
-                        await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const ChatApp()));
-                      } finally {
-                        IMHostBridge.exitToWallet = null;
-                      }
-                    },
-                    child: const Text('进入 IM'),
-                  ),
                 ],
               ),
             ),

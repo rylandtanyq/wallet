@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "14996395",
+      "name": "聊天",
+      "font_class": "liaotian",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
       "icon_id": "40626176",
       "name": "上下切换",
       "font_class": "shangxiaqiehuan",
