@@ -69,8 +69,8 @@ class MyInfoPage extends StatelessWidget {
                     //   onTap: logic.editTel,
                     // ),
                     _buildItemView(
-                      label: StrRes.mobile,
-                      value: imLogic.userInfo.value.phoneNumber,
+                      label: StrRes.account,
+                      value: imLogic.userInfo.value.account,
                       // onTap: logic.editMobile,
                       showRightArrow: false,
                     ),

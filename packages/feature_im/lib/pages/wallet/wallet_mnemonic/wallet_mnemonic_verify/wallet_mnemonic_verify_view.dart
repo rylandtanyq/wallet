@@ -23,12 +23,12 @@ class WalletMnemonicVerifyView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "请按顺序抄写您的助记词",
+                      StrRes.walletMnemonicVerifyTitle,
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      "点击单词，按照正确顺序放在一起，以便验证您备份助记词 是否正确",
+                      StrRes.walletMnemonicVerifySubTitle,
                       style: TextStyle(
                         color: Color(0xFFF75D58),
                         fontSize: 14,
@@ -140,7 +140,7 @@ class WalletMnemonicVerifyView extends StatelessWidget {
                     Button(
                       onTap: logic.verifyList,
                       height: 50,
-                      text: "完成",
+                      text: StrRes.walletMnemonicVerifyBtn,
                       enabled: true,
                       radius: 30,
                     ),

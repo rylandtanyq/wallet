@@ -65,11 +65,11 @@ class WalletImportLogic extends GetxController {
 
   bool _checkingInput() {
     if (mnemonicCtrl.text.trim().isEmpty) {
-      IMViews.showToast("请输入助记词");
+      IMViews.showToast(StrRes.walletImportMnemonicError);
       return false;
     }
     if (usernameCtrl.text.trim().isEmpty) {
-      IMViews.showToast("请输入用户名");
+      IMViews.showToast(StrRes.walletImportUserNamePlace);
       return false;
     }
     if (!IMUtils.isValidPassword(passwordCtrl.text)) {
@@ -80,7 +80,7 @@ class WalletImportLogic extends GetxController {
       return false;
     }
     if (!agree.value) {
-      IMViews.showToast("请阅读并同意用户协议");
+      IMViews.showToast(StrRes.walletImportPrivacyError);
       return false;
     }
     return true;
@@ -102,7 +102,7 @@ class WalletImportLogic extends GetxController {
       }
     });
     if (walletAddress.value.isEmpty) {
-      IMViews.showToast("助记词导入失败");
+      IMViews.showToast(StrRes.walletImportError);
       return;
     }
     await LoadingView.singleton.wrap(asyncFunction: () async {

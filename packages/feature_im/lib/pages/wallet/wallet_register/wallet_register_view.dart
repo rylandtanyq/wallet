@@ -24,12 +24,11 @@ class WalletRegisterView extends StatelessWidget {
               ImageRes.loginLogo.toImage
                 ..width = 64.w
                 ..height = 64.h,
-              ("欢迎使用TT社区融合").toText..style = Styles.ts_0089FF_17sp_semibold,
               51.verticalSpace,
               InputBox.account(
                 label: "",
                 labelStyle: Styles.ts_8E9AB0_14sp,
-                hintText: "请输入钱包名称",
+                hintText: "",
                 code: "",
                 onAreaCode: null,
                 controller: logic.walletAddressCtrl,
@@ -41,7 +40,7 @@ class WalletRegisterView extends StatelessWidget {
               InputBox.account(
                 label: "",
                 labelStyle: Styles.ts_8E9AB0_14sp,
-                hintText: "请输入用户名",
+                hintText: StrRes.plsEnterEmail,
                 code: "",
                 onAreaCode: null,
                 controller: logic.usernameCtrl,
@@ -51,7 +50,7 @@ class WalletRegisterView extends StatelessWidget {
               16.verticalSpace,
               InputBox.password(
                 labelStyle: Styles.ts_8E9AB0_14sp,
-                hintText: "请输入密码，不少于8位数",
+                hintText: StrRes.walletRegisterPass,
                 controller: logic.passwordCtrl,
                 focusNode: logic.passwordFocus,
                 keyBoardType: TextInputType.text,
@@ -60,7 +59,7 @@ class WalletRegisterView extends StatelessWidget {
               16.verticalSpace,
               InputBox.password(
                 labelStyle: Styles.ts_8E9AB0_14sp,
-                hintText: "请确认密码",
+                hintText: StrRes.walletRegisterPassConfirm,
                 controller: logic.passwordAgainCtrl,
                 focusNode: logic.passwordAgainFocus,
                 keyBoardType: TextInputType.text,
@@ -86,12 +85,12 @@ class WalletRegisterView extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              "我已阅读并同意",
+                              StrRes.walletRegisterAgree,
                               style: TextStyle(color: Styles.c_8E9AB0),
                             ),
                             GestureDetector(
                               onTap: logic.openPrivacy,
-                              child: Text("《用户协议》",
+                              child: Text(StrRes.walletRegisterPrivacy,
                                   style: TextStyle(
                                     color: Styles.c_0089FF,
                                   )),

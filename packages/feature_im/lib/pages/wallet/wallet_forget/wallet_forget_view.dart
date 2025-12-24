@@ -37,7 +37,7 @@ class WalletForgetView extends StatelessWidget {
                       minLines: 6,
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: "请输入助记词，用空格分隔",
+                        hintText: StrRes.walletForgetMnemonicPlace,
                         hintStyle: Styles.ts_8E9AB0_14sp,
                         isDense: true,
                       ),
@@ -48,7 +48,7 @@ class WalletForgetView extends StatelessWidget {
                       child: GestureDetector(
                         onTap: logic.pasteFromClipboard,
                         child: Text(
-                          "粘贴",
+                          StrRes.walletForgetPaste,
                           style:
                           TextStyle(color: Styles.c_0089FF, fontSize: 16),
                         ),
@@ -60,20 +60,20 @@ class WalletForgetView extends StatelessWidget {
               16.verticalSpace,
               InputBox.password(
                 labelStyle: Styles.ts_8E9AB0_14sp,
-                hintText: "请输入密码，不少于8位数",
+                hintText: StrRes.walletForgetPassPlace,
                 controller: logic.passwordCtrl,
                 focusNode: logic.passwordFocus,
                 keyBoardType: TextInputType.text,
-                label: '设置新密码',
+                label: StrRes.walletForgetPass,
               ),
               16.verticalSpace,
               InputBox.password(
                 labelStyle: Styles.ts_8E9AB0_14sp,
-                hintText: "请确认密码",
+                hintText: StrRes.walletForgetPassConfigPlace,
                 controller: logic.passwordAgainCtrl,
                 focusNode: logic.passwordAgainFocus,
                 keyBoardType: TextInputType.text,
-                label: '确认新密码',
+                label: StrRes.walletForgetPassConfig,
               ),
               25.verticalSpace,
               Obx(() => Button(

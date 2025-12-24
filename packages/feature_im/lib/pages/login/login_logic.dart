@@ -32,9 +32,9 @@ extension LoginTypeExt on LoginType {
       case LoginType.phone:
         return StrRes.phoneNumber;
       case LoginType.email:
-        return "用户名";
+        return StrRes.email;
       case LoginType.account:
-        return "钱包地址";
+        return StrRes.account;
     }
   }
 
@@ -43,9 +43,9 @@ extension LoginTypeExt on LoginType {
       case LoginType.phone:
         return StrRes.plsEnterPhoneNumber;
       case LoginType.email:
-        return "请输入用户名";
+        return StrRes.plsEnterEmail;
       case LoginType.account:
-        return "请输入钱包地址";
+        return StrRes.plsEnterAccount;
     }
   }
 

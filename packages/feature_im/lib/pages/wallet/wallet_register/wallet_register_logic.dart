@@ -56,11 +56,11 @@ class WalletRegisterLogic extends GetxController {
 
   bool _checkingInput() {
     if (walletAddressCtrl.text.trim().isEmpty) {
-      IMViews.showToast("请输入钱包地址");
+      IMViews.showToast(StrRes.walletRegisterAddress);
       return false;
     }
     if (usernameCtrl.text.trim().isEmpty) {
-      IMViews.showToast("请输入用户名");
+      IMViews.showToast(StrRes.walletRegisterUserName);
       return false;
     }
     if (!IMUtils.isValidPassword(passwordCtrl.text)) {
@@ -71,7 +71,7 @@ class WalletRegisterLogic extends GetxController {
       return false;
     }
     if (!agree.value) {
-      IMViews.showToast("请阅读并同意用户协议");
+      IMViews.showToast(StrRes.walletRegisterPrivacyError);
       return false;
     }
     return true;

@@ -22,11 +22,11 @@ class WalletMnemonicBackupView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "请按顺序抄写您的助记词",
+              StrRes.walletMnemonicBackUpTitle,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             Text(
-              "请勿截屏或网络存储和传输，以免造成泄露",
+              StrRes.walletMnemonicBackUpSubTitle,
               style: TextStyle(
                 color: Color(0xFFF75D58),
                 fontSize: 14,
@@ -92,7 +92,7 @@ class WalletMnemonicBackupView extends StatelessWidget {
             Button(
               onTap: logic.mnemonicVerify,
               height: 50,
-              text: "验证备份",
+              text: StrRes.walletMnemonicBackUpBtn1,
               enabled: true,
               radius: 30,
             ),
@@ -103,7 +103,7 @@ class WalletMnemonicBackupView extends StatelessWidget {
                 width: double.infinity,
                 child: Center(
                   child: Text(
-                    "复制助记词",
+                    StrRes.walletMnemonicBackUpBtn2,
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

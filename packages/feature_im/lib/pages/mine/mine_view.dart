@@ -90,7 +90,8 @@ class MinePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  (logic.imLogic.userInfo.value.nickname ?? '').toText..style = Styles.ts_0C1C33_17sp_medium,
+                  (logic.imLogic.userInfo.value.email ?? '').toText..style =
+                      Styles.ts_0C1C33_17sp_medium,
                   4.verticalSpace,
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,

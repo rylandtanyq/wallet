@@ -33,11 +33,11 @@ class WalletMnemonicView extends StatelessWidget {
               height: 30,
             ),
             Text(
-              "备份助记词，保护钱包安全",
+              StrRes.walletMnemonicCreateTitle,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             Text(
-              "助记词是恢复钱包的凭证，并且仅存在于您的设备中，请务必做好备份",
+              StrRes.walletMnemonicCreateSubTitle,
               style: TextStyle(fontSize: 14, color: Styles.c_8E9AB0),
             ),
             SizedBox(
@@ -59,7 +59,7 @@ class WalletMnemonicView extends StatelessWidget {
                         size: 18,
                       ),
                       Text(
-                        "重要提醒",
+                        StrRes.walletMnemonicCreateTips,
                         style: TextStyle(
                             fontSize: 14,
                             color: Color(0xFFF75D58),
@@ -68,7 +68,7 @@ class WalletMnemonicView extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    "助记词拥有恢复钱包及重置密码，建议纸笔手写方式准确无误抄写助记词，并存放在安全的地方",
+                    StrRes.walletMnemonicCreateTips1,
                     style: TextStyle(fontSize: 12, color: Color(0xFFF75D58)),
                   ),
                 ],

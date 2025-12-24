@@ -32,12 +32,12 @@ class WalletMnemonicLogic extends GetxController {
           walletAddress = newWallet['currentAddress']!;
           AppNavigator.startWalletMnemonicbackup(mnemonicStr: mnemonic, walletAddress: walletAddress);
         } else {
-          IMViews.showToast("生成失败");
+          IMViews.showToast(StrRes.walletMnemonicCreateError);
         }
       });
     } catch (e) {
       print('Error: $e');
-      IMViews.showToast("生成失败");
+      IMViews.showToast(StrRes.walletMnemonicCreateError);
     } finally {
       wallet.dispose();
     }

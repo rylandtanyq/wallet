@@ -20,7 +20,9 @@ class WalletMnemonicSuccessView extends StatelessWidget {
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            SizedBox(height: 100,),
+            SizedBox(
+              height: 100,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -29,14 +31,21 @@ class WalletMnemonicSuccessView extends StatelessWidget {
                   ..height = 80.h
               ],
             ),
-            SizedBox(height: 10,),
-            Text("验证通过",textAlign: TextAlign.center,style: TextStyle
-              (fontSize: 16),),
-            SizedBox(height: 50,),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              StrRes.walletMnemonicVerifySuccess,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(
+              height: 50,
+            ),
             Button(
               onTap: logic.viewWalletRegister,
               height: 50,
-              text: "完成",
+              text: StrRes.walletMnemonicVerifyBtn,
               enabled: true,
               radius: 30,
             ),

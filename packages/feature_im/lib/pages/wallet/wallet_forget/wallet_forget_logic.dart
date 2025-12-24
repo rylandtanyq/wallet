@@ -79,7 +79,7 @@ class WalletForgetLogic extends GetxController {
       }
     });
     if (walletAddress.value.isEmpty) {
-      IMViews.showToast("助记词导入失败");
+      IMViews.showToast(StrRes.walletForgetError);
       return;
     }
     await LoadingView.singleton.wrap(asyncFunction: () async {

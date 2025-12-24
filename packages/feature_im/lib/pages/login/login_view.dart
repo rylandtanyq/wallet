@@ -27,7 +27,6 @@ class LoginPage extends StatelessWidget {
                 ..width = 64.w
                 ..height = 64.h
                 ..onDoubleTap = logic.configService,
-              StrRes.welcome.toText..style = Styles.ts_0089FF_17sp_semibold,
               51.verticalSpace,
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32.w),
