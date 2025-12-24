@@ -61,6 +61,32 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             tools:ignore="MissingClass" />
+        <service
+            android:name="com.dexterous.flutterlocalnotifications.ForegroundService"
+            android:exported="false"
+            android:stopWithTask="false"
+            tools:ignore="MissingClass" />
+        <service
+            android:name="io.openim.live.alert.flutter_openim_live_alert.services.CallService"
+            android:exported="false"
+            tools:ignore="MissingClass" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:ignore="MissingClass">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+        <service android:name="de.julianassmann.flutter_background.IsolateHolderService"
+            android:foregroundServiceType="mediaProjection"
+            tools:targetApi="q"
+            android:enabled="true"
+            android:exported="false"
+            tools:ignore="MissingClass" />
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
