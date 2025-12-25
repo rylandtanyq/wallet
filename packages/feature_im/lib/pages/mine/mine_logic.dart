@@ -10,6 +10,7 @@ import 'package:openim_meeting/openim_meeting.dart';
 import '../../core/controller/app_controller.dart';
 import '../../core/controller/im_controller.dart';
 import '../../routes/app_navigator.dart';
+import '../../im_host.dart';
 
 class MineLogic extends GetxController {
   final imLogic = Get.find<IMController>();
@@ -37,7 +38,10 @@ class MineLogic extends GetxController {
   }
 
   Future<void> logout() async {
-    final confirm = await Get.dialog(CustomDialog(title: StrRes.logoutHint));
+    final confirm = await Get.dialog<bool>(
+      CustomDialog(title: StrRes.logoutHint),
+      navigatorKey: IMHost.navKey,
+    );
     if (confirm == true) {
       _logoutHelper();
     }

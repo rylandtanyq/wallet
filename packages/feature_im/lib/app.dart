@@ -1,3 +1,4 @@
+import 'package:feature_im/im_host.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -18,19 +19,13 @@ class ChatApp extends StatefulWidget {
 }
 
 class _ChatAppState extends State<ChatApp> {
-  late final GlobalKey<NavigatorState> _imNavKey = GlobalKey<NavigatorState>(debugLabel: 'im_nav_${DateTime.now().microsecondsSinceEpoch}');
-  late final GlobalKey<ScaffoldMessengerState> _imMsgKey =
-      GlobalKey<ScaffoldMessengerState>(debugLabel: 'im_msg_${DateTime.now().microsecondsSinceEpoch}');
-
-  late final Key _appKey = UniqueKey();
-
   @override
   Widget build(BuildContext context) {
     return AppView(
       builder: (locale, outerBuilder) => GetMaterialApp(
-        key: _appKey,
-        navigatorKey: _imNavKey,
-        scaffoldMessengerKey: _imMsgKey,
+        key: IMHost.appKey,
+        navigatorKey: IMHost.navKey,
+        scaffoldMessengerKey: IMHost.msgKey,
         debugShowCheckedModeBanner: false,
         enableLog: true,
         builder: (ctx, child) {
@@ -38,7 +33,7 @@ class _ChatAppState extends State<ChatApp> {
 
           return WillPopScope(
             onWillPop: () async {
-              final nav = _imNavKey.currentState;
+              final nav = IMHost.navKey.currentState;
               if (nav != null && await nav.maybePop()) {
                 return false; // 已处理，不要退出 ChatApp
               }

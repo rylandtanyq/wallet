@@ -1,7 +1,7 @@
 allprojects {
     repositories {
         maven { url=uri("https://maven.aliyun.com/repository/google") }
-        maven { url=uri("'https://maven.aliyun.com/repository/public'") }
+        maven { url=uri("https://maven.aliyun.com/repository/public") }
         maven { url = uri("https://maven.aliyun.com/repository/central") }
         google()  // 保留官方源作为备用
         mavenCentral()
