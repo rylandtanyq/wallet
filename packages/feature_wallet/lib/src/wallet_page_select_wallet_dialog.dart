@@ -14,6 +14,7 @@ import 'package:shared_utils/hive_boxes.dart';
 import 'package:feature_wallet/hive/Wallet.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 /*
  * 选择钱包
@@ -157,7 +158,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
               shadowColor: Colors.transparent,
               textStyle: TextStyle(fontSize: 18.sp),
             ),
-            onPressed: () => {Navigator.pop(context), Get.to(AddWalletPage())},
+            onPressed: () => {Navigator.pop(context), WalletNav.to(AddWalletPage())},
             child: Text('+${t.wallet.addWallet}', style: AppTextStyles.headline4.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
           ),
         ),
@@ -226,7 +227,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
               icon: Image.asset('assets/images/ic_wallet_edit.png', width: 20.h, height: 20.h),
               onPressed: () async {
                 Navigator.pop(context);
-                final result = await Get.to(() => SettingWalletPage(), arguments: item);
+                final result = await WalletNav.to(SettingWalletPage(), arguments: item);
                 if (!mounted) return;
 
                 if (result == true) {
@@ -289,7 +290,7 @@ class _SelectWalletDialogState extends State<SelectWalletDialog> {
                                 child: InkWell(
                                   onTap: () {
                                     Navigator.pop(context);
-                                    Get.to(
+                                    WalletNav.to(
                                       BackUpHelperOnePage(
                                         title: t.wallet.please_remember,
                                         prohibit: false,

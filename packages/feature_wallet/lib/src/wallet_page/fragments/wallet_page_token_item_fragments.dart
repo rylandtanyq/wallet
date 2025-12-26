@@ -37,7 +37,7 @@ class _WalletPageTokenItemFragmentsState extends ConsumerState<WalletPageTokenIt
     final priceStr = widget.lastPriceMap[key];
 
     return GestureDetector(
-      // onTap: () => {Get.to(CoinDetailPage())},
+      // onTap: () => {WalletNav.to(CoinDetailPage())},
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         child: Row(

@@ -15,6 +15,7 @@ import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:animated_flip_counter/animated_flip_counter.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class WalletPageBuildTopFrafments extends ConsumerStatefulWidget {
   final Key balanceKey;
@@ -111,7 +112,7 @@ class _WalletPageBuildTopFrafmentsState extends ConsumerState<WalletPageBuildTop
                               clipBehavior: Clip.antiAlias,
                               child: InkWell(
                                 onTap: () async {
-                                  final result = await Get.to(
+                                  final result = await WalletNav.to(
                                     BackUpHelperOnePage(title: t.wallet.please_remember, prohibit: false, backupAddress: widget.wallet.address),
                                     arguments: {"mnemonic": widget.wallet.mnemonic?.join(" ")},
                                   );
@@ -175,11 +176,11 @@ class _WalletPageBuildTopFrafmentsState extends ConsumerState<WalletPageBuildTop
               return GestureDetector(
                 onTap: () {
                   if (index == 0) {
-                    Get.to(SelectTransferCoinTypePage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+                    WalletNav.to(SelectTransferCoinTypePage(), duration: const Duration(milliseconds: 300));
                   } else if (index == 1) {
-                    Get.to(SelectedPayeePage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+                    WalletNav.to(SelectedPayeePage(), duration: const Duration(milliseconds: 300));
                   } else if (index == 4) {
-                    Get.to(TransactionHistory(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+                    WalletNav.to(TransactionHistory(), duration: const Duration(milliseconds: 300));
                   }
                 },
                 child: SizedBox(

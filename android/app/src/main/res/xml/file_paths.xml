@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 指向内部存储 files 目录 -->
-    <files-path name="internal_files" path="."/>
+<paths>
+    <files-path
+        name="filesPath"
+        path="." />
+    <cache-path
+        name="cachePath"
+        path="." />
+    <external-files-path
+        name="externalFilesPath"
+        path="." />
+    <external-cache-path
+        name="externalCachePath"
+        path="." />
 </paths>
-

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:feature_wallet/src/payee_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 /*
  * 选择网络
@@ -59,7 +60,7 @@ class _PayeeSelectNetworkDialogState extends State<PayeeSelectNetworkDialog> {
                 return GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    Get.off(PayeePage());
+                    WalletNav.off(PayeePage());
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),

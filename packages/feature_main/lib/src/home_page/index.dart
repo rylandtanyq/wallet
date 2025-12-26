@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:feature_main/src/home_page/models/token_price_model.dart';
 import 'package:feature_main/src/home_page/service/home_page_provider.dart';

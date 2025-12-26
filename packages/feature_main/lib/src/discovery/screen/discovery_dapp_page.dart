@@ -16,6 +16,7 @@ import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_ui/widget/base_page.dart';
 import 'package:shared_ui/widget/sticky_tabbar_delegate.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 /*
  * 发现 DApp
@@ -58,7 +59,7 @@ class _DiscoveryDAppPageState extends ConsumerState<DiscoveryDAppPage>
           return [
             SliverToBoxAdapter(
               child: GestureDetector(
-                onTap: () => Get.to(SearchPage(), transition: Transition.rightToLeft, popGesture: true),
+                onTap: () => WalletNav.to(SearchPage(), duration: const Duration(milliseconds: 300)),
                 child: Container(
                   margin: EdgeInsets.only(top: 12),
                   width: double.infinity,

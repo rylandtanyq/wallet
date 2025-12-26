@@ -19,6 +19,8 @@ import 'package:feature_wallet/src/setting_wallet/fragments/setting_wallet_heade
 import 'package:feature_wallet/src/setting_wallet/common/setting_wallet_list_item.dart';
 import 'package:feature_wallet/src/setting_wallet/screen/view_private_key_screen.dart';
 import 'package:feature_wallet/hive/Wallet.dart';
+import 'package:shared_utils/wallet_nav.dart';
+import 'package:shared_utils/wallet_snack.dart';
 import 'fragments/setting_wallet_update_wallet_dialog_fragments.dart';
 
 /*
@@ -35,17 +37,20 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
   final ScrollController _scrollController = ScrollController();
   final ImagePicker picker = ImagePicker();
   bool _showExpandedTitle = false;
+  bool _inited = false;
 
   final GlobalKey _headerKey = GlobalKey();
   double _expandedHeight = 500.0.h;
   late Wallet _wallet;
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_inited) return;
+    _inited = true;
+
     _scrollController.addListener(_handleScroll);
-    _wallet = Get.arguments;
+    _wallet = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
   }
 
   void _handleScroll() {
@@ -130,13 +135,12 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
                       subTitle: "",
                       isVerify: false,
                       onTap: () {
-                        Get.to(
-                          () => ViewPrivateKeyScreen(
+                        WalletNav.to(
+                          ViewPrivateKeyScreen(
                             title: t.wallet.view_private_key,
                             privateKey: _wallet.privateKey,
                             hideContent: t.wallet.hidePrivateKey,
                           ),
-                          transition: Transition.rightToLeft,
                           duration: const Duration(milliseconds: 300),
                         );
                       },
@@ -148,13 +152,12 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
                         subTitle: "",
                         isVerify: false,
                         onTap: () {
-                          Get.to(
-                            () => ViewPrivateKeyScreen(
+                          WalletNav.to(
+                            ViewPrivateKeyScreen(
                               title: t.wallet.viewMnemonic,
                               privateKey: _wallet.mnemonic!.join(' '),
                               hideContent: t.wallet.hide_mnemonic,
                             ),
-                            transition: Transition.rightToLeft,
                             duration: const Duration(milliseconds: 300),
                           );
                         },
@@ -276,7 +279,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
 
       if (idx == -1) {
         dismissLoading();
-        Get.snackbar('提示', '未找到要删除的钱包');
+        WalletSnack.show('提示', '未找到要删除的钱包');
         return;
       }
 
@@ -317,7 +320,7 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
         dismissLoading();
         OneShotFlag.value.value = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Get.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4});
+          WalletNav.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4});
         });
       } else {
         await HiveStorage().putList<Wallet>('wallets_data', <Wallet>[], boxName: boxWallet);
@@ -326,12 +329,12 @@ class _SettingWalletPageState extends State<SettingWalletPage> with BasePage<Set
 
         dismissLoading();
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Get.offAll(() => AddWalletPage());
+          WalletNav.offAll(AddWalletPage());
         });
       }
     } catch (e) {
       dismissLoading();
-      Get.snackbar('错误', '删除失败：$e');
+      WalletSnack.show('错误', '删除失败：$e');
     }
   }
 

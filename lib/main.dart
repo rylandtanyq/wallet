@@ -21,25 +21,50 @@ import 'package:feature_main/i18n/strings.g.dart' as main_i18n;
 import 'package:feature_wallet/i18n/strings.g.dart' as wallet_i18n;
 import 'package:feature_browser/i18n/strings.g.dart' as browser_i18n;
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+import 'dart:async';
+import 'dart:ui';
 
-  core_i18n.LocaleSettings.useDeviceLocale();
+import 'package:shared_utils/wallet_nav.dart';
+import 'package:shared_utils/wallet_snack.dart';
 
-  final hiveStorage = HiveStorage();
-  await hiveStorage.init(adapters: [WalletAdapter(), TransactionRecordAdapter(), TokensAdapter()]);
-  await HiveStorage().ensureOpen(boxWallet);
-  await HiveStorage().ensureOpen(boxTokens);
-  await HiveStorage().ensureOpen(boxTx, lazy: true);
-  final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet);
-  final bool hasWallets = wallets != null && wallets.isNotEmpty;
-  await ImageCacheRepo.I.init();
-  await AppConfig.load();
+void main() {
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(
-    ProviderScope(
-      child: core_i18n.TranslationProvider(child: MyApp(hasWallets: hasWallets)),
-    ),
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        debugPrint('FlutterError: ${details.exception}\n${details.stack}');
+      };
+
+      PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+        debugPrint('Uncaught: $error\n$stack');
+        return true;
+      };
+
+      core_i18n.LocaleSettings.useDeviceLocale();
+
+      final hiveStorage = HiveStorage();
+      await hiveStorage.init(adapters: [WalletAdapter(), TransactionRecordAdapter(), TokensAdapter()]);
+      await HiveStorage().ensureOpen(boxWallet);
+      await HiveStorage().ensureOpen(boxTokens);
+      await HiveStorage().ensureOpen(boxTx, lazy: true);
+
+      final wallets = await HiveStorage().getList<Wallet>('wallets_data', boxName: boxWallet);
+      final bool hasWallets = wallets != null && wallets.isNotEmpty;
+
+      await ImageCacheRepo.I.init();
+      await AppConfig.load();
+
+      runApp(
+        ProviderScope(
+          child: core_i18n.TranslationProvider(child: MyApp(hasWallets: hasWallets)),
+        ),
+      );
+    },
+    (Object error, StackTrace stack) {
+      debugPrint('ZoneError: $error\n$stack');
+    },
   );
 }
 
@@ -65,6 +90,8 @@ class MyApp extends ConsumerWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return GetMaterialApp(
+          navigatorKey: WalletNav.key,
+          scaffoldMessengerKey: WalletSnack.key,
           locale: locale,
           supportedLocales: core_i18n.AppLocaleUtils.supportedLocales,
           localizationsDelegates: GlobalMaterialLocalizations.delegates,

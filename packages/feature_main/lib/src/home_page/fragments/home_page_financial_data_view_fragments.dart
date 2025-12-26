@@ -39,7 +39,7 @@ class HomePageFinancialDataViewFragments extends StatelessWidget {
         //         side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.0),
         //       ),
         //       onPressed: () {
-        //         Get.to(() => const AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+        //         WalletNav.to(() => const AddingTokens(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
         //       },
         //       child: Text(
         //         t.home.view_all,

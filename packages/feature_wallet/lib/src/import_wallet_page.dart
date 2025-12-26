@@ -13,6 +13,7 @@ import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/widget/custom_text_field.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:shared_utils/crypto_input_validator.dart';
+import 'package:shared_utils/wallet_nav.dart';
 import '../core/AdvancedMultiChainWallet.dart';
 
 /*
@@ -171,7 +172,7 @@ class _ImportWalletPageState extends State<ImportWalletPage> with BasePage<Impor
 
       if (success) {
         OneShotFlag.value.value = true;
-        Get.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4, 'refresh': true});
+        WalletNav.offAllNamed(AppRoutes.main, arguments: {'initialPageIndex': 4, 'refresh': true});
       }
     }
   }

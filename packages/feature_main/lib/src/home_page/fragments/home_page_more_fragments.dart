@@ -6,6 +6,7 @@ import 'package:feature_main/i18n/strings.g.dart';
 import 'package:feature_wallet/src/select_transfer_coin_type_page.dart';
 import 'package:feature_wallet/src/selected_payee_page.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class HomePageMoreFragments extends StatelessWidget {
   const HomePageMoreFragments({super.key});
@@ -32,17 +33,15 @@ class HomePageMoreFragments extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             if (index == 0) {
-              Get.to(SelectTransferCoinTypePage(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+              WalletNav.to(SelectTransferCoinTypePage(), duration: const Duration(milliseconds: 300));
             } else if (index == 2) {
-              Get.to(
+              WalletNav.to(
                 SelectedPayeePage(), // 要跳转的页面
-                transition: Transition.rightToLeft, // 设置从右到左的动画
                 duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
               );
             } else if (index == 4) {
-              Get.to(
+              WalletNav.to(
                 MoreServices(), // 要跳转的页面
-                transition: Transition.rightToLeft, // 设置从右到左的动画
                 duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
               );
             }

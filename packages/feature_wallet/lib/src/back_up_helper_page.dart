@@ -6,6 +6,7 @@ import 'package:shared_ui/widget/base_page.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
 import 'back_up_helper_one_page.dart';
 
 /*
@@ -199,7 +200,7 @@ class _BackUpHelperPageState extends State<BackUpHelperPage> with BasePage<BackU
     debugPrint('currentNetwork: ${walletData['currentNetwork']}');
     dismissLoading();
     // 跳转备份助记词页面, 并将创建的Mnemonic(助记词)、privateKey(私钥)、currentAddress(当前地址)、currentNetwork(当前网络)转递到下一个页面
-    Get.off(BackUpHelperOnePage(), arguments: walletData);
+    WalletNav.off(BackUpHelperOnePage(), arguments: walletData);
   }
 
   // 创建钱包, 并生成助记词

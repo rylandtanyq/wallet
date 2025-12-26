@@ -6,10 +6,8 @@ import 'package:feature_main/src/usage_guidelines.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-// import 'package:shared_setting/i18n/strings.g.dart';
 import 'package:shared_setting/state/app_notifier.dart';
 import 'package:shared_setting/state/app_provider.dart';
-import 'package:shared_utils/constants/app_colors.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
@@ -17,6 +15,7 @@ import 'package:feature_main/i18n/strings.g.dart';
 import 'package:shared_setting/i18n/strings.g.dart' as gt;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class Mysettings extends ConsumerStatefulWidget {
   const Mysettings({super.key});
@@ -268,28 +267,24 @@ class _MysettingsState extends ConsumerState<Mysettings> {
   /// 奖励账户
   void _rewardsAccount() {
     HapticFeedback.heavyImpact();
-    Get.to(Rewardsaccount(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+    WalletNav.to(Rewardsaccount(), duration: const Duration(milliseconds: 300));
   }
 
   /// 更多设置
   void _moreSetting() {
     HapticFeedback.heavyImpact();
-    Get.to(Moresetting(), transition: Transition.rightToLeft, duration: const Duration(milliseconds: 300));
+    WalletNav.to(Moresetting(), duration: const Duration(milliseconds: 300));
   }
 
   /// 使用指南
   void _usageGuidelines() {
     HapticFeedback.heavyImpact();
-    Get.to(Usageguidelines(), transition: Transition.rightToLeft, duration: Duration(milliseconds: 300));
+    WalletNav.to(Usageguidelines(), duration: Duration(milliseconds: 300));
   }
 
   void _aboutUs(Version version) {
     HapticFeedback.heavyImpact();
-    Get.to(
-      AboutUs(version: version),
-      transition: Transition.rightToLeft,
-      duration: Duration(milliseconds: 300),
-    );
+    WalletNav.to(AboutUs(version: version), duration: Duration(milliseconds: 300));
   }
 
   /// 多语言 / 货币单位通用弹窗

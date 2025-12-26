@@ -1,3 +1,5 @@
+import 'package:feature_im/feature_im.dart';
+import 'package:feature_im/im_host_bridge.dart';
 import 'package:feature_main/src/linked_wallet_Dapp.dart';
 import 'package:feature_main/src/my_settings.dart';
 import 'package:feature_main/src/notification_page.dart';
@@ -6,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_ui/widget/wallet_icon.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 class HomePageAppbarFragments extends StatelessWidget {
   const HomePageAppbarFragments({super.key});
@@ -17,7 +21,7 @@ class HomePageAppbarFragments extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Get.to(Mysettings(), transition: Transition.leftToRight, popGesture: true),
+            onTap: () => WalletNav.to(Mysettings(), duration: const Duration(milliseconds: 300)),
             child: ColorFiltered(
               colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
               child: Image.asset('assets/images/ic_home_function.png', width: 16.w, height: 16.w),
@@ -26,7 +30,7 @@ class HomePageAppbarFragments extends StatelessWidget {
           SizedBox(width: 22.w),
           Expanded(
             child: GestureDetector(
-              onTap: () => Get.to(SearchPage(), transition: Transition.rightToLeft, popGesture: true),
+              onTap: () => WalletNav.to(SearchPage(), duration: const Duration(milliseconds: 300)),
               child: Container(
                 decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(19.r)),
                 padding: EdgeInsets.all(10),
@@ -44,11 +48,27 @@ class HomePageAppbarFragments extends StatelessWidget {
           ),
           SizedBox(width: 22.w),
           GestureDetector(
+            onTap: () async {
+              await Config.ensureInitForModule();
+
+              IMHostBridge.exitToWallet = () {
+                WalletNav.back();
+              };
+
+              try {
+                await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const ChatApp()));
+              } finally {
+                IMHostBridge.exitToWallet = null;
+              }
+            },
+            child: Icon(WalletIcon.chat, color: Theme.of(context).colorScheme.onBackground),
+          ),
+          SizedBox(width: 22.w),
+          GestureDetector(
             onTap: () {
-              Get.to(
+              WalletNav.to(
                 Linkedwalletdapp(), // 要跳转的页面
-                transition: Transition.rightToLeft, // 设置从右到左的动画
-                duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
+                duration: const Duration(milliseconds: 300),
               );
             },
             child: ColorFiltered(
@@ -64,9 +84,8 @@ class HomePageAppbarFragments extends StatelessWidget {
           SizedBox(width: 22.w),
           GestureDetector(
             onTap: () {
-              Get.to(
+              WalletNav.to(
                 NotificationPage(), // 要跳转的页面
-                transition: Transition.rightToLeft, // 设置从右到左的动画
                 duration: const Duration(milliseconds: 300), // 可选：设置动画持续时间
               );
             },

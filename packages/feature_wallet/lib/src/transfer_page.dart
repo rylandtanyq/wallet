@@ -19,6 +19,7 @@ import 'package:shared_utils/fetch_token_balances.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/widget/custom_text_field.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_utils/wallet_nav.dart';
 
 /*
  * 转账
@@ -147,7 +148,7 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
                             Expanded(child: Text(t.transfer_receive_payment.recipientAddress)),
                             GestureDetector(
                               onTap: () {
-                                Get.to(Addressbookandmywallet(), transition: Transition.rightToLeft);
+                                WalletNav.to(Addressbookandmywallet());
                               },
                               child: Icon(Icons.assignment_rounded, color: Theme.of(context).colorScheme.onBackground),
                             ),
@@ -157,7 +158,7 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
                             ),
                             GestureDetector(
                               onTap: () async {
-                                final scanReslut = await Get.to(Camerascan(), transition: Transition.rightToLeft);
+                                final scanReslut = await WalletNav.to(Camerascan());
                                 if (scanReslut != null) {
                                   setState(() {
                                     _diyWalletName = scanReslut;

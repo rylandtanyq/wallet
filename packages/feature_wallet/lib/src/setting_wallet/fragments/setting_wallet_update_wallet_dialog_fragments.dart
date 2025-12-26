@@ -7,6 +7,7 @@ import 'package:shared_utils/hive_boxes.dart';
 import 'package:feature_wallet/hive/Wallet.dart';
 import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:shared_ui/widget/custom_text_field.dart';
+import 'package:shared_utils/wallet_snack.dart';
 
 class SettingWalletUpdateWalletDialogFragments extends StatefulWidget {
   final Wallet wallet;
@@ -217,7 +218,7 @@ class _UpdateWalletDialogState extends State<SettingWalletUpdateWalletDialogFrag
   Future<void> _comfirmChangeWalletName() async {
     final newName = _textController.text.trim();
     if (newName.isEmpty) {
-      Get.snackbar('提示', '钱包名称不能为空');
+      WalletSnack.show('提示', '钱包名称不能为空');
       return;
     }
 
@@ -232,7 +233,7 @@ class _UpdateWalletDialogState extends State<SettingWalletUpdateWalletDialogFrag
       idx = wallets.indexWhere((e) => e.address == widget.wallet.address);
     }
     if (idx == -1) {
-      Get.snackbar('提示', '未在本地列表中找到当前钱包');
+      WalletSnack.show('提示', '未在本地列表中找到当前钱包');
       Navigator.of(context).pop(false);
       return;
     }

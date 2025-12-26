@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'Wallet.g.dart';
 
 @JsonSerializable()
-@HiveType(typeId: 1)
+@HiveType(typeId: 101)
 class Wallet extends HiveObject {
   @HiveField(0)
   late String name; // 钱包名称

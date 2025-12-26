@@ -13,7 +13,7 @@ import 'package:http/http.dart';
 import 'package:solana/solana.dart' as solana;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
-import 'package:walletconnect_dart/walletconnect_dart.dart';
+// import 'package:walletconnect_dart/walletconnect_dart.dart';
 import 'package:web3dart/json_rpc.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -648,23 +648,23 @@ class AdvancedMultiChainWallet {
   }
 
   // 连接WalletConnect
-  Future<WalletConnect> connectWalletConnect() async {
-    final connector = WalletConnect(
-      bridge: 'https://bridge.walletconnect.org',
-      clientMeta: const PeerMeta(
-        name: 'MultiChainWallet',
-        description: 'A multi-chain wallet with DApp browser',
-        url: 'https://mywalletapp.com',
-        icons: ['https://mywalletapp.com/icon.png'],
-      ),
-    );
+  // Future<WalletConnect> connectWalletConnect() async {
+  //   final connector = WalletConnect(
+  //     bridge: 'https://bridge.walletconnect.org',
+  //     clientMeta: const PeerMeta(
+  //       name: 'MultiChainWallet',
+  //       description: 'A multi-chain wallet with DApp browser',
+  //       url: 'https://mywalletapp.com',
+  //       icons: ['https://mywalletapp.com/icon.png'],
+  //     ),
+  //   );
 
-    if (!connector.connected) {
-      await connector.createSession();
-    }
+  //   if (!connector.connected) {
+  //     await connector.createSession();
+  //   }
 
-    return connector;
-  }
+  //   return connector;
+  // }
 
   // 安全增强：启用生物识别认证
   Future<void> enableBiometricAuth() async {

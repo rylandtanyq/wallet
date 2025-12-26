@@ -12,6 +12,8 @@ import 'package:feature_wallet/i18n/strings.g.dart';
 import 'package:feature_wallet/src/wallet_page/index.dart';
 import 'package:shared_ui/widget/custom_appbar.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
+import 'package:shared_utils/wallet_nav.dart';
+import 'package:shared_utils/wallet_snack.dart';
 
 import 'back_up_helper_verify_page.dart';
 
@@ -34,6 +36,8 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
 
   bool _showBlur = true; // 控制模糊层显示
 
+  bool _inited = false;
+
   // 模拟数据, 接受上一个页面传递的助记词、私钥、钱包地址、当前的网络(例如Eth)
   late List<String> mnemonics;
 
@@ -42,9 +46,27 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
   @override
   void initState() {
     super.initState();
-    final newWallet = Get.arguments;
-    String mnemonic = newWallet['mnemonic'];
-    mnemonics = mnemonic.split(' ');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_inited) return;
+    _inited = true;
+
+    final argsRaw = ModalRoute.of(context)?.settings.arguments ?? Get.arguments;
+    final args = _toMap(argsRaw);
+
+    final mnemonic = (args?['mnemonic'] ?? '') as String;
+    mnemonics = mnemonic.split(' ').where((e) => e.trim().isNotEmpty).toList();
+
+    setState(() {});
+  }
+
+  Map<String, dynamic>? _toMap(dynamic a) {
+    if (a is Map<String, dynamic>) return a;
+    if (a is Map) return Map<String, dynamic>.from(a);
+    return null;
   }
 
   Future<void> oneClickBackup() async {
@@ -52,7 +74,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
       final addrRaw = widget.backupAddress ?? '';
       final addr = addrRaw.trim();
       if (addr.isEmpty) {
-        Get.snackbar(t.wallet.tip, t.wallet.no_wallet_address_to_backup);
+        WalletSnack.show(t.wallet.tip, t.wallet.no_wallet_address_to_backup);
         return;
       }
 
@@ -66,7 +88,7 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
       }
 
       if (idx == -1) {
-        Get.snackbar(t.wallet.tip, t.wallet.wallet_address_not_found_local);
+        WalletSnack.show(t.wallet.tip, t.wallet.wallet_address_not_found_local);
         return;
       }
 
@@ -86,20 +108,20 @@ class _BackUpHelperOnePageState extends State<BackUpHelperOnePage> with BasePage
         }
       }
 
-      Get.closeAllSnackbars();
-      Get.snackbar(t.wallet.success, t.wallet.marked_as_backed_up);
+      WalletSnack.closeAll();
+      WalletSnack.show(t.wallet.success, t.wallet.marked_as_backed_up);
 
       Future.delayed(const Duration(milliseconds: 300), () {
-        if (Get.key.currentState?.canPop() ?? false) {
-          Get.back(result: true);
+        if (WalletNav.key.currentState?.canPop() ?? false) {
+          WalletNav.back(true);
         } else {
           // 如果不是 Get.to 进来的，没有上一页可返回
-          Get.offAll(() => WalletPage());
+          WalletNav.offAll(WalletPage());
         }
       });
     } else {
       // 去助记词验证页
-      final _ = await Get.to(() => BackUpHelperVerifyPage(), arguments: Get.arguments);
+      final _ = await WalletNav.to(BackUpHelperVerifyPage(), arguments: ModalRoute.of(context)?.settings.arguments ?? Get.arguments);
     }
   }
 

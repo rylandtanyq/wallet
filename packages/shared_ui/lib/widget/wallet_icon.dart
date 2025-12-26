@@ -7,4 +7,5 @@ class WalletIcon {
   static const IconData discover = IconData(0xe608, fontFamily: "walletIcon", matchTextDirection: true);
   static const IconData transaction = IconData(0xe627, fontFamily: "walletIcon", matchTextDirection: true);
   static const IconData switch_up_and_down = IconData(0xe8c1, fontFamily: "walletIcon", matchTextDirection: true);
+  static const IconData chat = IconData(0xe612, fontFamily: "walletIcon", matchTextDirection: true);
 }
