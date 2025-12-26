@@ -1,8 +1,5 @@
 import 'dart:async';
-
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:feature_im/feature_im.dart';
-import 'package:feature_im/im_host_bridge.dart';
 import 'package:feature_main/src/home_page/models/token_price_model.dart';
 import 'package:feature_main/src/home_page/service/home_page_provider.dart';
 import 'package:feature_main/src/home_page/utils/k_build_coins.dart';
@@ -14,7 +11,6 @@ import 'package:shared_setting/state/app_provider.dart';
 import 'package:shared_ui/widget/base_page.dart';
 import 'package:shared_utils/hive_storage.dart';
 import 'package:shared_utils/hive_boxes.dart';
-import 'package:shared_utils/wallet_nav.dart';
 import 'package:feature_wallet/hive/tokens.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_appbar_fragments.dart';
 import 'package:feature_main/src/home_page/fragments/home_page_full_chain_ranking_fragments.dart';
