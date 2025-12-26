@@ -21,8 +21,7 @@ final List<Tokens> kBuiltInSolanaTokens = [
     tokenAddress: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
   ),
   Tokens(
-    image:
-        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48/logo.png',
+    image: 'https://tether.to/images/logoCircle.png',
     title: 'USDC',
     subtitle: 'USDC',
     price: '0.00',

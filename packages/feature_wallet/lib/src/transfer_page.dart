@@ -54,10 +54,19 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
     _initWalletData();
   }
 
+  @override
+  void dispose() {
+    _textControllerDiyWalletName.dispose();
+    _textControllertransferAmount.dispose();
+    _textControllerGasFees.dispose();
+    super.dispose();
+  }
+
   Future<void> _initWalletData() async {
     await _getCurrentSelectedWalletInformation();
     final tokenBalance = await fetchTokenBalance(ownerAddress: _currentWalletAdderss!, mintAddress: widget.tokenAddress);
-    if (mounted) setState(() => balance = double.parse(tokenBalance));
+    final b = double.tryParse(tokenBalance) ?? 0.0;
+    if (mounted) setState(() => balance = b);
   }
 
   // 获取当前选中的钱包信息
@@ -65,7 +74,9 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
     final wallet = await HiveStorage().getObject<Wallet>('currentSelectWallet', boxName: boxWallet);
     final mnemonic = await HiveStorage().getValue<String>('currentSelectWallet_mnemonic');
 
-    _currentWalletMnemonic = wallet?.mnemonic?.join(" ") ?? mnemonic;
+    final joined = (wallet?.mnemonic ?? const <String>[]).join(' ').trim();
+
+    _currentWalletMnemonic = joined.isNotEmpty ? joined : null;
     _currentWalletAdderss = wallet?.address;
     _currentWalletprivateKey = wallet?.privateKey;
 
@@ -274,7 +285,7 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
       _showSnack(t.transfer_receive_payment.enterWalletAddress);
       return;
     }
-    if (!isValidSolanaAddress("$_diyWalletName")) {
+    if (!isValidSolanaAddress(_diyWalletName!)) {
       _showSnack(t.transfer_receive_payment.invalidWalletAddress);
       return;
     }
@@ -320,16 +331,18 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
       }
 
       if (currency == 'SOL') {
-        tx = await sendSol(receiverAddress: "$_diyWalletName", mnemonic: '$_currentWalletMnemonic', amount: double.parse("$_transferAmount"));
+        tx = await sendSol(mnemonic: _currentWalletMnemonic, privateKey: _currentWalletprivateKey, receiverAddress: _diyWalletName!, amount: amount);
         await saveTransaction(tx, _transferAmount!);
         debugPrint('转账SOL结果: $tx');
       } else {
         tx = await sendSPLToken(
-          mnemonic: "$_currentWalletMnemonic",
-          receiverAddress: "$_diyWalletName",
+          mnemonic: _currentWalletMnemonic, // String?
+          privateKey: _currentWalletprivateKey, // String?
+          receiverAddress: _diyWalletName!,
           tokenMintAddress: widget.tokenAddress,
-          amount: double.parse("$_transferAmount"),
+          amountText: _transferAmount!,
         );
+
         await saveTransaction(tx, _transferAmount!);
         debugPrint('派生币转账返回结果: $tx');
       }
@@ -342,11 +355,17 @@ class _TransferPageState extends ConsumerState<TransferPage> with BasePage<Trans
         _textControllertransferAmount.text = "";
       });
       _showSnack(t.transfer_receive_payment.transferSubmitted);
-    } catch (e) {
-      debugPrint('转账错误: $e');
+    } catch (e, st) {
+      debugPrint('transfer error: $e');
+      debugPrint('$st');
+
+      final msg = e.toString();
       if (mounted) {
-        _showSnack(t.transfer_receive_payment.unknown_error_please_try_again_later);
+        _showSnack(msg.length > 120 ? msg.substring(0, 120) : msg);
       }
+      // if (mounted) {
+      //   _showSnack(t.transfer_receive_payment.unknown_error_please_try_again_later);
+      // }
     } finally {
       _hideLoading();
       _isSubmitting = false;
