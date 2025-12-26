@@ -1,46 +1,179 @@
 import 'dart:math';
-import 'package:flutter/rendering.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_utils/app_config.dart';
 import 'package:solana/dto.dart';
 import 'package:solana/solana.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:solana/base58.dart';
 
 /// 通过助记词生成 Keypair
 Future<Ed25519HDKeyPair> loadWalletFromMnemonic(String mnemonic) async {
-  final seed = bip39.mnemonicToSeed(mnemonic);
+  // final seed = bip39.mnemonicToSeed(mnemonic);
   return await Ed25519HDKeyPair.fromMnemonic(mnemonic);
+}
+
+String _norm(String? s) {
+  final t = (s ?? '').trim();
+  if (t.isEmpty) return '';
+  if (t.toLowerCase() == 'null') return '';
+  return t;
+}
+
+List<int> _hexToBytes(String hex) {
+  var s = hex.trim();
+  if (s.startsWith('0x') || s.startsWith('0X')) s = s.substring(2);
+  if (s.length.isOdd) {
+    throw const FormatException('hex length must be even');
+  }
+  final out = <int>[];
+  for (var i = 0; i < s.length; i += 2) {
+    out.add(int.parse(s.substring(i, i + 2), radix: 16));
+  }
+  return out;
+}
+
+List<int> _parsePrivateKeyBytes(String privateKey) {
+  final s = _norm(privateKey);
+  if (s.isEmpty) throw const FormatException('privateKey empty');
+
+  // JSON array: [1,2,3,...]
+  if (s.startsWith('[') && s.endsWith(']')) {
+    final decoded = jsonDecode(s);
+    if (decoded is! List) throw const FormatException('invalid json array');
+    final bytes = decoded.map((e) => (e as num).toInt()).toList(growable: false);
+    return bytes;
+  }
+
+  // Comma separated ints: 1,2,3
+  if (RegExp(r'^\s*\d+(\s*,\s*\d+)*\s*$').hasMatch(s)) {
+    return s.split(',').map((e) => int.parse(e.trim())).toList(growable: false);
+  }
+
+  // hex
+  if (RegExp(r'^(0x)?[0-9a-fA-F]+$').hasMatch(s)) {
+    return _hexToBytes(s);
+  }
+
+  // base58 solana sdk 常见
+  return base58decode(s);
+}
+
+// solana 的私钥常见有两种长度：
+/// - 32 bytes seed
+/// - 64 bytes secretKey(32 seed + 32 pub)
+List<int> _normalizeSolanaPrivateKey(List<int> bytes) {
+  if (bytes.length == 32) return bytes;
+  if (bytes.length == 64) return bytes.sublist(0, 32);
+  throw FormatException('unsupported privateKey length=${bytes.length} (need 32 or 64 bytes)');
+}
+
+/// 统一构建签名
+Future<Ed25519HDKeyPair> buildSolanaSigner({String? mnemonic, String? privateKey, String? expectedAddress}) async {
+  final m = _norm(mnemonic);
+  if (m.isNotEmpty) {
+    final kp = await Ed25519HDKeyPair.fromMnemonic(m, account: 0, change: 0);
+    _assertSignerAddress(kp, expectedAddress);
+    return kp;
+  }
+
+  final pk = _norm(privateKey);
+  if (pk.isEmpty) {
+    throw Exception('missing mnemonic and privateKey');
+  }
+
+  final bytes = _normalizeSolanaPrivateKey(_parsePrivateKeyBytes(pk));
+  final kp = await Ed25519HDKeyPair.fromPrivateKeyBytes(privateKey: bytes);
+  _assertSignerAddress(kp, expectedAddress);
+  return kp;
+}
+
+void _assertSignerAddress(Ed25519HDKeyPair kp, String? expected) {
+  final exp = (expected ?? '').trim();
+  if (exp.isEmpty) return;
+
+  // solana 包里有 kp.address 这个字段
+  if (kp.address != exp) {
+    throw Exception('signer mismatch: expected=$exp, got=${kp.address}');
+  }
+}
+
+/// 通过 RPC getTokenSupply 获取 mint 的 decimals
+Future<int> fetchSplTokenDecimals({required String rpcUrl, required String mintAddress}) async {
+  final res = await http.post(
+    Uri.parse(rpcUrl),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "getTokenSupply",
+      "params": [mintAddress],
+    }),
+  );
+
+  final data = jsonDecode(res.body);
+  final decimals = data['result']?['value']?['decimals'];
+  if (decimals is int) return decimals;
+
+  throw Exception('fetchSplTokenDecimals failed: ${res.body}');
+}
+
+/// 输入的 UI金额字符串 精确转成最小单位整数 base units
+/// example：decimals=6, 1.23 --> 1230000
+BigInt parseUiAmountToBaseUnits(String input, int decimals) {
+  final s = input.trim();
+
+  // 允许: 123  或 123.45
+  if (!RegExp(r'^\d+(\.\d+)?$').hasMatch(s)) {
+    throw const FormatException('invalid amount');
+  }
+
+  final parts = s.split('.');
+  final whole = BigInt.parse(parts[0]);
+
+  var frac = parts.length == 2 ? parts[1] : '';
+  if (frac.length > decimals) {
+    throw FormatException('too many decimals (max $decimals)');
+  }
+
+  frac = frac.padRight(decimals, '0');
+  final fracPart = frac.isEmpty ? BigInt.zero : BigInt.parse(frac);
+
+  return whole * BigInt.from(10).pow(decimals) + fracPart;
+}
+
+/// 生成最小单位提示：decimals=6 -> "0.000001"
+String minUnitText(int decimals) {
+  if (decimals <= 0) return "1";
+  return "0.${"0" * (decimals - 1)}1";
 }
 
 /// 发送 SOL
 Future<String> sendSol({
-  required String mnemonic,
+  String? mnemonic,
+  String? privateKey,
   required String receiverAddress,
   required double amount, // 单位 SOL
   String? rpcUrl,
 }) async {
   final effectiveRpcUrl = rpcUrl ?? AppConfig.solanaRpcUrl;
-  // 1. SolanaClient，需要 Uri 类
+
   final client = SolanaClient(rpcUrl: Uri.parse(effectiveRpcUrl), websocketUrl: Uri.parse(effectiveRpcUrl.replaceFirst('http', 'ws')));
 
-  // 2. 生成发送方 Keypair，指定派生路径
-  final sender = await Ed25519HDKeyPair.fromMnemonic(
-    mnemonic,
-    account: 0, // m/44'/501'/0'
-    change: 0, // m/44'/501'/0'/0
-  );
+  final sender = await buildSolanaSigner(mnemonic: mnemonic, privateKey: privateKey);
 
-  debugPrint('发送方地址: ${sender.publicKey.toBase58()}'); // 确认和钱包地址一致
+  final receiver = Ed25519HDPublicKey.fromBase58(receiverAddress);
 
-  // 3. 构造转账指令
-  final instruction = SystemInstruction.transfer(
-    fundingAccount: sender.publicKey,
-    recipientAccount: Ed25519HDPublicKey.fromBase58(receiverAddress),
-    lamports: (amount * lamportsPerSol).toInt(),
-  );
+  const lamportsPerSol = 1000000000;
 
-  // 4. 发送交易并确认
+  final lamports = (amount * lamportsPerSol).round();
+  if (lamports <= 0) {
+    throw Exception('amount too small, min is 0.000000001 SOL');
+  }
+
+  final instruction = SystemInstruction.transfer(fundingAccount: sender.publicKey, recipientAccount: receiver, lamports: lamports);
+
   final signature = await client.sendAndConfirmTransaction(
     message: Message(instructions: [instruction]),
     signers: [sender],
@@ -52,45 +185,45 @@ Future<String> sendSol({
 
 /// 发送派生币
 Future<String> sendSPLToken({
-  required String mnemonic,
+  String? mnemonic,
+  String? privateKey,
   required String receiverAddress,
   required String tokenMintAddress,
-  required double amount,
-  // 测试网 https://api.testnet.solana.com
-  // 主网 https://api.mainnet-beta.solana.com
-  // 开发网 https://api.devnet.solana.com
+  required String amountText,
   String? rpcUrl,
 }) async {
   final effectiveRpcUrl = rpcUrl ?? AppConfig.solanaRpcUrl;
+
   final client = SolanaClient(rpcUrl: Uri.parse(effectiveRpcUrl), websocketUrl: Uri.parse(effectiveRpcUrl.replaceFirst('http', 'ws')));
 
-  final sender = await Ed25519HDKeyPair.fromMnemonic(
-    mnemonic,
-    account: 0, // m/44'/501'/0'
-    change: 0, // m/44'/501'/0'/0
-  );
+  final sender = await buildSolanaSigner(mnemonic: mnemonic, privateKey: privateKey);
+
   final mint = Ed25519HDPublicKey.fromBase58(tokenMintAddress);
   final receiverPubKey = Ed25519HDPublicKey.fromBase58(receiverAddress);
 
-  debugPrint('发送方地址: ${sender.publicKey.toBase58()}'); // 确认和钱包地址一致
-
-  // 获取或创建收款方的关联Token账户（ATA）
-  final receiverAta = await client.getAssociatedTokenAccount(owner: receiverPubKey, mint: mint);
-
-  // 如果收款方没有关联Token账户，则创建一个
-  if (receiverAta == null) {
-    await client.createAssociatedTokenAccount(owner: receiverPubKey, mint: mint, funder: sender);
+  // 按 mint decimals 换算 base units
+  final decimals = await fetchSplTokenDecimals(rpcUrl: effectiveRpcUrl, mintAddress: tokenMintAddress);
+  final baseUnits = parseUiAmountToBaseUnits(amountText, decimals);
+  if (baseUnits <= BigInt.zero) {
+    throw Exception('amount too small, min is ${minUnitText(decimals)}');
   }
 
-  // 转账 SPL Token
-  final signature = await client.transferSplToken(
-    mint: mint,
-    destination: receiverPubKey,
-    amount: (amount * 1e9).toInt(), // 转账金额，单位为 lamports
-    owner: sender,
-  );
+  final maxI64 = BigInt.from(9223372036854775807);
+  if (baseUnits > maxI64) {
+    throw Exception('amount too large');
+  }
 
-  return signature;
+  final receiverAta = await client.getAssociatedTokenAccount(owner: receiverPubKey, mint: mint);
+  if (receiverAta == null) {
+    try {
+      await client.createAssociatedTokenAccount(owner: receiverPubKey, mint: mint, funder: sender);
+    } catch (_) {
+      final check = await client.getAssociatedTokenAccount(owner: receiverPubKey, mint: mint);
+      if (check == null) rethrow;
+    }
+  }
+
+  return client.transferSplToken(mint: mint, destination: receiverPubKey, amount: baseUnits.toInt(), owner: sender);
 }
 
 // 获取SOL余额
