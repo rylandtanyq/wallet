@@ -7,6 +7,15 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_ui/theme/app_textStyle.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:shared_ui/widget/wallet_icon.dart';
+
+class MenuItem {
+  final String name;
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const MenuItem({required this.name, required this.icon, this.onTap});
+}
 
 class AboutUs extends ConsumerStatefulWidget {
   final Version version;
@@ -17,6 +26,17 @@ class AboutUs extends ConsumerStatefulWidget {
 }
 
 class _AboutUsState extends ConsumerState<AboutUs> {
+  final List<MenuItem> items = [
+    MenuItem(name: t.Mysettings.officialWebsite, icon: WalletIcon.official),
+    MenuItem(name: 'Twitter', icon: WalletIcon.twitter),
+    MenuItem(name: 'Telegram', icon: WalletIcon.telegram),
+    MenuItem(name: 'Discord', icon: WalletIcon.discord),
+    MenuItem(name: t.Mysettings.forum, icon: WalletIcon.forum),
+    MenuItem(name: 'Github', icon: WalletIcon.github),
+    MenuItem(name: 'Email', icon: WalletIcon.email),
+    MenuItem(name: t.Mysettings.rewards, icon: WalletIcon.feedback),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -103,6 +123,49 @@ class _AboutUsState extends ConsumerState<AboutUs> {
                             onTap: () {},
                           ),
                         ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 30, bottom: 20),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        t.Mysettings.officialChannels,
+                        style: AppTextStyles.labelLarge.copyWith(color: Theme.of(context).colorScheme.onBackground),
+                      ),
+                    ),
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                      color: colorScheme.surface,
+                      margin: EdgeInsets.zero,
+                      clipBehavior: Clip.antiAlias,
+                      child: GridView.count(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        crossAxisCount: 4,
+                        mainAxisSpacing: 14,
+                        crossAxisSpacing: 14,
+                        childAspectRatio: .75,
+                        padding: const EdgeInsets.all(12),
+                        children: List.generate(items.length, (i) {
+                          final item = items[i];
+                          return Column(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(.1),
+                                  ),
+                                  child: Icon(item.icon, size: 28),
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(item.name),
+                            ],
+                          );
+                        }),
                       ),
                     ),
                   ],

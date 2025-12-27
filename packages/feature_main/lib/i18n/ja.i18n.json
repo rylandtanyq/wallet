@@ -172,7 +172,11 @@
         "appUpdate": "バージョン更新",
         "rateApp": "アプリを評価する",
         "changelog": "更新履歴",
-        "termsAndPrivacy": "利用規約およびプライバシーポリシー"
+        "termsAndPrivacy": "利用規約およびプライバシーポリシー",
+        "officialChannels": "公式チャンネル",
+        "forum": "掲示板",
+        "rewards": "特典",
+        "officialWebsite": "公式"
     },
     "search": {
         "search": "検索",
