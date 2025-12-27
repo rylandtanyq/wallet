@@ -172,7 +172,11 @@
         "appUpdate": "版本更新",
         "rateApp": "应用评分",
         "changelog": "更新日志",
-        "termsAndPrivacy": "服务与隐私声明"
+        "termsAndPrivacy": "服务与隐私声明",
+        "officialChannels": "官方渠道",
+        "forum": "论坛",
+        "rewards": "回馈",
+        "officialWebsite": "官网"
     },
     "search": {
         "search": "搜索",

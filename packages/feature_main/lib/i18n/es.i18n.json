@@ -172,7 +172,11 @@
         "appUpdate": "Buscar actualizaciones",
         "rateApp": "Calificar la aplicación",
         "changelog": "Registro de cambios",
-        "termsAndPrivacy": "Términos de servicio y política de privacidad"
+        "termsAndPrivacy": "Términos de servicio y política de privacidad",
+        "officialChannels": "Canales oficiales",
+        "forum": "Foro",
+        "rewards": "Premios",
+        "officialWebsite": "Web"
     },
     "search": {
         "search": "Buscar",

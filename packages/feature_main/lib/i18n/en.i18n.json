@@ -172,7 +172,11 @@
         "appUpdate": "Check for Updates",
         "rateApp": "Rate this App",
         "changelog": "Changelog",
-        "termsAndPrivacy": "Terms of Service & Privacy Policy"
+        "termsAndPrivacy": "Terms of Service & Privacy Policy",
+        "officialChannels": "Official Channels",
+        "forum": "Forum",
+        "rewards": "Perks",
+        "officialWebsite": "Website"
     },
     "search": {
         "search": "Search",
